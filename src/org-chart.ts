@@ -1861,7 +1861,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
   }
 
   // Load Paging Nodes
-  loadPagingNodes(node: any) {
+  loadPagingNodes(node: HierarchyNode<ConcreteDatum>) {
     const attrs = this.getChartState();
     node.data._pagingButton = false;
     const current = node.parent.data._pagingStep;
