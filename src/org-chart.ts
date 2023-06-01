@@ -17,10 +17,11 @@ import {
   State,
   ConcreteDatum,
 } from './d3-org-chart.types';
-import { BaseType, ZoomBehavior } from 'd3';
+import { ZoomBehavior } from 'd3';
 import { getTextWidth } from './get-text-width';
 import { serializeString } from './serialize-string';
 import { saveAs } from './save-as';
+import { isEdge } from './is-edge';
 
 const d3 = {
   selection,
@@ -902,6 +903,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     });
     return Object.entries(grouped);
   }
+
   calculateCompactFlexDimensions(root: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
     root.eachBefore((node) => {
@@ -1026,7 +1028,9 @@ export class OrgChart<Datum extends ConcreteDatum> {
     y0: number;
     width: number;
     height: number;
-  } & Partial<Point>) {
+    x?: number;
+    y?: number;
+  }) {
     const attrs = this.getChartState();
     const calc = attrs.calc;
 
@@ -1108,7 +1112,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     // Styling links
     linkUpdate.attr('fill', 'none');
 
-    if (this.isEdge()) {
+    if (isEdge()) {
       linkUpdate.style('display', (d: any) => {
         const display = d.data._pagingButton ? 'none' : 'auto';
         return display;
@@ -1456,7 +1460,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
         if (children) return '-';
         return '+';
       })
-      .attr('y', this.isEdge() ? 10 : 0);
+      .attr('y', isEdge() ? 10 : 0);
 
     nodeUpdate.each(attrs.nodeUpdate);
 
@@ -1519,12 +1523,6 @@ export class OrgChart<Datum extends ConcreteDatum> {
         nodes: centeredNodes,
       });
     }
-  }
-
-  // This function detects whether current browser is edge
-  /** Whether the current browser is Microsoft Edge */
-  isEdge() {
-    return window.navigator.userAgent.includes('Edge');
   }
 
   // Generate horizontal diagonal - play with it here - https://observablehq.com/@bumbeishvili/curved-edges-horizontal-d3-v3-v4-v5-v6
@@ -1780,7 +1778,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     chart.attr('transform', transform);
 
     // Apply new styles to the foreign object element
-    if (this.isEdge()) {
+    if (isEdge()) {
       this.restyleForeignObjectElements();
     }
   }
