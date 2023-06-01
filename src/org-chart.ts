@@ -22,6 +22,7 @@ import { getTextWidth } from './get-text-width';
 import { serializeString } from './serialize-string';
 import { saveAs } from './save-as';
 import { isEdge } from './is-edge';
+import { toDataURL } from './to-data-url';
 
 const d3 = {
   selection,
@@ -1994,23 +1995,6 @@ export class OrgChart<Datum extends ConcreteDatum> {
     svg.transition().call(zoomBehavior.scaleBy, 0.78);
   }
 
-  toDataURL(
-    url: string | URL,
-    callback: (result: string | ArrayBuffer | null) => void
-  ) {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      var reader = new FileReader();
-      reader.onloadend = function () {
-        callback(reader.result);
-      };
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
-  }
-
   exportImg({
     full = false,
     scale = 3,
@@ -2057,7 +2041,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
 
     if (total > 0) {
       selection.each(function () {
-        that.toDataURL((this as any)!.src, (dataUrl) => {
+        toDataURL((this as any)!.src, (dataUrl) => {
           (this as any)!.src = dataUrl;
           if (++count == total) {
             exportImage();
