@@ -17,7 +17,7 @@ import {
   State,
   ConcreteDatum,
 } from './d3-org-chart.types';
-import { ZoomBehavior } from 'd3';
+import { BaseType, ZoomBehavior } from 'd3';
 
 const d3 = {
   selection,
@@ -667,7 +667,8 @@ export class OrgChart<Datum extends ConcreteDatum> {
     }
 
     //Drawing containers
-    const container = d3.select(attrs.container);
+    // 'as Element' is a TS bug workaround
+    const container = d3.select<BaseType, any>(attrs.container as Element);
     const containerRect = (
       container.node()! as HTMLElement
     ).getBoundingClientRect();
@@ -805,9 +806,10 @@ export class OrgChart<Datum extends ConcreteDatum> {
     // This function restyles foreign object elements ()
 
     d3.select(window).on(`resize.${attrs.id}`, () => {
-      const containerRect = (
-        d3.select(attrs.container).node()! as HTMLElement
-      ).getBoundingClientRect();
+      const containerRect = d3
+        .select(attrs.container as Element)
+        .node()!
+        .getBoundingClientRect();
       attrs.svg.attr('width', containerRect.width);
     });
 

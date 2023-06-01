@@ -92,7 +92,7 @@ export interface StatePublic<Datum> {
   svgHeight: number;
   scaleExtent: [number, number];
   /** CSS selector string, for example "#my-chart" */
-  container: string;
+  container: string | Element;
   /** CSS color, for example "#2C3E50" */
   defaultTextFill: string;
   /** Font name, for example "Helvetica" */
