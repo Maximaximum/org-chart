@@ -20,6 +20,7 @@ import {
 import { BaseType, ZoomBehavior } from 'd3';
 import { getTextWidth } from './get-text-width';
 import { serializeString } from './serialize-string';
+import { saveAs } from './save-as';
 
 const d3 = {
   selection,
@@ -2168,19 +2169,5 @@ export class OrgChart<Datum extends ConcreteDatum> {
     onAlreadySerialized();
 
     image.src = url; // URL.createObjectURL(blob);
-    // This function invokes save window
-    function saveAs(uri: string, filename: string) {
-      // create link
-      var link = document.createElement('a');
-      if (typeof link.download === 'string') {
-        document.body.appendChild(link); // Firefox requires the link to be in the body
-        link.download = filename;
-        link.href = uri;
-        link.click();
-        document.body.removeChild(link); // remove the link when done
-      } else {
-        location.replace(uri);
-      }
-    }
   }
 }
