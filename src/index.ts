@@ -18,6 +18,7 @@ import {
   ConcreteDatum,
 } from './d3-org-chart.types';
 import { BaseType, ZoomBehavior } from 'd3';
+import { getTextWidth } from './get-text-width';
 
 const d3 = {
   selection,
@@ -2206,24 +2207,4 @@ export class OrgChart<Datum extends ConcreteDatum> {
       return string;
     }
   }
-}
-
-/** Calculate what size text will take */
-export function getTextWidth(
-  text: string,
-  {
-    fontSize = 14,
-    fontWeight = 400,
-    defaultFont = 'Helvetice',
-    ctx,
-  }: {
-    fontSize?: number;
-    fontWeight?: number;
-    defaultFont?: string;
-    ctx?: CanvasRenderingContext2D;
-  } = {}
-) {
-  ctx!.font = `${fontWeight || ''} ${fontSize}px ${defaultFont} `;
-  const measurement = ctx!.measureText(text);
-  return measurement.width;
 }
