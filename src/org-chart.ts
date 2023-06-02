@@ -39,18 +39,18 @@ const d3 = {
 export interface OrgChart<Datum> extends StateGetSet<Datum, OrgChart<Datum>> {}
 
 export class OrgChart<Datum extends ConcreteDatum> {
+  private _attrs = { ...defaultAttrs };
+
   constructor() {
-    const attrs = { ...defaultAttrs };
+    this.getChartState = () => this._attrs as State<Datum>;
 
-    this.getChartState = () => attrs as State<Datum>;
-
-    // Dynamically set getter and setter functions for OrgChart class isntance
-    Object.keys(attrs).forEach((key) => {
+    // Dynamically set getter and setter functions for OrgChart class instance
+    Object.keys(this._attrs).forEach((key) => {
       (this as any)[key] = function (_: any) {
         if (!arguments.length) {
-          return attrs[key];
+          return this._attrs[key];
         } else {
-          attrs[key] = _;
+          this._attrs[key] = _;
         }
         return this;
       };
@@ -1212,7 +1212,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     x1: number;
     y0: number;
     y1: number;
-    params: { animate?: boolean; scale?: boolean };
+    params?: { animate?: boolean; scale?: boolean };
   }) {
     const {
       centerG,
