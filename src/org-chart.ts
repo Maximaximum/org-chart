@@ -485,11 +485,14 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Connections
     const connections = attrs.connections;
-    const allNodesMap: Record<any, any> = {};
-    attrs.allNodes.forEach((d) => (allNodesMap[attrs.nodeId(d.data)!] = d));
 
-    const visibleNodesMap: Record<any, any> = {};
-    nodes.forEach((d: any) => (visibleNodesMap[attrs.nodeId(d.data)!] = d));
+    const allNodesMap = Object.fromEntries(
+      attrs.allNodes.map((d) => [attrs.nodeId(d.data)!, d])
+    );
+
+    const visibleNodesMap = Object.fromEntries(
+      nodes.map((d: any) => [attrs.nodeId(d.data)!, d])
+    );
 
     connections.forEach((connection) => {
       const source = allNodesMap[connection.from];
