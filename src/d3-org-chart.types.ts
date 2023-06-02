@@ -2,6 +2,7 @@ import { Selection, ValueFn, BaseType } from 'd3-selection';
 import { ZoomBehavior, ZoomTransform } from 'd3-zoom';
 import { Link, DefaultLinkObject } from 'd3-shape';
 import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
+import { FlextreeLayout } from 'd3-flextree';
 
 export type NodeId = string | number;
 
@@ -133,7 +134,7 @@ export interface State<Datum> {
   connectionsWrapper: any;
   defsWrapper: any;
   chart: any;
-  flexTreeLayout: any;
+  flexTreeLayout: FlextreeLayout<unknown>;
   pagingStep: (d: HierarchyNode<Datum>) => number;
   minPagingVisibleNodes: any;
   imageName: any;

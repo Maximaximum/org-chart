@@ -468,7 +468,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //  Assigns the x and y position for the nodes
-    const treeData = attrs.flexTreeLayout(attrs.root);
+    const treeData = attrs.flexTreeLayout(attrs.root as any);
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
