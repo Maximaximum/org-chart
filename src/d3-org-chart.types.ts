@@ -135,7 +135,7 @@ export interface State<Datum> {
   defsWrapper: any;
   chart: any;
   flexTreeLayout: any;
-  pagingStep: any;
+  pagingStep: (d: HierarchyNode<Datum>) => number;
   minPagingVisibleNodes: any;
   imageName: any;
   diagonal: any;
@@ -223,14 +223,14 @@ export type StateGetSet<T, TSelf> = {
 };
 
 export interface ConcreteDatum {
-  _directSubordinatesPaging: number;
-  _upToTheRootHighlighted: boolean;
-  _highlighted: boolean;
-  _expanded: boolean;
-  _centered: true | null;
-  _filtered: true | undefined;
-  _filteredOut: true | undefined;
-  _centeredWithDescendants: true | null;
-  _pagingButton: any;
-  _pagingStep: any;
+  _directSubordinatesPaging?: number;
+  _upToTheRootHighlighted?: boolean;
+  _highlighted?: boolean;
+  _expanded?: boolean;
+  _centered?: boolean;
+  _filtered?: boolean;
+  _filteredOut?: boolean;
+  _centeredWithDescendants?: boolean;
+  _pagingButton?: boolean;
+  _pagingStep?: number;
 }

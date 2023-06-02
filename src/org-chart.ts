@@ -943,8 +943,8 @@ export class OrgChart<Datum extends ConcreteDatum>
           });
         }
       }
-      centeredNode.data._centeredWithDescendants = null;
-      centeredNode.data._centered = null;
+      centeredNode.data._centeredWithDescendants = undefined;
+      centeredNode.data._centered = undefined;
       this.fit({
         animate: true,
         scale: false,
