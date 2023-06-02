@@ -1,5 +1,5 @@
 import { Selection, ValueFn, BaseType } from 'd3-selection';
-import { ZoomBehavior, ZoomTransform } from 'd3-zoom';
+import { ZoomBehavior } from 'd3-zoom';
 import { Link, DefaultLinkObject } from 'd3-shape';
 import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
 import { FlextreeLayout } from 'd3-flextree';
@@ -39,8 +39,6 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
  * of the organization chart object, per D3 standard.
  */
 export interface State<Datum> {
-  id: string;
-  firstDraw: boolean;
   svgWidth: number;
   svgHeight: number;
   scaleExtent: [number, number];
@@ -50,24 +48,18 @@ export interface State<Datum> {
   defaultTextFill: string;
   /** Font name, for example "Helvetica" */
   defaultFont: string;
-  ctx: CanvasRenderingContext2D;
   data: Datum[] | null;
   duration: number;
   setActiveNodeCentered: boolean;
-  expandLevel: number;
   compact: boolean;
   rootMargin: number;
-  /** CSS color, for example "#2C3E50" */
-  nodeDefaultBackground: string;
   connections: Connection[];
-  lastTransform: ZoomTransform;
   /** Given a node, returns an id for equality comparisons */
   nodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
   /** Given a node, returns its parent id for equality comparisons */
   parentNodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
   /** CSS color, for example "#2C3E50" */
   backgroundColor: string;
-  zoomBehavior: ZoomBehavior<Element, Datum> | null;
   svg: Selection<SVGSVGElement, string, null, undefined>;
   /** Return type is the string representation of a SVG <defs> element */
   defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
@@ -135,7 +127,6 @@ export interface State<Datum> {
   defsWrapper: any;
   chart: any;
   flexTreeLayout: FlextreeLayout<unknown>;
-  pagingStep: (d: HierarchyNode<Datum>) => number;
   minPagingVisibleNodes: any;
   imageName: any;
   diagonal: any;
