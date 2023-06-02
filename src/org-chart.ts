@@ -956,18 +956,6 @@ export class OrgChart<Datum extends ConcreteDatum> {
     }
   }
 
-  // Generate horizontal diagonal - play with it here - https://observablehq.com/@bumbeishvili/curved-edges-horizontal-d3-v3-v4-v5-v6
-  hdiagonal(s: Point, t: Point, m: Point, offsets?: any) {
-    const state = this.getChartState();
-    return state.hdiagonal(s, t, m, offsets) as string;
-  }
-
-  // Generate custom diagonal - play with it here - https://observablehq.com/@bumbeishvili/curved-edges
-  diagonal(s: Point, t: Point, m: Point, offsets?: any) {
-    const state = this.getChartState();
-    return state.diagonal(s, t, m, offsets) as string;
-  }
-
   restyleForeignObjectElements() {
     const attrs = this.getChartState();
 
