@@ -223,14 +223,14 @@ export type StateGetSet<T, TSelf> = {
 };
 
 export interface ConcreteDatum {
-  _directSubordinatesPaging: any;
-  _upToTheRootHighlighted: any;
-  _highlighted: any;
-  _expanded: any;
-  _centered: any;
-  _filtered: any;
-  _filteredOut: any;
-  _centeredWithDescendants: any;
+  _directSubordinatesPaging: number;
+  _upToTheRootHighlighted: boolean;
+  _highlighted: boolean;
+  _expanded: boolean;
+  _centered: true | null;
+  _filtered: true | undefined;
+  _filteredOut: true | undefined;
+  _centeredWithDescendants: true | null;
   _pagingButton: any;
   _pagingStep: any;
 }
