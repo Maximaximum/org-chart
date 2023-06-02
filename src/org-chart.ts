@@ -42,8 +42,6 @@ export class OrgChart<Datum extends ConcreteDatum> {
   private _attrs = { ...defaultAttrs };
 
   constructor() {
-    this.getChartState = () => this._attrs as State<Datum>;
-
     // Dynamically set getter and setter functions for OrgChart class instance
     Object.keys(this._attrs).forEach((key) => {
       (this as any)[key] = function (_: any) {
@@ -57,7 +55,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     });
   }
 
-  getChartState: () => State<Datum>;
+  getChartState = () => this._attrs as State<Datum>;
 
   // This method retrieves passed node's children IDs (including node)
   getNodeChildren(
