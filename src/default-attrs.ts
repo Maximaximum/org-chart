@@ -35,7 +35,6 @@ export const defaultAttrs: Partial<State<Datum>> = {
   expandLevel: 1,
   nodeDefaultBackground: 'none',
   lastTransform: { x: 0, y: 0, k: 1 } as any, // Panning and zooming values
-  allowedNodesCount: {},
   zoomBehavior: null,
 
   /*  INTENDED FOR PUBLIC OVERRIDE */
