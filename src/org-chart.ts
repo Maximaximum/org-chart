@@ -11,7 +11,6 @@ import { linkHorizontal } from 'd3-shape';
 
 import {
   NodeId,
-  Point,
   StateGetSet,
   HierarchyNode,
   State,
@@ -1377,12 +1376,9 @@ export class OrgChart<Datum extends ConcreteDatum> {
     const el = d3.select(elem || (attrs.container as any)).node();
 
     d3.select(document).on('fullscreenchange.' + attrs.id, function (d) {
-      const fsElement =
-        (document as any).fullscreenElement ||
-        (document as any).mozFullscreenElement ||
-        (document as any).webkitFullscreenElement;
+      const fsElement = document.fullscreenElement;
       if (fsElement == el) {
-        setTimeout((d: any) => {
+        setTimeout(() => {
           attrs.svg.attr('height', window.innerHeight - 40);
         }, 500);
       } else {
@@ -1390,15 +1386,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
       }
     });
 
-    if ((el! as any).requestFullscreen) {
-      (el! as any).requestFullscreen();
-    } else if ((el! as any).mozRequestFullScreen) {
-      (el! as any).mozRequestFullScreen();
-    } else if ((el! as any).webkitRequestFullscreen) {
-      (el! as any).webkitRequestFullscreen();
-    } else if ((el! as any).msRequestFullscreen) {
-      (el! as any).msRequestFullscreen();
-    }
+    el?.requestFullscreen();
   }
 
   // Zoom in exposed method
