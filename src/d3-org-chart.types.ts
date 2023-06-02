@@ -154,6 +154,15 @@ export interface StatePublic<Datum> {
     node: HierarchyNode<Datum>;
     state: State<Datum>;
   }) => string;
+  /**
+   *   You can customize/offset positions for each node and link by overriding these functions
+   *   For example, suppose you want to move link y position 30 px bellow in top layout. You can do it like this:
+   *   ```javascript
+   *   const layout = chart.layoutBindings();
+   *   layout.top.linkY = node => node.y + 30;
+   *   chart.layoutBindings(layout);
+   *   ```
+   */
   layoutBindings: Record<Layout, LayoutBinding<Datum>>;
 }
 
