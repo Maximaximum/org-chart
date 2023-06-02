@@ -35,15 +35,15 @@ const d3 = {
   flextree,
 };
 
-// This is separated from the implementation declaration to not have to replicate the propertied of StateGetSet
-export interface OrgChart<Datum> extends StateGetSet<Datum, OrgChart<Datum>> {}
-
-export class OrgChart<Datum extends ConcreteDatum> {
-  private _attrs = { ...defaultAttrs };
+// @ts-ignore
+export class OrgChart<Datum extends ConcreteDatum>
+  implements StateGetSet<Datum, OrgChart<Datum>>
+{
+  private _attrs = { ...defaultAttrs } as State<Datum>;
 
   constructor() {
     // Dynamically set getter and setter functions for OrgChart class instance
-    Object.keys(this._attrs).forEach((key) => {
+    (Object.keys(this._attrs) as (keyof State<Datum>)[]).forEach((key) => {
       (this as any)[key] = function (_: any) {
         if (!arguments.length) {
           return this._attrs[key];
@@ -55,7 +55,7 @@ export class OrgChart<Datum extends ConcreteDatum> {
     });
   }
 
-  getChartState = () => this._attrs as State<Datum>;
+  getChartState = () => this._attrs;
 
   // This method retrieves passed node's children IDs (including node)
   getNodeChildren(
