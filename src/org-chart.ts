@@ -6,7 +6,7 @@ import { select, Selection } from 'd3-selection';
 import { max, min, sum, cumsum } from 'd3-array';
 import { stratify } from 'd3-hierarchy';
 import { zoom, zoomIdentity, ZoomTransform, ZoomBehavior } from 'd3-zoom';
-import { flextree } from 'd3-flextree';
+import { flextree, FlextreeNode } from 'd3-flextree';
 import { linkHorizontal } from 'd3-shape';
 
 import {
@@ -22,6 +22,8 @@ import { downloadImage } from './download-image';
 import { defaultLayoutBindings } from './default-layout-bindings';
 import { getTextWidth } from './get-text-width';
 import { defaultButtonContent } from './default-button-content';
+import { defaultNodeContent } from './default-node-content';
+import { Connection } from 'd3-org-chart';
 
 const d3 = {
   select,
@@ -97,41 +99,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     onZoom: (d: any) => {}, // Callback for zoom & panning
     onZoomEnd: (d: any) => {}, // Callback for zoom & panning end
     onNodeClick: (d) => d, // Callback for node click
-
-    /*
-          * Node HTML content generation , remember that you can access some helper methods:
-
-          * node=> node.data - to access node's original data
-          * node=> node.leaves() - to access node's leaves
-          * node=> node.descendants() - to access node's descendants
-          * node=> node.children - to access node's children
-          * node=> node.parent - to access node's parent
-          * node=> node.depth - to access node's depth
-          * node=> node.height - to access node's height
-          * node=> node.width - to access node's width
-          *
-          * You can also access additional properties to style your node:
-          *
-          * d=>d.data._centeredWithDescendants - when node is centered with descendants
-          * d=>d.data._directSubordinatesPaging - subordinates count in paging mode
-          * d=>d.data._directSubordinates - subordinates count
-          * d=>d.data._totalSubordinates - total subordinates count
-          * d=>d._highlighted - when node is highlighted
-          * d=>d._upToTheRootHighlighted - when node is highlighted up to the root
-          * d=>d._expanded - when node is expanded
-          * d=>d.data._centered - when node is centered
-          */
-    nodeContent: (
-      d
-    ) => `<div style="padding:5px;font-size:10px;">Sample Node(id=${d.id}), override using <br/>
-          <code>chart.nodeContent({data}=>{ <br/>
-           &nbsp;&nbsp;&nbsp;&nbsp;return '' // Custom HTML <br/>
-           })</code>
-           <br/>
-           Or check different <a href="https://github.com/bumbeishvili/org-chart#jump-to-examples" target="_blank">layout examples</a>
-           </div>`,
-
-    /** Node expand & collapse button content and styling. You can access same helper methods as above */
+    nodeContent: defaultNodeContent,
     buttonContent: defaultButtonContent<Datum>,
     /* Node paging button content and styling. You can access same helper methods as above. */
     pagingButton: (
@@ -313,10 +281,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     //Drawing containers
     // 'as Element' is a TS bug workaround
-    const container = d3.select(attrs.container as Element);
-    const containerRect = (
-      container.node()! as HTMLElement
-    ).getBoundingClientRect();
+    const container = d3.select(attrs.container as HTMLElement);
+    const containerRect = container.node()!.getBoundingClientRect();
     if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
 
     //Calculated properties
@@ -372,7 +338,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       container.patternify({
         tag: 'svg',
         selector: 'svg-chart-container',
-      }) as any as Selection<SVGSVGElement, string, any, any>
+      }) as unknown as Selection<SVGSVGElement, string, HTMLElement, any>
     )
       .attr('width', attrs.svgWidth)
       .attr('height', attrs.svgHeight)
@@ -388,33 +354,75 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.svg = svg;
 
     //Add container g element
-    const chart = svg.patternify({
+    const chart = svg.patternify<
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string,
+      HTMLElement,
+      undefined
+    >({
       tag: 'g',
       selector: 'chart',
     });
 
     // Add one more container g element, for better positioning controls
-    attrs.centerG = chart.patternify({
+    attrs.centerG = chart.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string
+    >({
       tag: 'g',
       selector: 'center-group',
     });
 
-    attrs.linksWrapper = attrs.centerG.patternify({
+    attrs.linksWrapper = attrs.centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
       tag: 'g',
       selector: 'links-wrapper',
     });
 
-    attrs.nodesWrapper = attrs.centerG.patternify({
+    attrs.nodesWrapper = attrs.centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
       tag: 'g',
       selector: 'nodes-wrapper',
     });
 
-    attrs.connectionsWrapper = attrs.centerG.patternify({
+    attrs.connectionsWrapper = attrs.centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
       tag: 'g',
       selector: 'connections-wrapper',
     });
 
-    attrs.defsWrapper = svg.patternify({
+    attrs.defsWrapper = svg.patternify<
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string,
+      HTMLElement,
+      string
+    >({
       tag: 'g',
       selector: 'defs-wrapper',
     });
@@ -716,15 +724,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  LINKS ----------------------
     // Get links selection
     const linkSelection = attrs.linksWrapper
-      .selectAll('path.link')
-      .data(links, (d: any) => attrs.nodeId(d.data));
+      .selectAll<SVGPathElement, FlextreeNode<unknown>>('path.link')
+      .data(links, (d: any) => attrs.nodeId(d.data)!);
 
     // Enter any new links at the parent's previous position.
     const linkEnter = linkSelection
       .enter()
       .insert('path', 'g')
       .attr('class', 'link')
-      .attr('d', (d: any) => {
+      .attr('d', (d) => {
         const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
           x: x0,
           y: y0,
@@ -760,7 +768,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     // Allow external modifications
-    linkUpdate.each(attrs.linkUpdate);
+    linkUpdate.each(attrs.linkUpdate as any);
 
     // Transition back to the parent element position
     linkUpdate
@@ -823,7 +831,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  CONNECTIONS ----------------------
 
     const connectionsSel = attrs.connectionsWrapper
-      .selectAll('path.connection')
+      .selectAll<SVGPathElement, Connection>('path.connection')
       .data(visibleConnections);
 
     // Enter any new connections at the parent's previous position.
@@ -905,8 +913,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  NODES ----------------------
     // Get nodes selection
     const nodesSelection = attrs.nodesWrapper
-      .selectAll('g.node')
-      .data(nodes, ({ data }: any) => attrs.nodeId(data));
+      .selectAll<SVGGElement, FlextreeNode<unknown>>('g.node')
+      .data(nodes, ({ data }: any) => attrs.nodeId(data)!);
 
     // Enter any new nodes at the parent's previous position.
     const nodeEnter = nodesSelection
@@ -953,7 +961,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeEnter.patternify({
       tag: 'rect',
       selector: 'node-rect',
-      data: (d: any) => [d],
+      data: (d) => [d],
     });
 
     // Node update styles
@@ -966,7 +974,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .patternify({
         tag: 'foreignObject',
         selector: 'node-foreign-object',
-        data: (d: any) => [d],
+        data: (d) => [d],
       })
       .style('overflow', 'visible');
 
@@ -974,7 +982,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     fo.patternify({
       tag: 'xhtml:div',
       selector: 'node-foreign-object-div',
-      data: (d: any) => [d],
+      data: (d) => [d],
     });
 
     this.restyleForeignObjectElements();
@@ -984,7 +992,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .patternify({
         tag: 'g',
         selector: 'node-button-g',
-        data: (d: any) => [d],
+        data: (d) => [d],
       })
       .on('click', (event: any, d: any) => this.onButtonClick(event, d));
 
@@ -992,31 +1000,31 @@ export class OrgChart<Datum extends ConcreteDatum>
       .patternify({
         tag: 'rect',
         selector: 'node-button-rect',
-        data: (d: any) => [d],
+        data: (d) => [d],
       })
       .attr('opacity', 0)
       .attr('pointer-events', 'all')
-      .attr('width', (d: any) => attrs.nodeButtonWidth(d))
-      .attr('height', (d: any) => attrs.nodeButtonHeight(d))
-      .attr('x', (d: any) => attrs.nodeButtonX(d))
-      .attr('y', (d: any) => attrs.nodeButtonY(d));
+      .attr('width', (d) => attrs.nodeButtonWidth(d))
+      .attr('height', (d) => attrs.nodeButtonHeight(d))
+      .attr('x', (d) => attrs.nodeButtonX(d))
+      .attr('y', (d) => attrs.nodeButtonY(d));
 
     // Add expand collapse button content
     const nodeFo = nodeButtonGroups
       .patternify({
         tag: 'foreignObject',
         selector: 'node-button-foreign-object',
-        data: (d: any) => [d],
+        data: (d) => [d],
       })
-      .attr('width', (d: any) => attrs.nodeButtonWidth(d))
-      .attr('height', (d: any) => attrs.nodeButtonHeight(d))
-      .attr('x', (d: any) => attrs.nodeButtonX(d))
-      .attr('y', (d: any) => attrs.nodeButtonY(d))
+      .attr('width', (d) => attrs.nodeButtonWidth(d))
+      .attr('height', (d) => attrs.nodeButtonHeight(d))
+      .attr('x', (d) => attrs.nodeButtonX(d))
+      .attr('y', (d) => attrs.nodeButtonY(d))
       .style('overflow', 'visible')
       .patternify({
         tag: 'xhtml:div',
         selector: 'node-button-div',
-        data: (d: any) => [d],
+        data: (d) => [d],
       })
       .style('pointer-events', 'none')
       .style('display', 'flex')
@@ -1097,7 +1105,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr('y', isEdge() ? 10 : 0);
 
-    nodeUpdate.each(attrs.nodeUpdate);
+    nodeUpdate.each(attrs.nodeUpdate as any);
 
     // Remove any exiting nodes after transition
     const nodeExitTransition = nodesSelection

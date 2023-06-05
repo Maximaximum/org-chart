@@ -43,7 +43,7 @@ export interface State<Datum> {
   svgHeight: number;
   scaleExtent: [number, number];
   /** CSS selector string, for example "#my-chart" */
-  container: string | Element;
+  container: string | HTMLElement;
   /** CSS color, for example "#2C3E50" */
   defaultTextFill: string;
   /** Font name, for example "Helvetica" */
@@ -60,10 +60,10 @@ export interface State<Datum> {
   parentNodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
   /** CSS color, for example "#2C3E50" */
   backgroundColor: string;
-  svg: Selection<SVGSVGElement, string, null, undefined>;
+  svg: Selection<SVGSVGElement, string, HTMLElement, undefined>;
   /** Return type is the string representation of a SVG <defs> element */
   defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
-  connectionsUpdate: ValueFn<BaseType, Datum, void>;
+  connectionsUpdate: ValueFn<SVGPathElement, Connection, void>;
   linkUpdate: (
     node: HierarchyNode<Datum>,
     index: number,
@@ -87,7 +87,29 @@ export interface State<Datum> {
   /** A function which is triggered when the node is clicked. */
   onNodeClick: (node: NodeId) => void;
   linkGroupArc: Link<any, DefaultLinkObject, [number, number]>;
-  /** A function which renders the given node as HTML content. */
+  /** A function which renders the given node as HTML content.
+  * Node HTML content generation , remember that you can access some helper methods:
+
+  * node=> node.data - to access node's original data
+  * node=> node.leaves() - to access node's leaves
+  * node=> node.descendants() - to access node's descendants
+  * node=> node.children - to access node's children
+  * node=> node.parent - to access node's parent
+  * node=> node.depth - to access node's depth
+  * node=> node.height - to access node's height
+  * node=> node.width - to access node's width
+  *
+  * You can also access additional properties to style your node:
+  *
+  * d=>d.data._centeredWithDescendants - when node is centered with descendants
+  * d=>d.data._directSubordinatesPaging - subordinates count in paging mode
+  * d=>d.data._directSubordinates - subordinates count
+  * d=>d.data._totalSubordinates - total subordinates count
+  * d=>d._highlighted - when node is highlighted
+  * d=>d._upToTheRootHighlighted - when node is highlighted up to the root
+  * d=>d._expanded - when node is expanded
+  * d=>d.data._centered - when node is centered
+  */
   nodeContent: (
     node: HierarchyNode<Datum>,
     index: number,
@@ -95,6 +117,7 @@ export interface State<Datum> {
     state: State<Datum>
   ) => string;
   layout: Layout;
+  /** Node expand & collapse button content and styling. You can access same helper methods as above */
   buttonContent: (params: {
     node: HierarchyNode<Datum>;
     state: State<Datum>;
@@ -120,12 +143,12 @@ export interface State<Datum> {
       }
     | undefined;
 
-  centerG: any;
-  linksWrapper: any;
-  nodesWrapper: any;
-  connectionsWrapper: any;
-  defsWrapper: any;
-  chart: any;
+  centerG: Selection<SVGGElement, string, SVGGElement, string>;
+  linksWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  defsWrapper: Selection<SVGGElement, string, SVGSVGElement, string>;
+  chart: Selection<any, any, any, any>;
   flexTreeLayout: FlextreeLayout<unknown>;
   minPagingVisibleNodes: any;
   imageName: any;

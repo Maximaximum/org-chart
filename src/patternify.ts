@@ -1,17 +1,19 @@
+import { ValueFn } from 'd3';
 import { BaseType, selection, Selection } from 'd3-selection';
 
-const patternify = function <
+function patternify<
   GElement extends BaseType,
   Datum,
   PElement extends BaseType,
   PDatum,
-  TData extends any[] | null | undefined
+  GPElement extends BaseType,
+  GPDatum
 >(
-  this: Selection<GElement, Datum, PElement, PDatum>,
+  this: Selection<PElement, PDatum, GPElement, GPDatum>,
   params: {
     selector: string;
     tag: any;
-    data?: TData;
+    data?: Datum[] | ValueFn<PElement, PDatum, Datum[] | Iterable<Datum>>;
   }
 ) {
   var container = this;
@@ -21,8 +23,8 @@ const patternify = function <
 
   // Pattern in action
   var selection = container
-    .selectAll('.' + selector)
-    .data(data, (d, i: any) => {
+    .selectAll<GElement, Datum | string>('.' + selector)
+    .data(data as (Datum | string)[], (d, i) => {
       if (typeof d === 'object') {
         if ((d as any).id) {
           return (d as any).id;
@@ -34,7 +36,7 @@ const patternify = function <
   selection = selection.enter().append(elementTag).merge(selection);
   selection.attr('class', selector);
   return selection;
-};
+}
 
 selection.prototype.patternify = patternify;
 
