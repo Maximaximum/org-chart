@@ -24,6 +24,8 @@ import { defaultLayoutBindings } from './default-layout-bindings';
 import { defaultButtonContent } from './default-button-content';
 import { defaultNodeContent } from './default-node-content';
 import { connectionArrowhead, connectionLabel } from './connection-defs';
+import { pagingButton } from './paging-button';
+import { D3ZoomEvent } from 'd3';
 
 const d3 = {
   select,
@@ -95,13 +97,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     setActiveNodeCentered: true, // Configure if active node should be centered when expanded and collapsed
     layout: 'top', // Configure layout direction , possible values are "top", "left", "right", "bottom"
     compact: true, // Configure if compact mode is enabled , when enabled, nodes are shown in compact positions, instead of horizontal spread
-    onZoomStart: (d: any) => {}, // Callback for zoom & panning start
-    onZoom: (d: any) => {}, // Callback for zoom & panning
-    onZoomEnd: (d: any) => {}, // Callback for zoom & panning end
-    onNodeClick: (d) => d, // Callback for node click
+    onZoomStart: (e, d) => {},
+    onZoom: (e, d) => {},
+    onZoomEnd: (e, d) => {},
+    onNodeClick: (d) => d,
     nodeContent: defaultNodeContent,
     buttonContent: defaultButtonContent<Datum>,
-    /* Node paging button content and styling. You can access same helper methods as above. */
     pagingButton: (
       d: HierarchyNode<Datum>,
       i: number,
@@ -112,15 +113,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       const currentIndex = d.parent!.data._pagingStep;
       const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
       const min = Math.min(diff, step);
-      return `
-                 <div style="margin-top:90px;">
-                    <div style="display:flex;width:170px;border-radius:20px;padding:5px 15px; padding-bottom:4px;;background-color:#E5E9F2">
-                    <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.59 7.41L10.18 12L5.59 16.59L7 18L13 12L7 6L5.59 7.41ZM16 6H18V18H16V6Z" fill="#716E7B" stroke="#716E7B"/>
-                    </svg>
-                    </div><div style="line-height:2"> Show next ${min}  nodes </div></div>
-                 </div>
-              `;
+      return pagingButton(min);
     },
     /* You can access and modify actual node DOM element in runtime using this method. */
     nodeUpdate: function (d, i, arr) {
@@ -274,7 +267,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         .zoom<Element, Datum>()
         .on('start', (event, d) => attrs.onZoomStart(event, d))
         .on('end', (event, d) => attrs.onZoomEnd(event, d))
-        .on('zoom', (event, d: any) => {
+        .on('zoom', (event, d) => {
           attrs.onZoom(event, d);
           this.zoomed(event, d);
         })
@@ -727,16 +720,14 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Styling links
     linkUpdate.attr('fill', 'none');
 
+    const displayFn = (d: FlextreeNode<Datum>) => {
+      return d.data._pagingButton ? 'none' : 'auto';
+    };
+
     if (isEdge()) {
-      linkUpdate.style('display', (d: any) => {
-        const display = d.data._pagingButton ? 'none' : 'auto';
-        return display;
-      });
+      linkUpdate.style('display', displayFn);
     } else {
-      linkUpdate.attr('display', (d: any) => {
-        const display = d.data._pagingButton ? 'none' : 'auto';
-        return display;
-      });
+      linkUpdate.attr('display', displayFn);
     }
 
     // Allow external modifications
@@ -1144,7 +1135,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     attrs.svg
-      .selectAll<SVGForeignObjectElement, FlextreeNode<ConcreteDatum>>(
+      .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
         '.node-foreign-object'
       )
       .attr('width', ({ width }: any) => width)
@@ -1152,7 +1143,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('x', ({ width }: any) => 0)
       .attr('y', ({ height }: any) => 0);
     attrs.svg
-      .selectAll<HTMLDivElement, FlextreeNode<Datum>>(
+      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         '.node-foreign-object-div'
       )
       .style('width', ({ width }: any) => `${width}px`)
@@ -1370,8 +1361,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  // Zoom handler function
-  zoomed(event: any, d: HierarchyNode<Datum>) {
+  /* Zoom handler function */
+  zoomed(event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) {
     const attrs = this.getChartState();
     const chart = attrs.chart;
 
@@ -1382,7 +1373,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.lastTransform = transform;
 
     // Reposition and rescale chart accordingly
-    chart.attr('transform', transform);
+    chart.attr('transform', transform.toString());
 
     // Apply new styles to the foreign object element
     if (isEdge()) {
@@ -1457,10 +1448,10 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.zoomTreeBounds({
       params: { animate: animate, scale },
-      x0: minX - 50,
-      x1: maxX + 50,
-      y0: minY - 50,
-      y1: maxY + 50,
+      x0: minX! - 50,
+      x1: maxX! + 50,
+      y0: minY! - 50,
+      y1: maxY! + 50,
     });
     return this;
   }

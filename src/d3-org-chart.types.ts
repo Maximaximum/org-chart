@@ -1,8 +1,8 @@
 import { Selection, ValueFn, BaseType } from 'd3-selection';
-import { ZoomBehavior } from 'd3-zoom';
+import { D3ZoomEvent } from 'd3-zoom';
 import { Link, DefaultLinkObject } from 'd3-shape';
 import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
-import { FlextreeLayout } from 'd3-flextree';
+import { FlextreeLayout, FlextreeNode } from 'd3-flextree';
 
 export type NodeId = string | number;
 
@@ -154,16 +154,25 @@ export interface State<Datum> {
   imageName: any;
   diagonal: any;
   hdiagonal: any;
-  pagingButton: any;
+  /** Node paging button content and styling. You can access same helper methods as above. */
+  pagingButton: (
+    d: HierarchyNode<Datum>,
+    i: number,
+    arr: any[],
+    state: State<Datum>
+  ) => string;
 
   nodeButtonWidth: any;
   nodeButtonHeight: any;
   nodeButtonX: any;
   nodeButtonY: any;
 
-  onZoom: any;
-  onZoomStart: any;
-  onZoomEnd: any;
+  /** Callback for zoom & panning  */
+  onZoom: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
+  /** Callback for zoom & panning start */
+  onZoomStart: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
+  /** Callback for zoom & panning end */
+  onZoomEnd: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
 
   neighbourMargin: any;
   linkYOffset: any;
