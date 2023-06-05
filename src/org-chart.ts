@@ -15,15 +15,15 @@ import {
   HierarchyNode,
   State,
   ConcreteDatum,
+  Connection,
 } from './d3-org-chart.types';
 import { isEdge } from './is-edge';
 import { toDataURL } from './to-data-url';
 import { downloadImage } from './download-image';
 import { defaultLayoutBindings } from './default-layout-bindings';
-import { getTextWidth } from './get-text-width';
 import { defaultButtonContent } from './default-button-content';
 import { defaultNodeContent } from './default-node-content';
-import { Connection } from 'd3-org-chart';
+import { connectionArrowhead, connectionLabel } from './connection-defs';
 
 const d3 = {
   select,
@@ -153,46 +153,18 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Defining arrows with markers for connections
     defs: function (this: OrgChart<Datum>, state, visibleConnections) {
-      const ctx = this.ctx;
-
-      return `<defs>
-                  ${visibleConnections
-                    .map((conn) => {
-                      const labelWidth = getTextWidth(conn.label, {
-                        ctx,
-                        fontSize: 2,
-                        defaultFont: state.defaultFont,
-                      });
-                      return `
-                     <marker id="${conn.from + '_' + conn.to}" refX="${
-                        conn._source.x < conn._target.x ? -7 : 7
-                      }" refY="5" markerWidth="500"  markerHeight="500"  orient="${
-                        conn._source.x < conn._target.x
-                          ? 'auto'
-                          : 'auto-start-reverse'
-                      }" >
-                     <rect rx=0.5 width=${
-                       conn.label ? labelWidth + 3 : 0
-                     } height=3 y=1  fill="#E27396"></rect>
-                     <text font-size="2px" x=1 fill="white" y=3>${
-                       conn.label || ''
-                     }</text>
-                     </marker>
-
-                     <marker id="arrow-${
-                       conn.from + '_' + conn.to
-                     }"  markerWidth="500"  markerHeight="500"  refY="2"  refX="1" orient="${
-                        conn._source.x < conn._target.x
-                          ? 'auto'
-                          : 'auto-start-reverse'
-                      }" >
-                     <path transform="translate(0)" d='M0,0 V4 L2,2 Z' fill='#E27396' />
-                     </marker>
-                  `;
-                    })
-                    .join('')}
-                  </defs>
-                  `;
+      return `
+      <defs>
+        ${visibleConnections
+          .map((conn) => {
+            return [
+              connectionLabel(conn, this.ctx, state.defaultFont),
+              connectionArrowhead(conn),
+            ].join('');
+          })
+          .join('')}
+      </defs>
+      `;
     },
     /* You can update connections with custom styling using this function */
     connectionsUpdate: function (d, i, arr) {
@@ -311,7 +283,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     //****************** ROOT node work ************************
 
-    attrs.flexTreeLayout = flextree({
+    attrs.flexTreeLayout = flextree<Datum>({
       nodeSize: (node: any) => {
         const width = attrs.nodeWidth(node);
         const height = attrs.nodeHeight(node);
@@ -680,7 +652,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //  Assigns the x and y position for the nodes
-    const treeData = attrs.flexTreeLayout(attrs.root as any);
+    const treeData = attrs.flexTreeLayout(attrs.root);
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
@@ -1199,7 +1171,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   // Toggle children on click.
-  onButtonClick(event: any, d: HierarchyNode<Datum>) {
+  onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
     if (d.data._pagingButton) {
       return;
