@@ -913,7 +913,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  NODES ----------------------
     // Get nodes selection
     const nodesSelection = attrs.nodesWrapper
-      .selectAll<SVGGElement, FlextreeNode<unknown>>('g.node')
+      .selectAll<SVGGElement, FlextreeNode<Datum>>('g.node')
       .data(nodes, ({ data }: any) => attrs.nodeId(data)!);
 
     // Enter any new nodes at the parent's previous position.
@@ -1172,16 +1172,20 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     attrs.svg
-      .selectAll('.node-foreign-object')
+      .selectAll<SVGForeignObjectElement, FlextreeNode<ConcreteDatum>>(
+        '.node-foreign-object'
+      )
       .attr('width', ({ width }: any) => width)
       .attr('height', ({ height }: any) => height)
       .attr('x', ({ width }: any) => 0)
       .attr('y', ({ height }: any) => 0);
     attrs.svg
-      .selectAll('.node-foreign-object-div')
+      .selectAll<HTMLDivElement, FlextreeNode<Datum>>(
+        '.node-foreign-object-div'
+      )
       .style('width', ({ width }: any) => `${width}px`)
       .style('height', ({ height }: any) => `${height}px`)
-      .html(function (d: any, i, arr: any) {
+      .html(function (d, i, arr: any) {
         if (d.data._pagingButton) {
           return `<div class="paging-button-wrapper"><div style="pointer-events:none">${attrs.pagingButton(
             d,
@@ -1190,7 +1194,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             attrs
           )}</div></div>`;
         }
-        return attrs.nodeContent.bind(this)(d, i, arr, attrs);
+        return attrs.nodeContent.bind(this)(d as any, i, arr, attrs);
       });
   }
 
@@ -1490,7 +1494,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   // Load Paging Nodes
-  loadPagingNodes(node: HierarchyNode<ConcreteDatum>) {
+  loadPagingNodes(node: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
     node.data._pagingButton = false;
     const current = node.parent!.data._pagingStep!;
