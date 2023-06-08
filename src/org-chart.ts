@@ -1417,7 +1417,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const attrs = this.getChartState();
     const { root } = attrs;
-    let descendants = nodes ? nodes : root.descendants();
+    let descendants = nodes || root.descendants();
     const minX = d3.min(
       descendants,
       (d) => d.x + this.getLayoutBinding().nodeLeftX(d)
@@ -1436,7 +1436,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     );
 
     this.zoomTreeBounds({
-      params: { animate: animate, scale },
+      params: { animate, scale },
       x0: minX! - 50,
       x1: maxX! + 50,
       y0: minY! - 50,
