@@ -811,7 +811,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .enter()
       .insert('path', 'g')
       .attr('class', 'connection')
-      .attr('d', (d: any) => {
+      .attr('d', (d) => {
         const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
           x: x0,
           y: y0,

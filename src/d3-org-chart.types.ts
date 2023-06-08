@@ -149,7 +149,7 @@ export interface State<Datum> {
   connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>;
   defsWrapper: Selection<SVGGElement, string, SVGSVGElement, string>;
   chart: Selection<any, any, any, any>;
-  flexTreeLayout: FlextreeLayout<unknown>;
+  flexTreeLayout: FlextreeLayout<Datum>;
   minPagingVisibleNodes: any;
   imageName: any;
   diagonal: any;
