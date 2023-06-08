@@ -32,8 +32,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node.firstCompactNode.y +
       node.firstCompactNode.flexCompactDim[0] / 4 +
       state.compactMarginPair(node) / 4,
-    linkParentX: (node) => node.parent.x + node.parent.width,
-    linkParentY: (node) => node.parent.y,
+    linkParentX: (node) => node.parent!.x + node.parent!.width,
+    linkParentY: (node) => node.parent!.y,
     buttonX: (node) => node.width,
     buttonY: (node) => node.height / 2,
     centerTransform: ({ root, rootMargin, centerY, scale, centerX }) =>
@@ -98,8 +98,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     },
     linkX: (node) => node.x,
     linkY: (node) => node.y,
-    linkParentX: (node) => node.parent.x,
-    linkParentY: (node) => node.parent.y + node.parent.height,
+    linkParentX: (node) => node.parent!.x,
+    linkParentY: (node) => node.parent!.y + node.parent!.height,
     buttonX: (node) => node.width / 2,
     buttonY: (node) => node.height,
     centerTransform: ({ root, rootMargin, centerY, scale, centerX }) =>

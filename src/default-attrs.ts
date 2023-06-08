@@ -151,10 +151,15 @@ export const defaultAttrs: Partial<State<Datum>> = {
     ](node.children)}  </div>`;
   },
   /* Node paging button content and styling. You can access same helper methods as above. */
-  pagingButton: (d: any, i: any, arr: any, state: any) => {
-    const step = state.pagingStep(d.parent);
-    const currentIndex = d.parent.data._pagingStep;
-    const diff = d.parent.data._directSubordinatesPaging - currentIndex;
+  pagingButton: (
+    d: HierarchyNode<Datum>,
+    i: number,
+    arr: any[],
+    state: State<Datum>
+  ) => {
+    const step = state.pagingStep(d.parent!);
+    const currentIndex = d.parent!.data._pagingStep;
+    const diff = d.parent!.data._directSubordinatesPaging - currentIndex;
     const min = Math.min(diff, step);
     return `
                <div style="margin-top:90px;">
