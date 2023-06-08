@@ -24,6 +24,8 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   width: any;
   x: any;
   y: any;
+  x0: any;
+  y0: any;
   compactEven: any;
   parent: any;
   flexCompactDim: number[] | null;
@@ -32,60 +34,11 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
 }
 
 /**
- * Properties which are available on the State object, but not as get / set pairs.
- * These are more internal in scope, but can be used when overriding functions.
- */
-export interface StateInternal<Datum> {
-  readonly root: HierarchyNode<Datum>;
-  allNodes: ReadonlyArray<HierarchyNode<Datum>>;
-}
-
-export interface State<Datum> extends StatePublic<Datum>, StateInternal<Datum> {
-  [key: string]: any;
-
-  calc:
-    | {
-        id: string;
-        chartWidth: number;
-        chartHeight: number;
-      }
-    | undefined;
-
-  zoomBehavior: any;
-  centerG: any;
-  linksWrapper: any;
-  nodesWrapper: any;
-  connectionsWrapper: any;
-  defsWrapper: any;
-  chart: any;
-  root: any;
-  flexTreeLayout: any;
-  pagingStep: any;
-  minPagingVisibleNodes: any;
-  imageName: any;
-  diagonal: any;
-  hdiagonal: any;
-  pagingButton: any;
-
-  nodeButtonWidth: any;
-  nodeButtonHeight: any;
-  nodeButtonX: any;
-  nodeButtonY: any;
-
-  onZoom: any;
-  onZoomStart: any;
-  onZoomEnd: any;
-
-  neighbourMargin: any;
-  linkYOffset: any;
-}
-
-/**
  * The configuration attributes of an organization charts.
  * All of these properties are available as get / set pairs
  * of the organization chart object, per D3 standard.
  */
-export interface StatePublic<Datum> {
+export interface State<Datum> {
   id: string;
   firstDraw: boolean;
   svgWidth: number;
@@ -164,6 +117,45 @@ export interface StatePublic<Datum> {
    *   ```
    */
   layoutBindings: Record<Layout, LayoutBinding<Datum>>;
+
+  // The properties underneath were meant to be non-public
+
+  calc:
+    | {
+        id: string;
+        chartWidth: number;
+        chartHeight: number;
+      }
+    | undefined;
+
+  centerG: any;
+  linksWrapper: any;
+  nodesWrapper: any;
+  connectionsWrapper: any;
+  defsWrapper: any;
+  chart: any;
+  flexTreeLayout: any;
+  pagingStep: any;
+  minPagingVisibleNodes: any;
+  imageName: any;
+  diagonal: any;
+  hdiagonal: any;
+  pagingButton: any;
+
+  nodeButtonWidth: any;
+  nodeButtonHeight: any;
+  nodeButtonX: any;
+  nodeButtonY: any;
+
+  onZoom: any;
+  onZoomStart: any;
+  onZoomEnd: any;
+
+  neighbourMargin: any;
+  linkYOffset: any;
+
+  root: HierarchyNode<Datum>;
+  allNodes: ReadonlyArray<HierarchyNode<Datum>>;
 }
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
@@ -189,7 +181,7 @@ export interface LayoutBinding<Datum> {
   buttonY: (node: HierarchyNode<Datum>) => number;
   /** Returns a CSS transform */
   centerTransform: (params: {
-    root: number;
+    root: HierarchyNode<Datum>;
     rootMargin: number;
     centerY: number;
     scale: number;
@@ -225,11 +217,9 @@ export interface LayoutBinding<Datum> {
 
 // Helper type to remove the need to explicitly declare get / set methods
 export type StateGetSet<T, TSelf> = {
-  [Property in keyof StatePublic<T>]: () => StatePublic<T>[Property];
+  [Property in keyof State<T>]: () => State<T>[Property];
 } & {
-  [Property in keyof StatePublic<T>]: (
-    value: StatePublic<T>[Property]
-  ) => TSelf;
+  [Property in keyof State<T>]: (value: State<T>[Property]) => TSelf;
 };
 
 export interface ConcreteDatum {

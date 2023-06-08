@@ -5,7 +5,7 @@ import './patternify';
 import { select, Selection } from 'd3-selection';
 import { max, min, sum, cumsum } from 'd3-array';
 import { stratify } from 'd3-hierarchy';
-import { zoom, zoomIdentity, ZoomBehavior } from 'd3-zoom';
+import { zoom, zoomIdentity } from 'd3-zoom';
 import { flextree } from 'd3-flextree';
 import { linkHorizontal } from 'd3-shape';
 
@@ -35,7 +35,9 @@ const d3 = {
   flextree,
 };
 
-// @ts-ignore
+// This is separated from the implementation declaration to not have to replicate the propertied of StateGetSet
+export interface OrgChart<Datum> extends StateGetSet<Datum, OrgChart<Datum>> {}
+
 export class OrgChart<Datum extends ConcreteDatum>
   implements StateGetSet<Datum, OrgChart<Datum>>
 {
@@ -123,19 +125,17 @@ export class OrgChart<Datum extends ConcreteDatum>
     // ******************* BEHAVIORS  **********************
     if (attrs.firstDraw) {
       const behaviors = {
-        zoom: null as null | ZoomBehavior<Element, unknown>,
+        zoom: d3
+          .zoom<Element, Datum>()
+          .on('start', (event, d) => attrs.onZoomStart(event, d))
+          .on('end', (event, d) => attrs.onZoomEnd(event, d))
+          .on('zoom', (event, d: any) => {
+            attrs.onZoom(event, d);
+            this.zoomed(event, d);
+          })
+          .scaleExtent(attrs.scaleExtent),
       };
 
-      // Get zooming function
-      behaviors.zoom = d3
-        .zoom()
-        .on('start', (event, d) => attrs.onZoomStart(event, d))
-        .on('end', (event, d) => attrs.onZoomEnd(event, d))
-        .on('zoom', (event, d: any) => {
-          attrs.onZoom(event, d);
-          this.zoomed(event, d);
-        })
-        .scaleExtent(attrs.scaleExtent);
       attrs.zoomBehavior = behaviors.zoom;
     }
 
@@ -176,7 +176,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     if (attrs.firstDraw) {
       svg
-        .call(attrs.zoomBehavior)
+        .call(attrs.zoomBehavior! as any)
         .on('dblclick.zoom', null)
         .attr('cursor', 'move');
     }
@@ -1080,9 +1080,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
     attrs.root = d3
-      .stratify()
-      .id((d: any) => attrs.nodeId(d) as any)
-      .parentId((d: any) => attrs.parentNodeId(d) as any)(attrs.data as any);
+      .stratify<Datum>()
+      .id((d) => attrs.nodeId(d) as any)
+      .parentId((d) => attrs.parentNodeId(d) as any)(attrs.data!) as any;
 
     const hiddenNodesMap: Record<any, any> = {};
     attrs.root
@@ -1117,11 +1117,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     attrs.root = d3
-      .stratify()
-      .id((d) => attrs.nodeId(d as any) as any)
-      .parentId((d) => attrs.parentNodeId(d as any) as any)(
+      .stratify<Datum>()
+      .id((d) => attrs.nodeId(d) as any)
+      .parentId((d) => attrs.parentNodeId(d) as any)(
       attrs.data!.filter((d) => hiddenNodesMap[(d as any).id] !== true)
-    );
+    ) as any;
 
     attrs.root.each((node: any, i: any, arr: any) => {
       let width = attrs.nodeWidth(node);
@@ -1153,7 +1153,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       // Collapse root if level is 0
       if (attrs.expandLevel == 0) {
         attrs.root._children = attrs.root.children;
-        attrs.root.children = null;
+        attrs.root.children = null as any;
       }
 
       // Then only expand nodes, which have expanded proprty set to true
@@ -1230,7 +1230,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     svg
       .transition()
       .duration(params.animate ? duration : 0)
-      .call(zoomBehavior.transform, identity);
+      .call(zoomBehavior!.transform as any, identity);
     centerG
       .transition()
       .duration(params.animate ? duration : 0)
@@ -1248,7 +1248,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const attrs = this.getChartState();
     const { root } = attrs;
-    let descendants: any[] = nodes ? nodes : root.descendants();
+    let descendants = nodes ? nodes : root.descendants();
     const minX = d3.min(
       descendants,
       (d) => d.x + attrs.layoutBindings[attrs.layout].nodeLeftX(d)
@@ -1390,13 +1390,13 @@ export class OrgChart<Datum extends ConcreteDatum>
   // Zoom in exposed method
   zoomIn() {
     const { svg, zoomBehavior } = this.getChartState();
-    svg.transition().call(zoomBehavior.scaleBy, 1.3);
+    svg.transition().call(zoomBehavior!.scaleBy as any, 1.3);
   }
 
   // Zoom out exposed method
   zoomOut() {
     const { svg, zoomBehavior } = this.getChartState();
-    svg.transition().call(zoomBehavior.scaleBy, 0.78);
+    svg.transition().call(zoomBehavior!.scaleBy as any, 0.78);
   }
 
   exportImg({
@@ -1418,8 +1418,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     let total = selection.size();
 
     const exportImage = () => {
-      const transform = JSON.parse(JSON.stringify(that.lastTransform()));
-      const duration = that.duration();
+      const transform = JSON.parse(JSON.stringify(attrs.lastTransform));
+      const duration = attrs.duration;
       if (full) {
         that.fit();
       }
@@ -1478,7 +1478,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   collapseAll() {
     const { allNodes, root } = this.getChartState();
     allNodes.forEach((d) => (d.data._expanded = false));
-    this.expandLevel(0);
+    this.getChartState().expandLevel = 0;
     this.render();
     return this;
   }
