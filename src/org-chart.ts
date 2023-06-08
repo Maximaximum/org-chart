@@ -67,34 +67,34 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
-    svgWidth: 800, // Configure svg width
-    svgHeight: window.innerHeight - 100, // Configure svg height
-    container: "body", // Set parent container, either CSS style selector or DOM element
-    data: null, // Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable)
-    connections: [], // Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}]
-    defaultFont: "Helvetica", // Set default font
-    nodeId: (d: any) => d.nodeId || d.id, // Configure accessor for node id, default is either odeId or id
-    parentNodeId: (d: any) => d.parentNodeId || d.parentId, // Configure accessor for parent node id, default is either parentNodeId or parentId
-    rootMargin: 40, // Configure how much root node is offset from top
-    nodeWidth: (d3Node) => 250, // Configure each node width, use with caution, it is better to have the same value set for all nodes
-    nodeHeight: (d) => 150, //  Configure each node height, use with caution, it is better to have the same value set for all nodes
-    neighbourMargin: (n1: any, n2: any) => 80, // Configure margin between two nodes, use with caution, it is better to have the same value set for all nodes
-    siblingsMargin: (d3Node) => 20, // Configure margin between two siblings, use with caution, it is better to have the same value set for all nodes
-    childrenMargin: (d) => 60, // Configure margin between parent and children, use with caution, it is better to have the same value set for all nodes
-    compactMarginPair: (d) => 100, // Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes
-    compactMarginBetween: (d3Node) => 20, // Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes
-    nodeButtonWidth: (d: HierarchyNode<Datum>) => 40, // Configure expand & collapse button width
-    nodeButtonHeight: (d: HierarchyNode<Datum>) => 40, // Configure expand & collapse button height
-    nodeButtonX: (d: HierarchyNode<Datum>) => -20, // Configure expand & collapse button x position
-    nodeButtonY: (d: HierarchyNode<Datum>) => -20, // Configure expand & collapse button y position
-    linkYOffset: 30, // When correcting links which is not working for safari
-    minPagingVisibleNodes: (d: HierarchyNode<Datum>) => 2000, // Configure minimum number of visible nodes , after which paging button appears
-    scaleExtent: [0.001, 20], // Configure zoom scale extent , if you don't want any kind of zooming, set it to [1,1]
-    duration: 400, // Configure duration of transitions
-    imageName: "Chart", // Configure exported PNG and SVG image name
-    setActiveNodeCentered: true, // Configure if active node should be centered when expanded and collapsed
-    layout: "top", // Configure layout direction , possible values are "top", "left", "right", "bottom"
-    compact: true, // Configure if compact mode is enabled , when enabled, nodes are shown in compact positions, instead of horizontal spread
+    svgWidth: 800,
+    svgHeight: window.innerHeight - 100,
+    container: "body",
+    data: null,
+    connections: [],
+    defaultFont: "Helvetica",
+    nodeId: (d: any) => d.nodeId || d.id,
+    parentNodeId: (d: any) => d.parentNodeId || d.parentId,
+    rootMargin: 40,
+    nodeWidth: (d3Node) => 250,
+    nodeHeight: (d) => 150,
+    neighbourMargin: (n1: any, n2: any) => 80,
+    siblingsMargin: (d3Node) => 20,
+    childrenMargin: (d) => 60,
+    compactMarginPair: (d) => 100,
+    compactMarginBetween: (d3Node) => 20,
+    nodeButtonWidth: (d: HierarchyNode<Datum>) => 40,
+    nodeButtonHeight: (d: HierarchyNode<Datum>) => 40,
+    nodeButtonX: (d: HierarchyNode<Datum>) => -20,
+    nodeButtonY: (d: HierarchyNode<Datum>) => -20,
+    linkYOffset: 30,
+    minPagingVisibleNodes: (d: HierarchyNode<Datum>) => 2000,
+    scaleExtent: [0.001, 20],
+    duration: 400,
+    imageName: "Chart",
+    setActiveNodeCentered: true,
+    layout: "top",
+    compact: true,
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
     onZoomEnd: (e, d) => {},
@@ -113,7 +113,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       const min = Math.min(diff, step);
       return pagingButton(min);
     },
-    /* You can access and modify actual node DOM element in runtime using this method. */
     nodeUpdate: function (d, i, arr) {
       d3.select(this as any)
         .select(".node-rect")
@@ -127,7 +126,6 @@ export class OrgChart<Datum extends ConcreteDatum>
           d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 1
         );
     },
-    /* You can access and modify actual link DOM element in runtime using this method. */
     linkUpdate: function (d, i, arr) {
       d3.select(this as any)
         .attr("stroke", (d: any) =>
@@ -141,8 +139,6 @@ export class OrgChart<Datum extends ConcreteDatum>
         d3.select(this as any).raise();
       }
     },
-
-    // Defining arrows with markers for connections
     defs: function (this: OrgChart<Datum>, state, visibleConnections) {
       return `
       <defs>
@@ -157,7 +153,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       </defs>
       `;
     },
-    /* You can update connections with custom styling using this function */
     connectionsUpdate: function (d, i, arr) {
       d3.select(this)
         .attr("stroke", (d) => "#E27396")
@@ -167,7 +162,6 @@ export class OrgChart<Datum extends ConcreteDatum>
         .attr("marker-start", (d: any) => `url(#${d.from + "_" + d.to})`)
         .attr("marker-end", (d: any) => `url(#arrow-${d.from + "_" + d.to})`);
     },
-    // Link generator for connections
     linkGroupArc: d3
       .linkHorizontal()
       .x((d: any) => d.x)
