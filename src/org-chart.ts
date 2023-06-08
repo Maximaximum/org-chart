@@ -173,15 +173,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       .x((d: any) => d.x)
       .y((d: any) => d.y),
 
-    /**
-     *   You can customize/offset positions for each node and link by overriding these functions
-     *   For example, suppose you want to move link y position 30 px bellow in top layout. You can do it like this:
-     *   ```javascript
-     *   const layout = chart.layoutBindings();
-     *   layout.top.linkY = node => node.y + 30;
-     *   chart.layoutBindings(layout);
-     *   ```
-     */
     layoutBindings: defaultLayoutBindings,
   } as Partial<State<Datum>> as State<Datum>;
 
@@ -280,7 +271,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         const height = attrs.nodeHeight(node);
         const siblingsMargin = attrs.siblingsMargin(node);
         const childrenMargin = attrs.childrenMargin(node);
-        return attrs.layoutBindings[attrs.layout].nodeFlexSize({
+        return this.getLayoutBinding().nodeFlexSize({
           state: attrs,
           node: node,
           width,
@@ -392,7 +383,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     if (this.firstDraw) {
       attrs.centerG.attr("transform", () => {
-        return attrs.layoutBindings[attrs.layout].centerTransform({
+        return this.getLayoutBinding().centerTransform({
           centerX: calc.centerX,
           centerY: calc.centerY,
           scale: this.lastTransform.k,
@@ -528,11 +519,11 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
         const evenMaxColumnDimension = d3.max(
           compactChildren.filter((d) => d.compactEven),
-          attrs.layoutBindings[attrs.layout].compactDimension.sizeColumn
+          this.getLayoutBinding().compactDimension.sizeColumn
         )!;
         const oddMaxColumnDimension = d3.max(
           compactChildren.filter((d) => !d.compactEven),
-          attrs.layoutBindings[attrs.layout].compactDimension.sizeColumn
+          this.getLayoutBinding().compactDimension.sizeColumn
         )!;
         const columnSize =
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
@@ -543,7 +534,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             d3.max(
               reducedGroup,
               (d: any) =>
-                attrs.layoutBindings[attrs.layout].compactDimension.sizeRow(d) +
+                this.getLayoutBinding().compactDimension.sizeRow(d) +
                 attrs.compactMarginBetween(d)
             )
         );
@@ -601,7 +592,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           (d: any) => d.row,
           (reducedGroup: any) =>
             d3.max(reducedGroup, (d: any) =>
-              attrs.layoutBindings[attrs.layout].compactDimension.sizeRow(d)
+              this.getLayoutBinding().compactDimension.sizeRow(d)
             )
         );
         const cumSum = d3.cumsum(
@@ -650,13 +641,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.calculateCompactFlexPositions(attrs.root);
     }
 
-    const nodes = treeData.descendants();
+    const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
 
     // console.table(nodes.map(d => ({ x: d.x, y: d.y, width: d.width, height: d.height, flexCompactDim: d.flexCompactDim + "" })))
 
     // Get all links
     const links = treeData.descendants().slice(1);
-    nodes.forEach(attrs.layoutBindings[attrs.layout].swap);
+    nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
     const connections = attrs.connections;
@@ -696,20 +687,20 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert("path", "g")
       .attr("class", "link")
       .attr("d", (d) => {
-        const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
+        const xo = this.getLayoutBinding().linkJoinX({
           x: x0,
           y: y0,
           width,
           height,
         } as any);
-        const yo = attrs.layoutBindings[attrs.layout].linkJoinY({
+        const yo = this.getLayoutBinding().linkJoinY({
           x: x0,
           y: y0,
           width,
           height,
         } as any);
         const o = { x: xo, y: yo };
-        return attrs.layoutBindings[attrs.layout].diagonal(o, o, o);
+        return this.getLayoutBinding().diagonal(o, o, o);
       });
 
     // Get links update selection
@@ -739,27 +730,27 @@ export class OrgChart<Datum extends ConcreteDatum>
         const n =
           attrs.compact && d.flexCompactDim
             ? {
-                x: attrs.layoutBindings[attrs.layout].compactLinkMidX(d, attrs),
-                y: attrs.layoutBindings[attrs.layout].compactLinkMidY(d, attrs),
+                x: this.getLayoutBinding().compactLinkMidX(d, attrs),
+                y: this.getLayoutBinding().compactLinkMidY(d, attrs),
               }
             : {
-                x: attrs.layoutBindings[attrs.layout].linkX(d),
-                y: attrs.layoutBindings[attrs.layout].linkY(d),
+                x: this.getLayoutBinding().linkX(d),
+                y: this.getLayoutBinding().linkY(d),
               };
 
         const p = {
-          x: attrs.layoutBindings[attrs.layout].linkParentX(d),
-          y: attrs.layoutBindings[attrs.layout].linkParentY(d),
+          x: this.getLayoutBinding().linkParentX(d),
+          y: this.getLayoutBinding().linkParentY(d),
         };
 
         const m =
           attrs.compact && d.flexCompactDim
             ? {
-                x: attrs.layoutBindings[attrs.layout].linkCompactXStart(d),
-                y: attrs.layoutBindings[attrs.layout].linkCompactYStart(d),
+                x: this.getLayoutBinding().linkCompactXStart(d),
+                y: this.getLayoutBinding().linkCompactYStart(d),
               }
             : n;
-        return attrs.layoutBindings[attrs.layout].diagonal(n, p, m, {
+        return this.getLayoutBinding().diagonal(n, p, m, {
           sy: attrs.linkYOffset,
         });
       });
@@ -770,20 +761,20 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("d", (d: any) => {
-        const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
+        const xo = this.getLayoutBinding().linkJoinX({
           x,
           y,
           width,
           height,
         } as any);
-        const yo = attrs.layoutBindings[attrs.layout].linkJoinY({
+        const yo = this.getLayoutBinding().linkJoinY({
           x,
           y,
           width,
           height,
         } as any);
         const o = { x: xo, y: yo };
-        return attrs.layoutBindings[attrs.layout].diagonal(o, o, null, {
+        return this.getLayoutBinding().diagonal(o, o, null, {
           sy: attrs.linkYOffset,
         });
       })
@@ -801,20 +792,20 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert("path", "g")
       .attr("class", "connection")
       .attr("d", (d) => {
-        const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
+        const xo = this.getLayoutBinding().linkJoinX({
           x: x0,
           y: y0,
           width,
           height,
         } as any);
-        const yo = attrs.layoutBindings[attrs.layout].linkJoinY({
+        const yo = this.getLayoutBinding().linkJoinY({
           x: x0,
           y: y0,
           width,
           height,
         } as any);
         const o = { x: xo, y: yo };
-        return attrs.layoutBindings[attrs.layout].diagonal(o, o, null, {
+        return this.getLayoutBinding().diagonal(o, o, null, {
           sy: attrs.linkYOffset,
         });
       });
@@ -830,25 +821,25 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("d", (d: any) => {
-        const xs = attrs.layoutBindings[attrs.layout].linkX({
+        const xs = this.getLayoutBinding().linkX({
           x: d._source.x,
           y: d._source.y,
           width: d._source.width,
           height: d._source.height,
         } as any);
-        const ys = attrs.layoutBindings[attrs.layout].linkY({
+        const ys = this.getLayoutBinding().linkY({
           x: d._source.x,
           y: d._source.y,
           width: d._source.width,
           height: d._source.height,
         } as any);
-        const xt = attrs.layoutBindings[attrs.layout].linkJoinX({
+        const xt = this.getLayoutBinding().linkJoinX({
           x: d._target.x,
           y: d._target.y,
           width: d._target.width,
           height: d._target.height,
         } as any);
-        const yt = attrs.layoutBindings[attrs.layout].linkJoinY({
+        const yt = this.getLayoutBinding().linkJoinY({
           x: d._target.x,
           y: d._target.y,
           width: d._target.width,
@@ -874,23 +865,23 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  NODES ----------------------
     // Get nodes selection
     const nodesSelection = attrs.nodesWrapper
-      .selectAll<SVGGElement, FlextreeNode<Datum>>("g.node")
-      .data(nodes, ({ data }: any) => attrs.nodeId(data)!);
+      .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
+      .data(nodes, ({ data }) => attrs.nodeId(data)!);
 
     // Enter any new nodes at the parent's previous position.
     const nodeEnter = nodesSelection
       .enter()
       .append("g")
       .attr("class", "node")
-      .attr("transform", (d: any) => {
+      .attr("transform", (d) => {
         if (d == attrs.root) return `translate(${x0},${y0})`;
-        const xj = attrs.layoutBindings[attrs.layout].nodeJoinX({
+        const xj = this.getLayoutBinding().nodeJoinX({
           x: x0,
           y: y0,
           width,
           height,
         } as any);
-        const yj = attrs.layoutBindings[attrs.layout].nodeJoinY({
+        const yj = this.getLayoutBinding().nodeJoinY({
           x: x0,
           y: y0,
           width,
@@ -998,7 +989,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("opacity", 0)
       .duration(attrs.duration)
       .attr("transform", ({ x, y, width, height }: any) => {
-        return attrs.layoutBindings[attrs.layout].nodeUpdateTransform({
+        return this.getLayoutBinding().nodeUpdateTransform({
           x,
           y,
           width,
@@ -1021,11 +1012,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeUpdate
       .select(".node-button-g")
       .attr("transform", ({ data, width, height }: any) => {
-        const x = attrs.layoutBindings[attrs.layout].buttonX({
+        const x = this.getLayoutBinding().buttonX({
           width,
           height,
         } as any);
-        const y = attrs.layoutBindings[attrs.layout].buttonY({
+        const y = this.getLayoutBinding().buttonY({
           width,
           height,
         } as any);
@@ -1075,13 +1066,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("transform", (d: any) => {
-        const ex = attrs.layoutBindings[attrs.layout].nodeJoinX({
+        const ex = this.getLayoutBinding().nodeJoinX({
           x,
           y,
           width,
           height,
         } as any);
-        const ey = attrs.layoutBindings[attrs.layout].nodeJoinY({
+        const ey = this.getLayoutBinding().nodeJoinY({
           x,
           y,
           width,
@@ -1429,19 +1420,19 @@ export class OrgChart<Datum extends ConcreteDatum>
     let descendants = nodes ? nodes : root.descendants();
     const minX = d3.min(
       descendants,
-      (d) => d.x + attrs.layoutBindings[attrs.layout].nodeLeftX(d)
+      (d) => d.x + this.getLayoutBinding().nodeLeftX(d)
     );
     const maxX = d3.max(
       descendants,
-      (d) => d.x + attrs.layoutBindings[attrs.layout].nodeRightX(d)
+      (d) => d.x + this.getLayoutBinding().nodeRightX(d)
     );
     const minY = d3.min(
       descendants,
-      (d) => d.y + attrs.layoutBindings[attrs.layout].nodeTopY(d)
+      (d) => d.y + this.getLayoutBinding().nodeTopY(d)
     );
     const maxY = d3.max(
       descendants,
-      (d) => d.y + attrs.layoutBindings[attrs.layout].nodeBottomY(d)
+      (d) => d.y + this.getLayoutBinding().nodeBottomY(d)
     );
 
     this.zoomTreeBounds({
@@ -1659,5 +1650,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.expandLevel = 0;
     this.render();
     return this;
+  }
+
+  private getLayoutBinding() {
+    const attrs = this.getChartState();
+
+    return attrs.layoutBindings[attrs.layout];
   }
 }
