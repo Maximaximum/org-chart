@@ -1,13 +1,11 @@
-// https://github.com/bumbeishvili/org-chart/blob/6080ad592cc1d5d4d257b22ab34a912bd7dddbc2/src/d3-org-chart.js
+import "./patternify";
 
-import './patternify';
-
-import { select, Selection } from 'd3-selection';
-import { max, min, sum, cumsum } from 'd3-array';
-import { stratify } from 'd3-hierarchy';
-import { zoom, zoomIdentity, ZoomTransform, ZoomBehavior } from 'd3-zoom';
-import { flextree, FlextreeNode } from 'd3-flextree';
-import { linkHorizontal } from 'd3-shape';
+import { select, Selection } from "d3-selection";
+import { max, min, sum, cumsum } from "d3-array";
+import { stratify } from "d3-hierarchy";
+import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
+import { flextree, FlextreeNode } from "d3-flextree";
+import { linkHorizontal } from "d3-shape";
 
 import {
   NodeId,
@@ -16,16 +14,16 @@ import {
   State,
   ConcreteDatum,
   Connection,
-} from './d3-org-chart.types';
-import { isEdge } from './is-edge';
-import { toDataURL } from './to-data-url';
-import { downloadImage } from './download-image';
-import { defaultLayoutBindings } from './default-layout-bindings';
-import { defaultButtonContent } from './default-button-content';
-import { defaultNodeContent } from './default-node-content';
-import { connectionArrowhead, connectionLabel } from './connection-defs';
-import { pagingButton } from './paging-button';
-import { D3ZoomEvent } from 'd3';
+} from "./d3-org-chart.types";
+import { isEdge } from "./is-edge";
+import { toDataURL } from "./to-data-url";
+import { downloadImage } from "./download-image";
+import { defaultLayoutBindings } from "./default-layout-bindings";
+import { defaultButtonContent } from "./default-button-content";
+import { defaultNodeContent } from "./default-node-content";
+import { connectionArrowhead, connectionLabel } from "./connection-defs";
+import { pagingButton } from "./paging-button";
+import { D3ZoomEvent } from "d3";
 
 const d3 = {
   select,
@@ -49,12 +47,12 @@ export class OrgChart<Datum extends ConcreteDatum>
   // #region NOT INTENDED FOR PUBLIC OVERRIDE
   /** Id for event handlings */
   private id = `ID${Math.floor(Math.random() * 1000000)}`;
-  private ctx = document.createElement('canvas').getContext('2d')!;
+  private ctx = document.createElement("canvas").getContext("2d")!;
   private expandLevel = 1;
   /** CSS color, for example "#2C3E50" */
-  private nodeDefaultBackground = 'none';
+  private nodeDefaultBackground = "none";
   /** Panning and zooming values */
-  private lastTransform: Pick<ZoomTransform, 'x' | 'y' | 'k'> = {
+  private lastTransform = {
     x: 0,
     y: 0,
     k: 1,
@@ -71,10 +69,10 @@ export class OrgChart<Datum extends ConcreteDatum>
     /*  INTENDED FOR PUBLIC OVERRIDE */
     svgWidth: 800, // Configure svg width
     svgHeight: window.innerHeight - 100, // Configure svg height
-    container: 'body', // Set parent container, either CSS style selector or DOM element
+    container: "body", // Set parent container, either CSS style selector or DOM element
     data: null, // Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable)
     connections: [], // Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}]
-    defaultFont: 'Helvetica', // Set default font
+    defaultFont: "Helvetica", // Set default font
     nodeId: (d: any) => d.nodeId || d.id, // Configure accessor for node id, default is either odeId or id
     parentNodeId: (d: any) => d.parentNodeId || d.parentId, // Configure accessor for parent node id, default is either parentNodeId or parentId
     rootMargin: 40, // Configure how much root node is offset from top
@@ -93,9 +91,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     minPagingVisibleNodes: (d: HierarchyNode<Datum>) => 2000, // Configure minimum number of visible nodes , after which paging button appears
     scaleExtent: [0.001, 20], // Configure zoom scale extent , if you don't want any kind of zooming, set it to [1,1]
     duration: 400, // Configure duration of transitions
-    imageName: 'Chart', // Configure exported PNG and SVG image name
+    imageName: "Chart", // Configure exported PNG and SVG image name
     setActiveNodeCentered: true, // Configure if active node should be centered when expanded and collapsed
-    layout: 'top', // Configure layout direction , possible values are "top", "left", "right", "bottom"
+    layout: "top", // Configure layout direction , possible values are "top", "left", "right", "bottom"
     compact: true, // Configure if compact mode is enabled , when enabled, nodes are shown in compact positions, instead of horizontal spread
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
@@ -118,24 +116,24 @@ export class OrgChart<Datum extends ConcreteDatum>
     /* You can access and modify actual node DOM element in runtime using this method. */
     nodeUpdate: function (d, i, arr) {
       d3.select(this as any)
-        .select('.node-rect')
-        .attr('stroke', (d: any) =>
+        .select(".node-rect")
+        .attr("stroke", (d: any) =>
           d.data._highlighted || d.data._upToTheRootHighlighted
-            ? '#E27396'
-            : 'none'
+            ? "#E27396"
+            : "none"
         )
         .attr(
-          'stroke-width',
+          "stroke-width",
           d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 1
         );
     },
     /* You can access and modify actual link DOM element in runtime using this method. */
     linkUpdate: function (d, i, arr) {
       d3.select(this as any)
-        .attr('stroke', (d: any) =>
-          d.data._upToTheRootHighlighted ? '#E27396' : '#E4E2E9'
+        .attr("stroke", (d: any) =>
+          d.data._upToTheRootHighlighted ? "#E27396" : "#E4E2E9"
         )
-        .attr('stroke-width', (d: any) =>
+        .attr("stroke-width", (d: any) =>
           d.data._upToTheRootHighlighted ? 5 : 1
         );
 
@@ -153,21 +151,21 @@ export class OrgChart<Datum extends ConcreteDatum>
             return [
               connectionLabel(conn, this.ctx, state.defaultFont),
               connectionArrowhead(conn),
-            ].join('');
+            ].join("");
           })
-          .join('')}
+          .join("")}
       </defs>
       `;
     },
     /* You can update connections with custom styling using this function */
     connectionsUpdate: function (d, i, arr) {
       d3.select(this)
-        .attr('stroke', (d) => '#E27396')
-        .attr('stroke-linecap', 'round')
-        .attr('stroke-width', (d) => '5')
-        .attr('pointer-events', 'none')
-        .attr('marker-start', (d: any) => `url(#${d.from + '_' + d.to})`)
-        .attr('marker-end', (d: any) => `url(#arrow-${d.from + '_' + d.to})`);
+        .attr("stroke", (d) => "#E27396")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", (d) => "5")
+        .attr("pointer-events", "none")
+        .attr("marker-start", (d: any) => `url(#${d.from + "_" + d.to})`)
+        .attr("marker-end", (d: any) => `url(#arrow-${d.from + "_" + d.to})`);
     },
     // Link generator for connections
     linkGroupArc: d3
@@ -240,7 +238,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     //InnerFunctions which will update visuals
     const attrs = this.getChartState();
     if (!attrs.data || attrs.data.length == 0) {
-      console.log('ORG CHART - Data is empty');
+      console.log("ORG CHART - Data is empty");
       return this;
     }
 
@@ -265,9 +263,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (this.firstDraw) {
       this.zoomBehavior = d3
         .zoom<Element, Datum>()
-        .on('start', (event, d) => attrs.onZoomStart(event, d))
-        .on('end', (event, d) => attrs.onZoomEnd(event, d))
-        .on('zoom', (event, d) => {
+        .on("start", (event, d) => attrs.onZoomStart(event, d))
+        .on("end", (event, d) => attrs.onZoomEnd(event, d))
+        .on("zoom", (event, d) => {
           attrs.onZoom(event, d);
           this.zoomed(event, d);
         })
@@ -301,19 +299,19 @@ export class OrgChart<Datum extends ConcreteDatum>
     //Add svg
     const svg = (
       container.patternify({
-        tag: 'svg',
-        selector: 'svg-chart-container',
+        tag: "svg",
+        selector: "svg-chart-container",
       }) as unknown as Selection<SVGSVGElement, string, HTMLElement, any>
     )
-      .attr('width', attrs.svgWidth)
-      .attr('height', attrs.svgHeight)
-      .attr('font-family', attrs.defaultFont);
+      .attr("width", attrs.svgWidth)
+      .attr("height", attrs.svgHeight)
+      .attr("font-family", attrs.defaultFont);
 
     if (this.firstDraw) {
       svg
         .call(this.zoomBehavior! as any)
-        .on('dblclick.zoom', null)
-        .attr('cursor', 'move');
+        .on("dblclick.zoom", null)
+        .attr("cursor", "move");
     }
 
     attrs.svg = svg;
@@ -327,8 +325,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       HTMLElement,
       undefined
     >({
-      tag: 'g',
-      selector: 'chart',
+      tag: "g",
+      selector: "chart",
     });
 
     // Add one more container g element, for better positioning controls
@@ -340,8 +338,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       SVGSVGElement,
       string
     >({
-      tag: 'g',
-      selector: 'center-group',
+      tag: "g",
+      selector: "center-group",
     });
 
     attrs.linksWrapper = attrs.centerG.patternify<
@@ -352,8 +350,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       SVGGElement,
       string
     >({
-      tag: 'g',
-      selector: 'links-wrapper',
+      tag: "g",
+      selector: "links-wrapper",
     });
 
     attrs.nodesWrapper = attrs.centerG.patternify<
@@ -364,8 +362,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       SVGGElement,
       string
     >({
-      tag: 'g',
-      selector: 'nodes-wrapper',
+      tag: "g",
+      selector: "nodes-wrapper",
     });
 
     attrs.connectionsWrapper = attrs.centerG.patternify<
@@ -376,8 +374,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       SVGGElement,
       string
     >({
-      tag: 'g',
-      selector: 'connections-wrapper',
+      tag: "g",
+      selector: "connections-wrapper",
     });
 
     attrs.defsWrapper = svg.patternify<
@@ -388,12 +386,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       HTMLElement,
       string
     >({
-      tag: 'g',
-      selector: 'defs-wrapper',
+      tag: "g",
+      selector: "defs-wrapper",
     });
 
     if (this.firstDraw) {
-      attrs.centerG.attr('transform', () => {
+      attrs.centerG.attr("transform", () => {
         return attrs.layoutBindings[attrs.layout].centerTransform({
           centerX: calc.centerX,
           centerY: calc.centerY,
@@ -419,7 +417,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         .select(attrs.container as Element)
         .node()!
         .getBoundingClientRect();
-      attrs.svg.attr('width', containerRect.width);
+      attrs.svg.attr("width", containerRect.width);
     });
 
     if (this.firstDraw) {
@@ -689,15 +687,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  LINKS ----------------------
     // Get links selection
     const linkSelection = attrs.linksWrapper
-      .selectAll<SVGPathElement, FlextreeNode<unknown>>('path.link')
+      .selectAll<SVGPathElement, FlextreeNode<unknown>>("path.link")
       .data(links, (d: any) => attrs.nodeId(d.data)!);
 
     // Enter any new links at the parent's previous position.
     const linkEnter = linkSelection
       .enter()
-      .insert('path', 'g')
-      .attr('class', 'link')
-      .attr('d', (d) => {
+      .insert("path", "g")
+      .attr("class", "link")
+      .attr("d", (d) => {
         const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
           x: x0,
           y: y0,
@@ -718,16 +716,16 @@ export class OrgChart<Datum extends ConcreteDatum>
     const linkUpdate = linkEnter.merge(linkSelection);
 
     // Styling links
-    linkUpdate.attr('fill', 'none');
+    linkUpdate.attr("fill", "none");
 
     const displayFn = (d: FlextreeNode<Datum>) => {
-      return d.data._pagingButton ? 'none' : 'auto';
+      return d.data._pagingButton ? "none" : "auto";
     };
 
     if (isEdge()) {
-      linkUpdate.style('display', displayFn);
+      linkUpdate.style("display", displayFn);
     } else {
-      linkUpdate.attr('display', displayFn);
+      linkUpdate.attr("display", displayFn);
     }
 
     // Allow external modifications
@@ -737,7 +735,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     linkUpdate
       .transition()
       .duration(attrs.duration)
-      .attr('d', (d: any) => {
+      .attr("d", (d: any) => {
         const n =
           attrs.compact && d.flexCompactDim
             ? {
@@ -771,7 +769,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .exit()
       .transition()
       .duration(attrs.duration)
-      .attr('d', (d: any) => {
+      .attr("d", (d: any) => {
         const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
           x,
           y,
@@ -794,15 +792,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  CONNECTIONS ----------------------
 
     const connectionsSel = attrs.connectionsWrapper
-      .selectAll<SVGPathElement, Connection>('path.connection')
+      .selectAll<SVGPathElement, Connection>("path.connection")
       .data(visibleConnections);
 
     // Enter any new connections at the parent's previous position.
     const connEnter = connectionsSel
       .enter()
-      .insert('path', 'g')
-      .attr('class', 'connection')
-      .attr('d', (d) => {
+      .insert("path", "g")
+      .attr("class", "connection")
+      .attr("d", (d) => {
         const xo = attrs.layoutBindings[attrs.layout].linkJoinX({
           x: x0,
           y: y0,
@@ -825,13 +823,13 @@ export class OrgChart<Datum extends ConcreteDatum>
     const connUpdate = connEnter.merge(connectionsSel);
 
     // Styling connections
-    connUpdate.attr('fill', 'none');
+    connUpdate.attr("fill", "none");
 
     // Transition back to the parent element position
     connUpdate
       .transition()
       .duration(attrs.duration)
-      .attr('d', (d: any) => {
+      .attr("d", (d: any) => {
         const xs = attrs.layoutBindings[attrs.layout].linkX({
           x: d._source.x,
           y: d._source.y,
@@ -870,21 +868,21 @@ export class OrgChart<Datum extends ConcreteDatum>
       .exit()
       .transition()
       .duration(attrs.duration)
-      .attr('opacity', 0)
+      .attr("opacity", 0)
       .remove();
 
     // --------------------------  NODES ----------------------
     // Get nodes selection
     const nodesSelection = attrs.nodesWrapper
-      .selectAll<SVGGElement, FlextreeNode<Datum>>('g.node')
+      .selectAll<SVGGElement, FlextreeNode<Datum>>("g.node")
       .data(nodes, ({ data }: any) => attrs.nodeId(data)!);
 
     // Enter any new nodes at the parent's previous position.
     const nodeEnter = nodesSelection
       .enter()
-      .append('g')
-      .attr('class', 'node')
-      .attr('transform', (d: any) => {
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", (d: any) => {
         if (d == attrs.root) return `translate(${x0},${y0})`;
         const xj = attrs.layoutBindings[attrs.layout].nodeJoinX({
           x: x0,
@@ -900,51 +898,51 @@ export class OrgChart<Datum extends ConcreteDatum>
         } as any);
         return `translate(${xj},${yj})`;
       })
-      .attr('cursor', 'pointer')
-      .on('click', (event: any, node: any) => {
+      .attr("cursor", "pointer")
+      .on("click", (event: any, node: any) => {
         const { data } = node;
         if (
-          [...event.srcElement.classList].includes('node-button-foreign-object')
+          [...event.srcElement.classList].includes("node-button-foreign-object")
         ) {
           return;
         }
-        if ([...event.srcElement.classList].includes('paging-button-wrapper')) {
+        if ([...event.srcElement.classList].includes("paging-button-wrapper")) {
           this.loadPagingNodes(node);
           return;
         }
         if (!data._pagingButton) {
           attrs.onNodeClick(data);
-          console.log('node clicked');
+          console.log("node clicked");
           return;
         }
-        console.log('event fired, no handlers');
+        console.log("event fired, no handlers");
       });
 
     // Add background rectangle for the nodes
     nodeEnter.patternify({
-      tag: 'rect',
-      selector: 'node-rect',
+      tag: "rect",
+      selector: "node-rect",
       data: (d) => [d],
     });
 
     // Node update styles
     const nodeUpdate = nodeEnter
       .merge(nodesSelection)
-      .style('font', '12px sans-serif');
+      .style("font", "12px sans-serif");
 
     // Add foreignObject element inside rectangle
     const fo = nodeUpdate
       .patternify({
-        tag: 'foreignObject',
-        selector: 'node-foreign-object',
+        tag: "foreignObject",
+        selector: "node-foreign-object",
         data: (d) => [d],
       })
-      .style('overflow', 'visible');
+      .style("overflow", "visible");
 
     // Add foreign object
     fo.patternify({
-      tag: 'xhtml:div',
-      selector: 'node-foreign-object-div',
+      tag: "xhtml:div",
+      selector: "node-foreign-object-div",
       data: (d) => [d],
     });
 
@@ -953,53 +951,53 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Add Node button circle's group (expand-collapse button)
     const nodeButtonGroups = nodeEnter
       .patternify({
-        tag: 'g',
-        selector: 'node-button-g',
+        tag: "g",
+        selector: "node-button-g",
         data: (d) => [d],
       })
-      .on('click', (event: any, d: any) => this.onButtonClick(event, d));
+      .on("click", (event: any, d: any) => this.onButtonClick(event, d));
 
     nodeButtonGroups
       .patternify({
-        tag: 'rect',
-        selector: 'node-button-rect',
+        tag: "rect",
+        selector: "node-button-rect",
         data: (d) => [d],
       })
-      .attr('opacity', 0)
-      .attr('pointer-events', 'all')
-      .attr('width', (d) => attrs.nodeButtonWidth(d))
-      .attr('height', (d) => attrs.nodeButtonHeight(d))
-      .attr('x', (d) => attrs.nodeButtonX(d))
-      .attr('y', (d) => attrs.nodeButtonY(d));
+      .attr("opacity", 0)
+      .attr("pointer-events", "all")
+      .attr("width", (d) => attrs.nodeButtonWidth(d))
+      .attr("height", (d) => attrs.nodeButtonHeight(d))
+      .attr("x", (d) => attrs.nodeButtonX(d))
+      .attr("y", (d) => attrs.nodeButtonY(d));
 
     // Add expand collapse button content
     const nodeFo = nodeButtonGroups
       .patternify({
-        tag: 'foreignObject',
-        selector: 'node-button-foreign-object',
+        tag: "foreignObject",
+        selector: "node-button-foreign-object",
         data: (d) => [d],
       })
-      .attr('width', (d) => attrs.nodeButtonWidth(d))
-      .attr('height', (d) => attrs.nodeButtonHeight(d))
-      .attr('x', (d) => attrs.nodeButtonX(d))
-      .attr('y', (d) => attrs.nodeButtonY(d))
-      .style('overflow', 'visible')
+      .attr("width", (d) => attrs.nodeButtonWidth(d))
+      .attr("height", (d) => attrs.nodeButtonHeight(d))
+      .attr("x", (d) => attrs.nodeButtonX(d))
+      .attr("y", (d) => attrs.nodeButtonY(d))
+      .style("overflow", "visible")
       .patternify({
-        tag: 'xhtml:div',
-        selector: 'node-button-div',
+        tag: "xhtml:div",
+        selector: "node-button-div",
         data: (d) => [d],
       })
-      .style('pointer-events', 'none')
-      .style('display', 'flex')
-      .style('width', '100%')
-      .style('height', '100%');
+      .style("pointer-events", "none")
+      .style("display", "flex")
+      .style("width", "100%")
+      .style("height", "100%");
 
     // Transition to the proper position for the node
     nodeUpdate
       .transition()
-      .attr('opacity', 0)
+      .attr("opacity", 0)
       .duration(attrs.duration)
-      .attr('transform', ({ x, y, width, height }: any) => {
+      .attr("transform", ({ x, y, width, height }: any) => {
         return attrs.layoutBindings[attrs.layout].nodeUpdateTransform({
           x,
           y,
@@ -1007,22 +1005,22 @@ export class OrgChart<Datum extends ConcreteDatum>
           height,
         });
       })
-      .attr('opacity', 1);
+      .attr("opacity", 1);
 
     // Style node rectangles
     nodeUpdate
-      .select('.node-rect')
-      .attr('width', ({ width }: any) => width)
-      .attr('height', ({ height }: any) => height)
-      .attr('x', ({ width }: any) => 0)
-      .attr('y', ({ height }: any) => 0)
-      .attr('cursor', 'pointer')
-      .attr('rx', 3)
-      .attr('fill', this.nodeDefaultBackground);
+      .select(".node-rect")
+      .attr("width", ({ width }: any) => width)
+      .attr("height", ({ height }: any) => height)
+      .attr("x", ({ width }: any) => 0)
+      .attr("y", ({ height }: any) => 0)
+      .attr("cursor", "pointer")
+      .attr("rx", 3)
+      .attr("fill", this.nodeDefaultBackground);
 
     nodeUpdate
-      .select('.node-button-g')
-      .attr('transform', ({ data, width, height }: any) => {
+      .select(".node-button-g")
+      .attr("transform", ({ data, width, height }: any) => {
         const x = attrs.layoutBindings[attrs.layout].buttonX({
           width,
           height,
@@ -1033,10 +1031,10 @@ export class OrgChart<Datum extends ConcreteDatum>
         } as any);
         return `translate(${x},${y})`;
       })
-      .attr('display', ({ data }: any) => {
-        return data._directSubordinates > 0 ? null : 'none';
+      .attr("display", ({ data }: any) => {
+        return data._directSubordinates > 0 ? null : "none";
       })
-      .attr('opacity', ({ data, children, _children }: any) => {
+      .attr("opacity", ({ data, children, _children }: any) => {
         if (data._pagingButton) {
           return 0;
         }
@@ -1048,35 +1046,35 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Restyle node button circle
     nodeUpdate
-      .select('.node-button-foreign-object .node-button-div')
+      .select(".node-button-foreign-object .node-button-div")
       .html((node: any) => {
         return attrs.buttonContent({ node, state: attrs });
       });
 
     // Restyle button texts
     nodeUpdate
-      .select('.node-button-text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'middle')
-      .attr('font-size', ({ children }: any) => {
+      .select(".node-button-text")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("font-size", ({ children }: any) => {
         if (children) return 40;
         return 26;
       })
       .text(({ children }: any) => {
-        if (children) return '-';
-        return '+';
+        if (children) return "-";
+        return "+";
       })
-      .attr('y', isEdge() ? 10 : 0);
+      .attr("y", isEdge() ? 10 : 0);
 
     nodeUpdate.each(attrs.nodeUpdate as any);
 
     // Remove any exiting nodes after transition
     const nodeExitTransition = nodesSelection
       .exit()
-      .attr('opacity', 1)
+      .attr("opacity", 1)
       .transition()
       .duration(attrs.duration)
-      .attr('transform', (d: any) => {
+      .attr("transform", (d: any) => {
         const ex = attrs.layoutBindings[attrs.layout].nodeJoinX({
           x,
           y,
@@ -1091,10 +1089,10 @@ export class OrgChart<Datum extends ConcreteDatum>
         } as any);
         return `translate(${ex},${ey})`;
       })
-      .on('end', function (this: any) {
+      .on("end", function (this: any) {
         d3.select(this).remove();
       })
-      .attr('opacity', 0);
+      .attr("opacity", 0);
 
     // Store the old positions for transition.
     nodes.forEach((d: any) => {
@@ -1136,18 +1134,18 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     attrs.svg
       .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
-        '.node-foreign-object'
+        ".node-foreign-object"
       )
-      .attr('width', ({ width }: any) => width)
-      .attr('height', ({ height }: any) => height)
-      .attr('x', ({ width }: any) => 0)
-      .attr('y', ({ height }: any) => 0);
+      .attr("width", ({ width }: any) => width)
+      .attr("height", ({ height }: any) => height)
+      .attr("x", ({ width }: any) => 0)
+      .attr("y", ({ height }: any) => 0);
     attrs.svg
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        '.node-foreign-object-div'
+        ".node-foreign-object-div"
       )
-      .style('width', ({ width }: any) => `${width}px`)
-      .style('height', ({ height }: any) => `${height}px`)
+      .style("width", ({ width }: any) => `${width}px`)
+      .style("height", ({ height }: any) => `${height}px`)
       .html(function (d, i, arr: any) {
         if (d.data._pagingButton) {
           return `<div class="paging-button-wrapper"><div style="pointer-events:none">${attrs.pagingButton(
@@ -1373,7 +1371,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.lastTransform = transform;
 
     // Reposition and rescale chart accordingly
-    chart.attr('transform', transform.toString());
+    chart.attr("transform", transform.toString());
 
     // Apply new styles to the foreign object element
     if (isEdge()) {
@@ -1414,7 +1412,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     centerG
       .transition()
       .duration(params.animate ? duration : 0)
-      .attr('transform', 'translate(0,0)');
+      .attr("transform", "translate(0,0)");
   }
 
   fit({
@@ -1464,7 +1462,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const step = this.pagingStep(node.parent! as any);
     const newPagingIndex = current + step;
     node.parent!.data._pagingStep = newPagingIndex;
-    console.log('loading paging nodes', node);
+    console.log("loading paging nodes", node);
     this.updateNodesState();
   }
 
@@ -1479,7 +1477,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (!node) {
       console.log(
         `ORG CHART - ${
-          expandedFlag ? 'EXPAND' : 'COLLAPSE'
+          expandedFlag ? "EXPAND" : "COLLAPSE"
         } - Node with id (${id})  not found in the tree`
       );
       return this;
@@ -1553,14 +1551,14 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     const el = d3.select(elem || (attrs.container as any)).node();
 
-    d3.select(document).on('fullscreenchange.' + this.id, function (d) {
+    d3.select(document).on("fullscreenchange." + this.id, function (d) {
       const fsElement = document.fullscreenElement;
       if (fsElement == el) {
         setTimeout(() => {
-          attrs.svg.attr('height', window.innerHeight - 40);
+          attrs.svg.attr("height", window.innerHeight - 40);
         }, 500);
       } else {
-        attrs.svg.attr('height', attrs.svgHeight);
+        attrs.svg.attr("height", attrs.svgHeight);
       }
     });
 
@@ -1594,7 +1592,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     const { svg: svgImg, root } = attrs;
     let count = 0;
-    const selection = svgImg.selectAll('img');
+    const selection = svgImg.selectAll("img");
     let total = selection.size();
 
     const exportImage = () => {
