@@ -33,6 +33,16 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   row: any;
 }
 
+export interface Elements {
+  svg: Selection<SVGSVGElement, string, HTMLElement, undefined>;
+  centerG: Selection<SVGGElement, string, SVGGElement, string>;
+  linksWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>;
+  defsWrapper: Selection<SVGGElement, string, SVGSVGElement, string>;
+  chart: Selection<any, any, any, any>;
+}
+
 /**
  * The configuration attributes of an organization charts.
  * All of these properties are available as get / set pairs
@@ -69,7 +79,6 @@ export interface State<Datum> {
   parentNodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
   /** CSS color, for example "#2C3E50" */
   backgroundColor: string;
-  svg: Selection<SVGSVGElement, string, HTMLElement, undefined>;
   /** Defining arrows with markers for connections */
   defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
   /** You can update connections with custom styling using this function */
@@ -164,12 +173,6 @@ export interface State<Datum> {
       }
     | undefined;
 
-  centerG: Selection<SVGGElement, string, SVGGElement, string>;
-  linksWrapper: Selection<SVGGElement, string, SVGGElement, string>;
-  nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>;
-  connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>;
-  defsWrapper: Selection<SVGGElement, string, SVGSVGElement, string>;
-  chart: Selection<any, any, any, any>;
   flexTreeLayout: FlextreeLayout<Datum>;
   /** Configure minimum number of visible nodes , after which paging button appears */
   minPagingVisibleNodes: any;
@@ -207,6 +210,8 @@ export interface State<Datum> {
 
   root: HierarchyNode<Datum>;
   allNodes: ReadonlyArray<HierarchyNode<Datum>>;
+
+  elements: Elements;
 }
 
 export type Layout = "left" | "bottom" | "right" | "top";

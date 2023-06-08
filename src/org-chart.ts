@@ -281,115 +281,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.setLayouts({ expandNodesFirst: false });
 
     // *************************  DRAWING **************************
-    //Add svg
-    const svg = (
-      container.patternify({
-        tag: "svg",
-        selector: "svg-chart-container",
-      }) as unknown as Selection<SVGSVGElement, string, HTMLElement, any>
-    )
-      .attr("width", attrs.svgWidth)
-      .attr("height", attrs.svgHeight)
-      .attr("font-family", attrs.defaultFont);
-
-    if (this.firstDraw) {
-      svg
-        .call(this.zoomBehavior! as any)
-        .on("dblclick.zoom", null)
-        .attr("cursor", "move");
-    }
-
-    attrs.svg = svg;
-
-    //Add container g element
-    const chart = svg.patternify<
-      SVGGElement,
-      string,
-      SVGSVGElement,
-      string,
-      HTMLElement,
-      undefined
-    >({
-      tag: "g",
-      selector: "chart",
+    this.draw({
+      calc,
+      container,
+      defaultFont: attrs.defaultFont,
+      root: attrs.root,
+      rootMargin: attrs.rootMargin,
+      svgHeight: attrs.svgHeight,
+      svgWidth: attrs.svgWidth,
     });
-
-    // Add one more container g element, for better positioning controls
-    attrs.centerG = chart.patternify<
-      SVGGElement,
-      string,
-      SVGGElement,
-      string,
-      SVGSVGElement,
-      string
-    >({
-      tag: "g",
-      selector: "center-group",
-    });
-
-    attrs.linksWrapper = attrs.centerG.patternify<
-      SVGGElement,
-      string,
-      SVGGElement,
-      string,
-      SVGGElement,
-      string
-    >({
-      tag: "g",
-      selector: "links-wrapper",
-    });
-
-    attrs.nodesWrapper = attrs.centerG.patternify<
-      SVGGElement,
-      string,
-      SVGGElement,
-      string,
-      SVGGElement,
-      string
-    >({
-      tag: "g",
-      selector: "nodes-wrapper",
-    });
-
-    attrs.connectionsWrapper = attrs.centerG.patternify<
-      SVGGElement,
-      string,
-      SVGGElement,
-      string,
-      SVGGElement,
-      string
-    >({
-      tag: "g",
-      selector: "connections-wrapper",
-    });
-
-    attrs.defsWrapper = svg.patternify<
-      SVGGElement,
-      string,
-      SVGSVGElement,
-      string,
-      HTMLElement,
-      string
-    >({
-      tag: "g",
-      selector: "defs-wrapper",
-    });
-
-    if (this.firstDraw) {
-      attrs.centerG.attr("transform", () => {
-        return this.getLayoutBinding().centerTransform({
-          centerX: calc.centerX,
-          centerY: calc.centerY,
-          scale: this.lastTransform.k,
-          rootMargin: attrs.rootMargin,
-          root: attrs.root,
-          chartHeight: calc.chartHeight,
-          chartWidth: calc.chartWidth,
-        });
-      });
-    }
-
-    attrs.chart = chart;
 
     // Display tree contenrs
     this.update(attrs.root);
@@ -402,7 +302,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         .select(attrs.container as Element)
         .node()!
         .getBoundingClientRect();
-      attrs.svg.attr("width", containerRect.width);
+      attrs.elements.svg.attr("width", containerRect.width);
     });
 
     if (this.firstDraw) {
@@ -664,14 +564,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       (d) => visibleNodesMap[d.from] && visibleNodesMap[d.to]
     );
     const defsString = attrs.defs.bind(this)(attrs, visibleConnections);
-    const existingString = attrs.defsWrapper.html();
+    const existingString = attrs.elements.defsWrapper.html();
     if (defsString !== existingString) {
-      attrs.defsWrapper.html(defsString);
+      attrs.elements.defsWrapper.html(defsString);
     }
 
     // --------------------------  LINKS ----------------------
     // Get links selection
-    const linkSelection = attrs.linksWrapper
+    const linkSelection = attrs.elements.linksWrapper
       .selectAll<SVGPathElement, FlextreeNode<unknown>>("path.link")
       .data(links, (d: any) => attrs.nodeId(d.data)!);
 
@@ -776,7 +676,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // --------------------------  CONNECTIONS ----------------------
 
-    const connectionsSel = attrs.connectionsWrapper
+    const connectionsSel = attrs.elements.connectionsWrapper
       .selectAll<SVGPathElement, Connection>("path.connection")
       .data(visibleConnections);
 
@@ -858,7 +758,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // --------------------------  NODES ----------------------
     // Get nodes selection
-    const nodesSelection = attrs.nodesWrapper
+    const nodesSelection = attrs.elements.nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
       .data(nodes, ({ data }) => attrs.nodeId(data)!);
 
@@ -1117,7 +1017,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   restyleForeignObjectElements() {
     const attrs = this.getChartState();
 
-    attrs.svg
+    attrs.elements.svg
       .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
         ".node-foreign-object"
       )
@@ -1125,7 +1025,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("height", ({ height }: any) => height)
       .attr("x", ({ width }: any) => 0)
       .attr("y", ({ height }: any) => 0);
-    attrs.svg
+    attrs.elements.svg
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         ".node-foreign-object-div"
       )
@@ -1347,7 +1247,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   /* Zoom handler function */
   zoomed(event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) {
     const attrs = this.getChartState();
-    const chart = attrs.chart;
+    const chart = attrs.elements.chart;
 
     // Get d3 event's transform object
     const transform = event.transform;
@@ -1378,10 +1278,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     params?: { animate?: boolean; scale?: boolean };
   }) {
     const {
-      centerG,
+      elements: { centerG, svg },
       svgWidth: w,
       svgHeight: h,
-      svg,
       duration,
     } = this.getChartState();
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
@@ -1540,10 +1439,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       const fsElement = document.fullscreenElement;
       if (fsElement == el) {
         setTimeout(() => {
-          attrs.svg.attr("height", window.innerHeight - 40);
+          attrs.elements.svg.attr("height", window.innerHeight - 40);
         }, 500);
       } else {
-        attrs.svg.attr("height", attrs.svgHeight);
+        attrs.elements.svg.attr("height", attrs.svgHeight);
       }
     });
 
@@ -1552,13 +1451,17 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   // Zoom in exposed method
   zoomIn() {
-    const { svg } = this.getChartState();
+    const {
+      elements: { svg },
+    } = this.getChartState();
     svg.transition().call(this.zoomBehavior!.scaleBy as any, 1.3);
   }
 
   // Zoom out exposed method
   zoomOut() {
-    const { svg } = this.getChartState();
+    const {
+      elements: { svg },
+    } = this.getChartState();
     svg.transition().call(this.zoomBehavior!.scaleBy as any, 0.78);
   }
 
@@ -1575,9 +1478,12 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const that = this;
     const attrs = this.getChartState();
-    const { svg: svgImg, root } = attrs;
+    const {
+      elements: { svg },
+      root,
+    } = attrs;
     let count = 0;
-    const selection = svgImg.selectAll("img");
+    const selection = svg.selectAll("img");
     let total = selection.size();
 
     const exportImage = () => {
@@ -1586,7 +1492,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       if (full) {
         that.fit();
       }
-      const { svg } = that.getChartState();
+      const {
+        elements: { svg },
+      } = that.getChartState();
 
       setTimeout(
         () => {
@@ -1621,9 +1529,12 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   exportSvg() {
-    const { svg, imageName } = this.getChartState();
+    const {
+      elements: { svg },
+      imageName,
+    } = this.getChartState();
     downloadImage({
-      imageName: imageName,
+      imageName,
       node: svg.node()!,
       scale: 3,
       isSvg: true,
@@ -1650,5 +1561,145 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     return attrs.layoutBindings[attrs.layout];
+  }
+
+  private draw({
+    container,
+    svgWidth,
+    svgHeight,
+    defaultFont,
+    rootMargin,
+    root,
+    calc,
+  }: {
+    container: Selection<HTMLElement, unknown, null, undefined>;
+    svgWidth: number;
+    svgHeight: number;
+    defaultFont: string;
+    rootMargin: number;
+    root: HierarchyNode<Datum>;
+    calc: {
+      id: string;
+      chartWidth: number;
+      chartHeight: number;
+      centerX: number;
+      centerY: number;
+    };
+  }) {
+    //Add svg
+    const svg = (
+      container.patternify({
+        tag: "svg",
+        selector: "svg-chart-container",
+      }) as unknown as Selection<SVGSVGElement, string, HTMLElement, any>
+    )
+      .attr("width", svgWidth)
+      .attr("height", svgHeight)
+      .attr("font-family", defaultFont);
+
+    if (this.firstDraw) {
+      svg
+        .call(this.zoomBehavior! as any)
+        .on("dblclick.zoom", null)
+        .attr("cursor", "move");
+    }
+
+    //Add container g element
+    const chart = svg.patternify<
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string,
+      HTMLElement,
+      undefined
+    >({
+      tag: "g",
+      selector: "chart",
+    });
+
+    // Add one more container g element, for better positioning controls
+    const centerG = chart.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string
+    >({
+      tag: "g",
+      selector: "center-group",
+    });
+
+    const linksWrapper = centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
+      tag: "g",
+      selector: "links-wrapper",
+    });
+
+    const nodesWrapper = centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
+      tag: "g",
+      selector: "nodes-wrapper",
+    });
+
+    const connectionsWrapper = centerG.patternify<
+      SVGGElement,
+      string,
+      SVGGElement,
+      string,
+      SVGGElement,
+      string
+    >({
+      tag: "g",
+      selector: "connections-wrapper",
+    });
+
+    const defsWrapper = svg.patternify<
+      SVGGElement,
+      string,
+      SVGSVGElement,
+      string,
+      HTMLElement,
+      string
+    >({
+      tag: "g",
+      selector: "defs-wrapper",
+    });
+
+    if (this.firstDraw) {
+      centerG.attr("transform", () => {
+        return this.getLayoutBinding().centerTransform({
+          centerX: calc.centerX,
+          centerY: calc.centerY,
+          scale: this.lastTransform.k,
+          rootMargin: rootMargin,
+          root: root,
+          chartHeight: calc.chartHeight,
+          chartWidth: calc.chartWidth,
+        });
+      });
+    }
+
+    this._attrs.elements = {
+      svg,
+      centerG,
+      linksWrapper,
+      nodesWrapper,
+      connectionsWrapper,
+      defsWrapper,
+      chart,
+    };
   }
 }
