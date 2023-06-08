@@ -4,16 +4,16 @@ export function getTextWidth(
   {
     fontSize = 14,
     fontWeight = 400,
-    defaultFont = 'Helvetice',
+    font = 'Helvetica',
     ctx,
   }: {
     fontSize?: number;
     fontWeight?: number;
-    defaultFont?: string;
+    font?: string;
     ctx?: CanvasRenderingContext2D;
   } = {}
 ) {
-  ctx!.font = `${fontWeight || ''} ${fontSize}px ${defaultFont} `;
+  ctx!.font = `${fontWeight || ''} ${fontSize}px ${font} `;
   const measurement = ctx!.measureText(text);
   return measurement.width;
 }
