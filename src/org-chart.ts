@@ -14,6 +14,7 @@ import {
   State,
   ConcreteDatum,
   Connection,
+  Elements,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -168,7 +169,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .y((d: any) => d.y),
 
     layoutBindings: defaultLayoutBindings,
+    // TODO Make non-partial
   } as Partial<State<Datum>> as State<Datum>;
+
+  private elements!: Elements;
 
   constructor() {
     // Dynamically set getter and setter functions for OrgChart class instance
@@ -302,7 +306,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         .select(attrs.container as Element)
         .node()!
         .getBoundingClientRect();
-      attrs.elements.svg.attr("width", containerRect.width);
+      this.elements.svg.attr("width", containerRect.width);
     });
 
     if (this.firstDraw) {
@@ -564,14 +568,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       (d) => visibleNodesMap[d.from] && visibleNodesMap[d.to]
     );
     const defsString = attrs.defs.bind(this)(attrs, visibleConnections);
-    const existingString = attrs.elements.defsWrapper.html();
+    const existingString = this.elements.defsWrapper.html();
     if (defsString !== existingString) {
-      attrs.elements.defsWrapper.html(defsString);
+      this.elements.defsWrapper.html(defsString);
     }
 
     // --------------------------  LINKS ----------------------
     // Get links selection
-    const linkSelection = attrs.elements.linksWrapper
+    const linkSelection = this.elements.linksWrapper
       .selectAll<SVGPathElement, FlextreeNode<unknown>>("path.link")
       .data(links, (d: any) => attrs.nodeId(d.data)!);
 
@@ -676,7 +680,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // --------------------------  CONNECTIONS ----------------------
 
-    const connectionsSel = attrs.elements.connectionsWrapper
+    const connectionsSel = this.elements.connectionsWrapper
       .selectAll<SVGPathElement, Connection>("path.connection")
       .data(visibleConnections);
 
@@ -758,7 +762,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // --------------------------  NODES ----------------------
     // Get nodes selection
-    const nodesSelection = attrs.elements.nodesWrapper
+    const nodesSelection = this.elements.nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
       .data(nodes, ({ data }) => attrs.nodeId(data)!);
 
@@ -1017,7 +1021,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   restyleForeignObjectElements() {
     const attrs = this.getChartState();
 
-    attrs.elements.svg
+    this.elements.svg
       .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
         ".node-foreign-object"
       )
@@ -1025,7 +1029,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("height", ({ height }: any) => height)
       .attr("x", ({ width }: any) => 0)
       .attr("y", ({ height }: any) => 0);
-    attrs.elements.svg
+    this.elements.svg
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         ".node-foreign-object-div"
       )
@@ -1246,8 +1250,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   /* Zoom handler function */
   zoomed(event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) {
-    const attrs = this.getChartState();
-    const chart = attrs.elements.chart;
+    const chart = this.elements.chart;
 
     // Get d3 event's transform object
     const transform = event.transform;
@@ -1277,23 +1280,18 @@ export class OrgChart<Datum extends ConcreteDatum>
     y1: number;
     params?: { animate?: boolean; scale?: boolean };
   }) {
-    const {
-      elements: { centerG, svg },
-      svgWidth: w,
-      svgHeight: h,
-      duration,
-    } = this.getChartState();
+    const { svgWidth: w, svgHeight: h, duration } = this.getChartState();
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
     let identity = d3.zoomIdentity.translate(w / 2, h / 2);
     identity = identity.scale(params.scale ? scaleVal : this.lastTransform.k);
 
     identity = identity.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
     // Transition zoom wrapper component into specified bounds
-    svg
+    this.elements.svg
       .transition()
       .duration(params.animate ? duration : 0)
       .call(this.zoomBehavior!.transform as any, identity);
-    centerG
+    this.elements.centerG
       .transition()
       .duration(params.animate ? duration : 0)
       .attr("transform", "translate(0,0)");
@@ -1432,6 +1430,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   // It can take selector which would go fullscreen
   fullscreen(elem?: Element) {
+    const that = this;
     const attrs = this.getChartState();
     const el = d3.select(elem || (attrs.container as any)).node();
 
@@ -1439,10 +1438,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       const fsElement = document.fullscreenElement;
       if (fsElement == el) {
         setTimeout(() => {
-          attrs.elements.svg.attr("height", window.innerHeight - 40);
+          that.elements.svg.attr("height", window.innerHeight - 40);
         }, 500);
       } else {
-        attrs.elements.svg.attr("height", attrs.svgHeight);
+        that.elements.svg.attr("height", attrs.svgHeight);
       }
     });
 
@@ -1451,18 +1450,14 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   // Zoom in exposed method
   zoomIn() {
-    const {
-      elements: { svg },
-    } = this.getChartState();
-    svg.transition().call(this.zoomBehavior!.scaleBy as any, 1.3);
+    this.elements.svg.transition().call(this.zoomBehavior!.scaleBy as any, 1.3);
   }
 
   // Zoom out exposed method
   zoomOut() {
-    const {
-      elements: { svg },
-    } = this.getChartState();
-    svg.transition().call(this.zoomBehavior!.scaleBy as any, 0.78);
+    this.elements.svg
+      .transition()
+      .call(this.zoomBehavior!.scaleBy as any, 0.78);
   }
 
   exportImg({
@@ -1478,12 +1473,9 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const that = this;
     const attrs = this.getChartState();
-    const {
-      elements: { svg },
-      root,
-    } = attrs;
+    const { root } = attrs;
     let count = 0;
-    const selection = svg.selectAll("img");
+    const selection = this.elements.svg.selectAll("img");
     let total = selection.size();
 
     const exportImage = () => {
@@ -1492,9 +1484,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       if (full) {
         that.fit();
       }
-      const {
-        elements: { svg },
-      } = that.getChartState();
+      const { svg } = that.elements;
 
       setTimeout(
         () => {
@@ -1529,13 +1519,10 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   exportSvg() {
-    const {
-      elements: { svg },
-      imageName,
-    } = this.getChartState();
+    const { imageName } = this.getChartState();
     downloadImage({
       imageName,
-      node: svg.node()!,
+      node: this.elements.svg.node()!,
       scale: 3,
       isSvg: true,
     });
@@ -1692,7 +1679,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
     }
 
-    this._attrs.elements = {
+    this.elements = {
       svg,
       centerG,
       linksWrapper,

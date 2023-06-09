@@ -210,8 +210,6 @@ export interface State<Datum> {
 
   root: HierarchyNode<Datum>;
   allNodes: ReadonlyArray<HierarchyNode<Datum>>;
-
-  elements: Elements;
 }
 
 export type Layout = "left" | "bottom" | "right" | "top";
