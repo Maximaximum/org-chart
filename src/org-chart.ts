@@ -4,7 +4,7 @@ import { select, Selection } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
-import { flextree, FlextreeNode } from "d3-flextree";
+import { flextree, FlextreeLayout, FlextreeNode } from "d3-flextree";
 import { linkHorizontal } from "d3-shape";
 
 import {
@@ -65,6 +65,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   private firstDraw = true;
   /** Configure how many nodes to show when making new nodes appear  */
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
+
+  private flexTreeLayout: FlextreeLayout<Datum> | undefined;
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
@@ -263,7 +265,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     //****************** ROOT node work ************************
 
-    attrs.flexTreeLayout = flextree<Datum>({
+    this.flexTreeLayout = flextree<Datum>({
       nodeSize: (node: any) => {
         const width = attrs.nodeWidth(node);
         const height = attrs.nodeHeight(node);
@@ -534,7 +536,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //  Assigns the x and y position for the nodes
-    const treeData = attrs.flexTreeLayout(attrs.root);
+    const treeData = this.flexTreeLayout!(attrs.root);
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {

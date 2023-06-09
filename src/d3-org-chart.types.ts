@@ -171,7 +171,6 @@ export interface State<Datum> {
       }
     | undefined;
 
-  flexTreeLayout: FlextreeLayout<Datum>;
   /** Configure minimum number of visible nodes , after which paging button appears */
   minPagingVisibleNodes: any;
   /** Configure exported PNG and SVG image name */
