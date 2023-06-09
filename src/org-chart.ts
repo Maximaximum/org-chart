@@ -212,7 +212,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     return nodeStore;
   }
 
-  // This method can be invoked via chart.setZoomFactor API, it zooms to particulat scale
+  /** This method can be invoked via chart.setZoomFactor API, it zooms to particular scale */
   initialZoom(zoomLevel: number) {
     const attrs = this.getChartState();
     this.lastTransform.k = zoomLevel;
@@ -228,7 +228,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //Drawing containers
-    // 'as Element' is a TS bug workaround
+    // 'as HTMLElement' is a TS bug workaround
     const container = d3.select(attrs.container as HTMLElement);
     const containerRect = container.node()!.getBoundingClientRect();
     if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
