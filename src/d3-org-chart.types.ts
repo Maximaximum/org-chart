@@ -175,8 +175,6 @@ export interface State<Datum> {
   minPagingVisibleNodes: any;
   /** Configure exported PNG and SVG image name */
   imageName: string;
-  diagonal: any;
-  hdiagonal: any;
   /** Node paging button content and styling. You can access same helper methods as above. */
   pagingButton: (
     d: HierarchyNode<Datum>,

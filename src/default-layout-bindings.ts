@@ -1,5 +1,5 @@
-import { Layout, LayoutBinding, Point } from './d3-org-chart.types';
-import { diagonal, hdiagonal } from './diagonals';
+import { Layout, LayoutBinding, Point } from "./d3-org-chart.types";
+import { vdiagonal, hdiagonal } from "./diagonals";
 
 type Datum = any;
 
@@ -123,7 +123,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     },
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
-    diagonal: diagonal,
+    diagonal: vdiagonal,
     swap: ((d: Point) => {}) as any,
     nodeUpdateTransform: ({ x, y, width, height }) =>
       `translate(${x - width / 2},${y})`,
@@ -183,7 +183,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     },
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
-    diagonal: diagonal,
+    diagonal: vdiagonal,
     swap: ((d: Point) => {
       d.y = -d.y;
     }) as any,

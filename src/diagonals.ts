@@ -1,4 +1,4 @@
-import { Point } from './d3-org-chart.types';
+import { Point } from "./d3-org-chart.types";
 
 /**  Horizontal diagonal generation algorithm - https://observablehq.com/@bumbeishvili/curved-edges-compact-horizontal */
 export const hdiagonal = function (s: Point, t: Point, m: Point) {
@@ -46,7 +46,7 @@ export const hdiagonal = function (s: Point, t: Point, m: Point) {
 };
 
 /** Vertical diagonal generation algorithm - https://observablehq.com/@bumbeishvili/curved-edges-compacty-vertical */
-export const diagonal = function (
+export const vdiagonal = function (
   s: Point,
   t: Point,
   m: Point,
