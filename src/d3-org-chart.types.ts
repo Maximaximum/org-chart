@@ -75,8 +75,6 @@ export interface State<Datum> {
   nodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
   /** Given a node, returns its parent id for equality comparisons */
   parentNodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
-  /** CSS color, for example "#2C3E50" */
-  backgroundColor: string;
   /** Defining arrows with markers for connections */
   defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
   /** You can update connections with custom styling using this function */
