@@ -57,8 +57,6 @@ export interface State<Datum> {
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */
   container: string | HTMLElement;
-  /** CSS color, for example "#2C3E50" */
-  defaultTextFill: string;
   /** Font name, for example "Helvetica" */
   defaultFont: string;
   /** Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable) */
@@ -104,7 +102,7 @@ export interface State<Datum> {
   /** Configure margin between parent and children, use with caution, it is better to have the same value set for all nodes */
   childrenMargin: (node: HierarchyNode<Datum>) => number;
   /** Configure margin between two nodes, use with caution, it is better to have the same value set for all nodes */
-  neightbourMargin: (
+  neighbourMargin: (
     node1: HierarchyNode<Datum>,
     node2: HierarchyNode<Datum>
   ) => number;
@@ -204,7 +202,6 @@ export interface State<Datum> {
   /** Callback for zoom & panning end */
   onZoomEnd: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
 
-  neighbourMargin: any;
   /** When correcting links which is not working for safari */
   linkYOffset: any;
 

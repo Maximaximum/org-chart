@@ -79,7 +79,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     rootMargin: 40,
     nodeWidth: (d3Node) => 250,
     nodeHeight: (d) => 150,
-    neighbourMargin: (n1: any, n2: any) => 80,
+    neighbourMargin: (n1, n2) => 80,
     siblingsMargin: (d3Node) => 20,
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
@@ -279,7 +279,9 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
       },
     }).spacing((nodeA, nodeB) =>
-      nodeA.parent == nodeB.parent ? 0 : attrs.neighbourMargin(nodeA, nodeB)
+      nodeA.parent == nodeB.parent
+        ? 0
+        : attrs.neighbourMargin(nodeA as any, nodeB as any)
     );
 
     this.setLayouts({ expandNodesFirst: false });
