@@ -25,6 +25,7 @@ import { defaultNodeContent } from "./default-node-content";
 import { connectionArrowhead, connectionLabel } from "./connection-defs";
 import { pagingButton } from "./paging-button";
 import { D3ZoomEvent } from "d3";
+import { groupBy } from "./group-by";
 
 const d3 = {
   select,
@@ -266,7 +267,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     //****************** ROOT node work ************************
 
     this.flexTreeLayout = flextree<Datum>({
-      nodeSize: (node: any) => {
+      nodeSize: (n) => {
+        const node = n as HierarchyNode<Datum>;
         const width = attrs.nodeWidth(node);
         const height = attrs.nodeHeight(node);
         const siblingsMargin = attrs.siblingsMargin(node);
@@ -283,7 +285,10 @@ export class OrgChart<Datum extends ConcreteDatum>
     }).spacing((nodeA, nodeB) =>
       nodeA.parent == nodeB.parent
         ? 0
-        : attrs.neighbourMargin(nodeA as any, nodeB as any)
+        : attrs.neighbourMargin(
+            nodeA as HierarchyNode<Datum>,
+            nodeB as HierarchyNode<Datum>
+          )
     );
 
     this.setLayouts({ expandNodesFirst: false });
@@ -384,22 +389,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     return this;
   }
 
-  groupBy(array: any, accessor: any, aggegator: any) {
-    const grouped: Record<any, any> = {};
-    array.forEach((item: any) => {
-      const key = accessor(item);
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key].push(item);
-    });
-
-    Object.keys(grouped).forEach((key) => {
-      grouped[key] = aggegator(grouped[key]);
-    });
-    return Object.entries(grouped);
-  }
-
   calculateCompactFlexDimensions(root: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
     root.eachBefore((node) => {
@@ -429,7 +418,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         )!;
         const columnSize =
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
-        const rowsMapNew = this.groupBy(
+        const rowsMapNew = groupBy(
           compactChildren,
           (d: any) => d.row,
           (reducedGroup: any) =>
@@ -440,7 +429,7 @@ export class OrgChart<Datum extends ConcreteDatum>
                 attrs.compactMarginBetween(d)
             )
         );
-        const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
+        const rowSize = d3.sum(rowsMapNew.map((v) => v[1]) as any);
         compactChildren.forEach((node) => {
           node.firstCompactNode = compactChildren[0];
           if ((node as any).firstCompact) {
@@ -489,7 +478,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           compactChildren.forEach((d) => (d.x += offsetX));
         }
 
-        const rowsMapNew = this.groupBy(
+        const rowsMapNew = groupBy(
           compactChildren,
           (d: any) => d.row,
           (reducedGroup: any) =>
@@ -1067,14 +1056,14 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (d.children) {
       //Collapse them
       d._children = d.children;
-      d.children = null as any;
+      d.children = undefined;
 
       // Set descendants expanded property to false
       this.setExpansionFlagToChildren(d, false);
     } else {
       // Expand children
-      d.children = d._children as any;
-      d._children = null;
+      d.children = d._children;
+      d._children = undefined;
 
       // Set each children as expanded
       if (d.children) {
@@ -1239,7 +1228,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (d.children) {
       d._children = d.children;
       d._children.forEach((ch) => this.collapse(ch));
-      d.children = null as any;
+      d.children = undefined;
     }
   }
 
@@ -1248,7 +1237,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (d._children) {
       d.children = d._children;
       d.children.forEach((ch) => this.expand(ch));
-      d._children = null;
+      d._children = undefined;
     }
   }
 

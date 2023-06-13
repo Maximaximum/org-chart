@@ -21,7 +21,7 @@ export interface Point {
 
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   firstCompactNode: any;
-  _children: any[] | null;
+  _children: this[] | undefined;
   width: any;
   x: any;
   y: any;
@@ -72,9 +72,9 @@ export interface State<Datum> {
   /** Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}] */
   connections: Connection[];
   /** Given a node, returns an id for equality comparisons */
-  nodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
+  nodeId: (node: Datum) => NodeId | undefined;
   /** Given a node, returns its parent id for equality comparisons */
-  parentNodeId: (node: HierarchyNode<Datum> | Datum) => NodeId | undefined;
+  parentNodeId: (node: Datum) => NodeId | undefined;
   /** Defining arrows with markers for connections */
   defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
   /** You can update connections with custom styling using this function */
@@ -269,6 +269,7 @@ export type StateGetSet<T, TSelf> = {
 };
 
 export interface ConcreteDatum {
+  _directSubordinates?: number;
   _directSubordinatesPaging?: number;
   _upToTheRootHighlighted?: boolean;
   _highlighted?: boolean;
