@@ -253,7 +253,12 @@ export interface LayoutBinding<Datum> {
     centerX: number;
     scale: number;
   }) => string;
-  diagonal(source: Point, target: Point, m: Point | null, offset?: any): string;
+  diagonal(
+    source: Point,
+    target: Point,
+    m: Point | null,
+    offset?: { sy: number }
+  ): string;
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
   nodeUpdateTransform: (
