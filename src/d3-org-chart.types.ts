@@ -20,17 +20,17 @@ export interface Point {
 }
 
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
-  firstCompactNode: any;
+  firstCompactNode: HierarchyNode<Datum> | undefined;
   _children: this[] | undefined;
   width: any;
   x: any;
   y: any;
   x0: any;
   y0: any;
-  compactEven: any;
+  compactEven: boolean | null;
   flexCompactDim: number[] | null;
-  firstCompact: any;
-  row: any;
+  firstCompact: boolean | null;
+  row: number;
 }
 
 export interface Elements {
@@ -72,7 +72,7 @@ export interface State<Datum> {
   /** Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}] */
   connections: Connection[];
   /** Given a node, returns an id for equality comparisons */
-  nodeId: (node: Datum) => NodeId | undefined;
+  nodeId: (node: Datum) => NodeId;
   /** Given a node, returns its parent id for equality comparisons */
   parentNodeId: (node: Datum) => NodeId | undefined;
   /** Defining arrows with markers for connections */
@@ -83,13 +83,13 @@ export interface State<Datum> {
   linkUpdate: (
     node: HierarchyNode<Datum>,
     index: number,
-    nodes: Array<HierarchyNode<Datum>>
+    nodes: HierarchyNode<Datum>[]
   ) => void;
   /** You can access and modify actual node DOM element in runtime using this method. */
   nodeUpdate: (
     node: HierarchyNode<Datum>,
     index: number,
-    nodes: Array<HierarchyNode<Datum>>
+    nodes: HierarchyNode<Datum>[]
   ) => void;
   /** Configure each node width, use with caution, it is better to have the same value set for all nodes */
   nodeWidth: (node: HierarchyNode<Datum>) => number;
@@ -109,9 +109,9 @@ export interface State<Datum> {
   /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
   compactMarginBetween: (node: HierarchyNode<Datum>) => number;
   /** A function which is triggered when the node is clicked. */
-  onNodeClick: (node: NodeId) => void;
+  onNodeClick: (node: HierarchyNode<Datum>) => void;
   /** Link generator for connections */
-  linkGroupArc: Link<any, DefaultLinkObject, [number, number]>;
+  linkGroupArc: Link<any, DefaultLinkObject, Point>;
   /** A function which renders the given node as HTML content.
   * Node HTML content generation , remember that you can access some helper methods:
 
@@ -138,7 +138,7 @@ export interface State<Datum> {
   nodeContent: (
     node: HierarchyNode<Datum>,
     index: number,
-    nodes: Array<HierarchyNode<Datum>>,
+    nodes: HierarchyNode<Datum>[],
     state: State<Datum>
   ) => string;
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */
@@ -170,25 +170,25 @@ export interface State<Datum> {
     | undefined;
 
   /** Configure minimum number of visible nodes , after which paging button appears */
-  minPagingVisibleNodes: any;
+  minPagingVisibleNodes: (d: HierarchyNode<Datum>) => number;
   /** Configure exported PNG and SVG image name */
   imageName: string;
   /** Node paging button content and styling. You can access same helper methods as above. */
   pagingButton: (
     d: HierarchyNode<Datum>,
     i: number,
-    arr: any[],
+    arr: HTMLDivElement[],
     state: State<Datum>
   ) => string;
 
   /** Configure expand & collapse button width */
-  nodeButtonWidth: any;
+  nodeButtonWidth: (d: HierarchyNode<Datum>) => number;
   /** Configure expand & collapse button height */
-  nodeButtonHeight: any;
+  nodeButtonHeight: (d: HierarchyNode<Datum>) => number;
   /** Configure expand & collapse button x position */
-  nodeButtonX: any;
+  nodeButtonX: (d: HierarchyNode<Datum>) => number;
   /** Configure expand & collapse button y position */
-  nodeButtonY: any;
+  nodeButtonY: (d: HierarchyNode<Datum>) => number;
 
   /** Callback for zoom & panning  */
   onZoom: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
@@ -198,7 +198,7 @@ export interface State<Datum> {
   onZoomEnd: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
 
   /** When correcting links which is not working for safari */
-  linkYOffset: any;
+  linkYOffset: number;
 
   root: HierarchyNode<Datum>;
   allNodes: ReadonlyArray<HierarchyNode<Datum>>;

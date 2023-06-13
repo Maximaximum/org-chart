@@ -1,1 +1,1 @@
-export { OrgChart, HierarchyNode } from "./src";
+export { OrgChart, HierarchyNode, ConcreteDatum } from "./src";

@@ -5,7 +5,7 @@ import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
 import { flextree, FlextreeLayout, FlextreeNode } from "d3-flextree";
-import { linkHorizontal } from "d3-shape";
+import { DefaultLinkObject, Link, linkHorizontal } from "d3-shape";
 
 import {
   NodeId,
@@ -15,6 +15,7 @@ import {
   ConcreteDatum,
   Connection,
   Elements,
+  Point,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -77,8 +78,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     data: null,
     connections: [],
     defaultFont: "Helvetica",
-    nodeId: (d: any) => d.nodeId || d.id,
-    parentNodeId: (d: any) => d.parentNodeId || d.parentId,
+    nodeId: (d) => (d as any).nodeId || (d as any).id,
+    parentNodeId: (d) => (d as any).parentNodeId || (d as any).parentId,
     rootMargin: 40,
     nodeWidth: (d3Node) => 250,
     nodeHeight: (d) => 150,
@@ -87,12 +88,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
     compactMarginBetween: (d3Node) => 20,
-    nodeButtonWidth: (d: HierarchyNode<Datum>) => 40,
-    nodeButtonHeight: (d: HierarchyNode<Datum>) => 40,
-    nodeButtonX: (d: HierarchyNode<Datum>) => -20,
-    nodeButtonY: (d: HierarchyNode<Datum>) => -20,
+    nodeButtonWidth: (d) => 40,
+    nodeButtonHeight: (d) => 40,
+    nodeButtonX: (d) => -20,
+    nodeButtonY: (d) => -20,
     linkYOffset: 30,
-    minPagingVisibleNodes: (d: HierarchyNode<Datum>) => 2000,
+    minPagingVisibleNodes: (d) => 2000,
     scaleExtent: [0.001, 20],
     duration: 400,
     imageName: "Chart",
@@ -105,12 +106,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     onNodeClick: (d) => d,
     nodeContent: defaultNodeContent,
     buttonContent: defaultButtonContent<Datum>,
-    pagingButton: (
-      d: HierarchyNode<Datum>,
-      i: number,
-      arr: any[],
-      state: State<Datum>
-    ) => {
+    pagingButton: (d, i, arr, state) => {
       const step = this.pagingStep(d.parent!);
       const currentIndex = d.parent!.data._pagingStep;
       const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
@@ -158,18 +154,19 @@ export class OrgChart<Datum extends ConcreteDatum>
       `;
     },
     connectionsUpdate: function (d, i, arr) {
-      d3.select(this)
+      d3.select<SVGPathElement, Connection<Datum>>(this)
         .attr("stroke", (d) => "#E27396")
         .attr("stroke-linecap", "round")
         .attr("stroke-width", (d) => "5")
         .attr("pointer-events", "none")
-        .attr("marker-start", (d: any) => `url(#${d.from + "_" + d.to})`)
-        .attr("marker-end", (d: any) => `url(#arrow-${d.from + "_" + d.to})`);
+        .attr("marker-start", (d) => `url(#${d.from + "_" + d.to})`)
+        .attr("marker-end", (d) => `url(#arrow-${d.from + "_" + d.to})`);
     },
-    linkGroupArc: d3
-      .linkHorizontal()
-      .x((d: any) => d.x)
-      .y((d: any) => d.y),
+    linkGroupArc: (
+      d3.linkHorizontal() as any as Link<any, DefaultLinkObject, Point>
+    )
+      .x((d) => d.x)
+      .y((d) => d.y),
 
     layoutBindings: defaultLayoutBindings,
     // TODO Make non-partial
@@ -395,13 +392,15 @@ export class OrgChart<Datum extends ConcreteDatum>
       node.firstCompact = null;
       node.compactEven = null;
       node.flexCompactDim = null;
-      node.firstCompactNode = null;
+      node.firstCompactNode = undefined;
     });
     root.eachBefore((node) => {
       if (node.children && node.children.length > 1) {
         const compactChildren = node.children.filter((d) => !d.children);
 
-        if (compactChildren.length < 2) return;
+        if (compactChildren.length < 2) {
+          return;
+        }
         compactChildren.forEach((child, i) => {
           if (!i) child.firstCompact = true;
           if (i % 2) child.compactEven = false;
@@ -420,7 +419,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
         const rowsMapNew = groupBy(
           compactChildren,
-          (d) => d.row,
+          (d) => d.row + "",
           (reducedGroup) =>
             d3.max(
               reducedGroup,
@@ -432,16 +431,16 @@ export class OrgChart<Datum extends ConcreteDatum>
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
         compactChildren.forEach((node) => {
           node.firstCompactNode = compactChildren[0];
-          if ((node as any).firstCompact) {
-            (node as any).flexCompactDim = [
+          if (node.firstCompact) {
+            node.flexCompactDim = [
               columnSize + attrs.compactMarginPair(node),
               rowSize - attrs.compactMarginBetween(node),
             ];
           } else {
-            (node as any).flexCompactDim = [0, 0];
+            node.flexCompactDim = [0, 0];
           }
         });
-        (node as any).flexCompactDim = null;
+        node.flexCompactDim = null;
       }
     });
   }
@@ -450,11 +449,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     root.eachBefore((node) => {
       if (node.children) {
-        const compactChildren = node.children.filter(
-          (d: any) => d.flexCompactDim
-        );
+        const compactChildren = node.children.filter((d) => d.flexCompactDim);
         const fch = compactChildren[0];
-        if (!fch) return;
+        if (!fch) {
+          return;
+        }
         compactChildren.forEach((child, i, arr) => {
           if (i == 0) fch.x -= fch.flexCompactDim![0] / 2;
           if (i & ((i % 2) - 1))
@@ -480,7 +479,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
         const rowsMapNew = groupBy(
           compactChildren,
-          (d) => d.row,
+          (d) => d.row + "",
           (reducedGroup) =>
             d3.max(reducedGroup, (d) =>
               this.getLayoutBinding().compactDimension.sizeRow(d)
@@ -544,11 +543,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     const connections = attrs.connections;
 
     const allNodesMap = Object.fromEntries(
-      attrs.allNodes.map((d) => [attrs.nodeId(d.data)!, d])
+      attrs.allNodes.map((d) => [attrs.nodeId(d.data), d])
     );
 
     const visibleNodesMap = Object.fromEntries(
-      nodes.map((d: any) => [attrs.nodeId(d.data)!, d])
+      nodes.map((d) => [attrs.nodeId(d.data), d])
     );
 
     connections.forEach((connection) => {
@@ -569,8 +568,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  LINKS ----------------------
     // Get links selection
     const linkSelection = this.elements.linksWrapper
-      .selectAll<SVGPathElement, FlextreeNode<unknown>>("path.link")
-      .data(links, (d: any) => attrs.nodeId(d.data)!);
+      .selectAll<SVGPathElement, FlextreeNode<Datum>>("path.link")
+      .data(links, (d) => attrs.nodeId(d.data)!);
 
     // Enter any new links at the parent's previous position.
     const linkEnter = linkSelection
@@ -757,7 +756,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Get nodes selection
     const nodesSelection = this.elements.nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
-      .data(nodes, ({ data }) => attrs.nodeId(data)!);
+      .data(nodes, ({ data }) => attrs.nodeId(data));
 
     // Enter any new nodes at the parent's previous position.
     const nodeEnter = nodesSelection
@@ -781,19 +780,18 @@ export class OrgChart<Datum extends ConcreteDatum>
         return `translate(${xj},${yj})`;
       })
       .attr("cursor", "pointer")
-      .on("click", (event: any, node: any) => {
+      .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
         const { data } = node;
-        if (
-          [...event.srcElement.classList].includes("node-button-foreign-object")
-        ) {
+        const targetClasses = (event.target! as HTMLElement).classList;
+        if (targetClasses.contains("node-button-foreign-object")) {
           return;
         }
-        if ([...event.srcElement.classList].includes("paging-button-wrapper")) {
+        if (targetClasses.contains("paging-button-wrapper")) {
           this.loadPagingNodes(node);
           return;
         }
         if (!data._pagingButton) {
-          attrs.onNodeClick(data);
+          attrs.onNodeClick(node);
           console.log("node clicked");
           return;
         }
@@ -837,7 +835,9 @@ export class OrgChart<Datum extends ConcreteDatum>
         selector: "node-button-g",
         data: (d) => [d],
       })
-      .on("click", (event: any, d: any) => this.onButtonClick(event, d));
+      .on("click", (event: PointerEvent, d) => {
+        this.onButtonClick(event, d as HierarchyNode<Datum>);
+      });
 
     nodeButtonGroups
       .patternify({
@@ -847,10 +847,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("opacity", 0)
       .attr("pointer-events", "all")
-      .attr("width", (d) => attrs.nodeButtonWidth(d))
-      .attr("height", (d) => attrs.nodeButtonHeight(d))
-      .attr("x", (d) => attrs.nodeButtonX(d))
-      .attr("y", (d) => attrs.nodeButtonY(d));
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
 
     // Add expand collapse button content
     const nodeFo = nodeButtonGroups
@@ -859,10 +859,10 @@ export class OrgChart<Datum extends ConcreteDatum>
         selector: "node-button-foreign-object",
         data: (d) => [d],
       })
-      .attr("width", (d) => attrs.nodeButtonWidth(d))
-      .attr("height", (d) => attrs.nodeButtonHeight(d))
-      .attr("x", (d) => attrs.nodeButtonX(d))
-      .attr("y", (d) => attrs.nodeButtonY(d))
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
       .style("overflow", "visible")
       .patternify({
         tag: "xhtml:div",
@@ -892,17 +892,17 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Style node rectangles
     nodeUpdate
       .select(".node-rect")
-      .attr("width", ({ width }: any) => width)
-      .attr("height", ({ height }: any) => height)
-      .attr("x", ({ width }: any) => 0)
-      .attr("y", ({ height }: any) => 0)
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0)
       .attr("cursor", "pointer")
       .attr("rx", 3)
       .attr("fill", this.nodeDefaultBackground);
 
     nodeUpdate
       .select(".node-button-g")
-      .attr("transform", ({ data, width, height }: any) => {
+      .attr("transform", ({ data, width, height }) => {
         const x = this.getLayoutBinding().buttonX({
           width,
           height,
@@ -913,10 +913,10 @@ export class OrgChart<Datum extends ConcreteDatum>
         } as any);
         return `translate(${x},${y})`;
       })
-      .attr("display", ({ data }: any) => {
-        return data._directSubordinates > 0 ? null : "none";
+      .attr("display", ({ data }) => {
+        return data._directSubordinates! > 0 ? null : "none";
       })
-      .attr("opacity", ({ data, children, _children }: any) => {
+      .attr("opacity", ({ data, children, _children }) => {
         if (data._pagingButton) {
           return 0;
         }
@@ -929,7 +929,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Restyle node button circle
     nodeUpdate
       .select(".node-button-foreign-object .node-button-div")
-      .html((node: any) => {
+      .html((node) => {
         return attrs.buttonContent({ node, state: attrs });
       });
 
@@ -938,11 +938,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       .select(".node-button-text")
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "middle")
-      .attr("font-size", ({ children }: any) => {
+      .attr("font-size", ({ children }) => {
         if (children) return 40;
         return 26;
       })
-      .text(({ children }: any) => {
+      .text(({ children }) => {
         if (children) return "-";
         return "+";
       })
@@ -1018,26 +1018,26 @@ export class OrgChart<Datum extends ConcreteDatum>
       .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
         ".node-foreign-object"
       )
-      .attr("width", ({ width }: any) => width)
-      .attr("height", ({ height }: any) => height)
-      .attr("x", ({ width }: any) => 0)
-      .attr("y", ({ height }: any) => 0);
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0);
     this.elements.svg
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         ".node-foreign-object-div"
       )
-      .style("width", ({ width }: any) => `${width}px`)
-      .style("height", ({ height }: any) => `${height}px`)
-      .html(function (d, i, arr: any) {
+      .style("width", ({ width }) => `${width}px`)
+      .style("height", ({ height }) => `${height}px`)
+      .html(function (d, i, arr) {
         if (d.data._pagingButton) {
           return `<div class="paging-button-wrapper"><div style="pointer-events:none">${attrs.pagingButton(
             d,
             i,
-            arr,
+            arr as HTMLDivElement[],
             attrs
           )}</div></div>`;
         }
-        return attrs.nodeContent.bind(this)(d as any, i, arr, attrs);
+        return attrs.nodeContent.bind(this)(d, i, arr as any, attrs);
       });
   }
 
@@ -1072,7 +1072,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     // Redraw Graph
-    this.update(d as any);
+    this.update(d);
   }
 
   // This function changes `expanded` property to descendants
@@ -1135,7 +1135,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.setLayouts({ expandNodesFirst: true });
 
     // Redraw Graphs
-    this.update(attrs.root as any);
+    this.update(attrs.root);
   }
 
   setLayouts({ expandNodesFirst = true }) {
@@ -1149,21 +1149,21 @@ export class OrgChart<Datum extends ConcreteDatum>
     const hiddenNodesMap: Record<any, any> = {};
     attrs.root
       .descendants()
-      .filter((node: any) => node.children)
-      .filter((node: any) => !node.data._pagingStep)
-      .forEach((node: any) => {
+      .filter((node) => node.children)
+      .filter((node) => !node.data._pagingStep)
+      .forEach((node) => {
         node.data._pagingStep = attrs.minPagingVisibleNodes(node);
       });
 
-    attrs.root.eachBefore((node: any, i: any) => {
+    attrs.root.eachBefore((node, i) => {
       node.data._directSubordinatesPaging = node.children
         ? node.children.length
         : 0;
       if (node.children) {
-        node.children.forEach((child: any, j: any) => {
+        node.children.forEach((child, j) => {
           child.data._pagingButton = false;
-          if (j > node.data._pagingStep) {
-            hiddenNodesMap[child.id] = true;
+          if (j > node.data._pagingStep!) {
+            hiddenNodesMap[child.id!] = true;
           }
           if (
             j === node.data._pagingStep &&
@@ -1171,8 +1171,8 @@ export class OrgChart<Datum extends ConcreteDatum>
           ) {
             child.data._pagingButton = true;
           }
-          if (hiddenNodesMap[child.parent.id]) {
-            hiddenNodesMap[child.id] = true;
+          if (hiddenNodesMap[child.parent!.id!]) {
+            hiddenNodesMap[child.id!] = true;
           }
         });
       }
@@ -1185,7 +1185,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       attrs.data!.filter((d) => hiddenNodesMap[(d as any).id] !== true)
     ) as any;
 
-    attrs.root.each((node: any, i: any, arr: any) => {
+    attrs.root.each((node, i, arr) => {
       let width = attrs.nodeWidth(node);
       let height = attrs.nodeHeight(node);
       Object.assign(node, { width, height });
@@ -1210,12 +1210,12 @@ export class OrgChart<Datum extends ConcreteDatum>
         attrs.root.children.forEach(this.expand);
       }
       // Then collapse them all
-      attrs.root.children.forEach((d: any) => this.collapse(d));
+      attrs.root.children.forEach((d) => this.collapse(d));
 
       // Collapse root if level is 0
       if (this.expandLevel == 0) {
         attrs.root._children = attrs.root.children;
-        attrs.root.children = null as any;
+        attrs.root.children = undefined;
       }
 
       // Then only expand nodes, which have expanded proprty set to true
@@ -1334,7 +1334,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     node.data._pagingButton = false;
     const current = node.parent!.data._pagingStep!;
-    const step = this.pagingStep(node.parent! as any);
+    const step = this.pagingStep(node.parent!);
     const newPagingIndex = current + step;
     node.parent!.data._pagingStep = newPagingIndex;
     console.log("loading paging nodes", node);
@@ -1418,7 +1418,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
-    this.update(attrs.root as any);
+    this.update(attrs.root);
   }
 
   // It can take selector which would go fullscreen
@@ -1466,7 +1466,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const that = this;
     const attrs = this.getChartState();
-    const { root } = attrs;
     let count = 0;
     const selection = this.elements.svg.selectAll("img");
     let total = selection.size();
@@ -1486,7 +1485,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             scale,
             isSvg: false,
             onAlreadySerialized: () => {
-              that.update(root as any);
+              that.update(attrs.root);
             },
             imageName: attrs.imageName,
             onLoad: onLoad,
