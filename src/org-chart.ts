@@ -87,7 +87,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     siblingsMargin: (d3Node) => 20,
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
-    compactMarginBetween: (d3Node) => 20,
+    compactMarginBetween: () => 20,
     nodeButtonWidth: (d) => 40,
     nodeButtonHeight: (d) => 40,
     nodeButtonX: (d) => -20,
@@ -425,7 +425,7 @@ export class OrgChart<Datum extends ConcreteDatum>
               reducedGroup,
               (d) =>
                 this.getLayoutBinding().compactDimension.sizeRow(d) +
-                attrs.compactMarginBetween(d)
+                attrs.compactMarginBetween()
             )
         );
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
@@ -434,7 +434,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           if (node.firstCompact) {
             node.flexCompactDim = [
               columnSize + attrs.compactMarginPair(node),
-              rowSize - attrs.compactMarginBetween(node),
+              rowSize - attrs.compactMarginBetween(),
             ];
           } else {
             node.flexCompactDim = [0, 0];
@@ -486,7 +486,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             )!
         );
         const cumSum = d3.cumsum(
-          rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween(d as any))
+          rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween())
         );
         compactChildren.forEach((node, i) => {
           if (node.row) {
