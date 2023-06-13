@@ -202,7 +202,6 @@ export interface State<Datum> {
   /** When correcting links which is not working for safari */
   linkYOffset: number;
 
-  root: HierarchyNode<Datum>;
   allNodes: ReadonlyArray<HierarchyNode<Datum>>;
 }
 

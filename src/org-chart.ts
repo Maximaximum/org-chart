@@ -173,6 +173,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   } as Partial<State<Datum>> as State<Datum>;
 
   private elements!: Elements;
+  root: HierarchyNode<Datum> | undefined;
 
   constructor() {
     // Dynamically set getter and setter functions for OrgChart class instance
@@ -295,14 +296,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       calc,
       container,
       defaultFont: attrs.defaultFont,
-      root: attrs.root,
+      root: this.root!,
       rootMargin: attrs.rootMargin,
       svgHeight: attrs.svgHeight,
       svgWidth: attrs.svgWidth,
     });
 
     // Display tree contenrs
-    this.update(attrs.root);
+    this.update(this.root!);
 
     //#########################################  UTIL FUNCS ##################################
     // This function restyles foreign object elements ()
@@ -520,15 +521,15 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Paging
     if (attrs.compact) {
-      this.calculateCompactFlexDimensions(attrs.root);
+      this.calculateCompactFlexDimensions(this.root!);
     }
 
     //  Assigns the x and y position for the nodes
-    const treeData = this.flexTreeLayout!(attrs.root);
+    const treeData = this.flexTreeLayout!(this.root!);
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
-      this.calculateCompactFlexPositions(attrs.root);
+      this.calculateCompactFlexPositions(this.root!);
     }
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
@@ -764,7 +765,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .append("g")
       .attr("class", "node")
       .attr("transform", (d) => {
-        if (d == attrs.root) return `translate(${x0},${y0})`;
+        if (d == this.root) return `translate(${x0},${y0})`;
         const xj = this.getLayoutBinding().nodeJoinX({
           x: x0,
           y: y0,
@@ -1135,27 +1136,26 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.setLayouts({ expandNodesFirst: true });
 
     // Redraw Graphs
-    this.update(attrs.root);
+    this.update(this.root!);
   }
 
   setLayouts({ expandNodesFirst = true }) {
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
-    attrs.root = d3
+    this.root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d) as any)
       .parentId((d) => attrs.parentNodeId(d) as any)(attrs.data!) as any;
 
     const hiddenNodesMap: Record<any, any> = {};
-    attrs.root
-      .descendants()
+    this.root!.descendants()
       .filter((node) => node.children)
       .filter((node) => !node.data._pagingStep)
       .forEach((node) => {
         node.data._pagingStep = attrs.minPagingVisibleNodes(node);
       });
 
-    attrs.root.eachBefore((node, i) => {
+    this.root!.eachBefore((node, i) => {
       node.data._directSubordinatesPaging = node.children
         ? node.children.length
         : 0;
@@ -1178,23 +1178,23 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
     });
 
-    attrs.root = d3
+    this.root! = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d) as any)
       .parentId((d) => attrs.parentNodeId(d) as any)(
       attrs.data!.filter((d) => hiddenNodesMap[(d as any).id] !== true)
     ) as any;
 
-    attrs.root.each((node, i, arr) => {
+    this.root!.each((node, i, arr) => {
       let width = attrs.nodeWidth(node);
       let height = attrs.nodeHeight(node);
       Object.assign(node, { width, height });
     });
 
     // Store positions, where children appear during their enter animation
-    attrs.root.x0 = 0;
-    attrs.root.y0 = 0;
-    attrs.allNodes = attrs.root.descendants();
+    this.root!.x0 = 0;
+    this.root!.y0 = 0;
+    attrs.allNodes = this.root!.descendants();
 
     // Store direct and total descendants count
     attrs.allNodes.forEach((d) => {
@@ -1204,22 +1204,22 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
     });
 
-    if (attrs.root.children) {
+    if (this.root!.children) {
       if (expandNodesFirst) {
         // Expand all nodes first
-        attrs.root.children.forEach(this.expand);
+        this.root!.children.forEach(this.expand);
       }
       // Then collapse them all
-      attrs.root.children.forEach((d) => this.collapse(d));
+      this.root!.children.forEach((d) => this.collapse(d));
 
       // Collapse root if level is 0
       if (this.expandLevel == 0) {
-        attrs.root._children = attrs.root.children;
-        attrs.root.children = undefined;
+        this.root!._children = this.root!.children;
+        this.root!.children = undefined;
       }
 
       // Then only expand nodes, which have expanded proprty set to true
-      [attrs.root].forEach((ch) => this.expandSomeNodes(ch));
+      [this.root!].forEach((ch) => this.expandSomeNodes(ch));
     }
   }
 
@@ -1300,8 +1300,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     scale?: boolean;
   } = {}) {
     const attrs = this.getChartState();
-    const { root } = attrs;
-    let descendants = nodes || root.descendants();
+    let descendants = nodes || this.root!.descendants();
     const minX = d3.min(
       descendants,
       (d) => d.x + this.getLayoutBinding().nodeLeftX(d)
@@ -1418,7 +1417,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
-    this.update(attrs.root);
+    this.update(this.root!);
   }
 
   // It can take selector which would go fullscreen
@@ -1485,7 +1484,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             scale,
             isSvg: false,
             onAlreadySerialized: () => {
-              that.update(attrs.root);
+              that.update(this.root!);
             },
             imageName: attrs.imageName,
             onLoad: onLoad,
@@ -1522,14 +1521,14 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   expandAll() {
-    const { allNodes, root } = this.getChartState();
+    const { allNodes } = this.getChartState();
     allNodes.forEach((d) => (d.data._expanded = true));
     this.render();
     return this;
   }
 
   collapseAll() {
-    const { allNodes, root } = this.getChartState();
+    const { allNodes } = this.getChartState();
     allNodes.forEach((d) => (d.data._expanded = false));
     this.expandLevel = 0;
     this.render();
