@@ -69,6 +69,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   private flexTreeLayout: FlextreeLayout<Datum> | undefined;
+  allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
@@ -326,10 +327,10 @@ export class OrgChart<Datum extends ConcreteDatum>
   // This function can be invoked via chart.addNode API, and it adds node in tree at runtime
   addNode(obj: Datum) {
     const attrs = this.getChartState();
-    const nodeFound = attrs.allNodes.filter(
+    const nodeFound = this.allNodes!.filter(
       ({ data }) => attrs.nodeId(data) === attrs.nodeId(obj)
     )[0];
-    const parentFound = attrs.allNodes.filter(
+    const parentFound = this.allNodes!.filter(
       ({ data }) => attrs.nodeId(data) === attrs.parentNodeId(obj)
     )[0];
     if (nodeFound) {
@@ -360,7 +361,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   // This function can be invoked via chart.removeNode API, and it removes node from tree at runtime
   removeNode(nodeId: NodeId) {
     const attrs = this.getChartState();
-    const node = attrs.allNodes.filter(
+    const node = this.allNodes!.filter(
       ({ data }) => attrs.nodeId(data) == nodeId
     )[0];
     if (!node) {
@@ -544,7 +545,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const connections = attrs.connections;
 
     const allNodesMap = Object.fromEntries(
-      attrs.allNodes.map((d) => [attrs.nodeId(d.data), d])
+      this.allNodes!.map((d) => [attrs.nodeId(d.data), d])
     );
 
     const visibleNodesMap = Object.fromEntries(
@@ -984,7 +985,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // CHECK FOR CENTERING
-    const centeredNode = attrs.allNodes.filter((d) => d.data._centered)[0];
+    const centeredNode = this.allNodes!.filter((d) => d.data._centered)[0];
     if (centeredNode) {
       let centeredNodes = [centeredNode];
       if (centeredNode.data._centeredWithDescendants) {
@@ -1194,10 +1195,10 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Store positions, where children appear during their enter animation
     this.root!.x0 = 0;
     this.root!.y0 = 0;
-    attrs.allNodes = this.root!.descendants();
+    this.allNodes = this.root!.descendants();
 
     // Store direct and total descendants count
-    attrs.allNodes.forEach((d) => {
+    this.allNodes.forEach((d) => {
       Object.assign(d.data, {
         _directSubordinates: d.children ? d.children.length : 0,
         _totalSubordinates: d.descendants().length - 1,
@@ -1344,7 +1345,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   setExpanded(id: NodeId, expandedFlag = true) {
     const attrs = this.getChartState();
     // Retrieve node by node Id
-    const node = attrs.allNodes.filter(
+    const node = this.allNodes!.filter(
       ({ data }) => attrs.nodeId(data) == id
     )[0];
 
@@ -1363,7 +1364,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   setCentered(nodeId: NodeId) {
     const attrs = this.getChartState();
     // this.setExpanded(nodeId)
-    const node = attrs.allNodes.filter(
+    const node = this.allNodes!.filter(
       (d) => attrs.nodeId(d.data) === nodeId
     )[0];
     if (!node) {
@@ -1379,7 +1380,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   setHighlighted(nodeId: NodeId) {
     const attrs = this.getChartState();
-    const node = attrs.allNodes.filter(
+    const node = this.allNodes!.filter(
       (d) => attrs.nodeId(d.data) === nodeId
     )[0];
     if (!node) {
@@ -1396,7 +1397,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   setUpToTheRootHighlighted(nodeId: NodeId) {
     const attrs = this.getChartState();
-    const node = attrs.allNodes.filter(
+    const node = this.allNodes!.filter(
       (d) => attrs.nodeId(d.data) === nodeId
     )[0];
     if (!node) {
@@ -1413,7 +1414,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   clearHighlighting() {
     const attrs = this.getChartState();
-    attrs.allNodes.forEach((d) => {
+    this.allNodes!.forEach((d) => {
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
@@ -1521,15 +1522,13 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   expandAll() {
-    const { allNodes } = this.getChartState();
-    allNodes.forEach((d) => (d.data._expanded = true));
+    this.allNodes!.forEach((d) => (d.data._expanded = true));
     this.render();
     return this;
   }
 
   collapseAll() {
-    const { allNodes } = this.getChartState();
-    allNodes.forEach((d) => (d.data._expanded = false));
+    this.allNodes!.forEach((d) => (d.data._expanded = false));
     this.expandLevel = 0;
     this.render();
     return this;
