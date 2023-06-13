@@ -21,11 +21,11 @@ export interface Point {
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   firstCompactNode: HierarchyNode<Datum> | undefined;
   _children: this[] | undefined;
-  width: any;
-  x: any;
-  y: any;
-  x0: any;
-  y0: any;
+  width: number;
+  x: number;
+  y: number;
+  x0: number;
+  y0: number;
   compactEven: boolean | null;
   flexCompactDim: number[] | null;
   firstCompact: boolean | null;
@@ -208,25 +208,32 @@ export interface State<Datum> {
 
 export type Layout = "left" | "bottom" | "right" | "top";
 
+export interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface LayoutBinding<Datum> {
   nodeLeftX: (node: HierarchyNode<Datum>) => number;
   nodeRightX: (node: HierarchyNode<Datum>) => number;
   nodeTopY: (node: HierarchyNode<Datum>) => number;
   nodeBottomY: (node: HierarchyNode<Datum>) => number;
-  nodeJoinX: (node: HierarchyNode<Datum>) => number;
-  nodeJoinY: (node: HierarchyNode<Datum>) => number;
-  linkJoinX: (node: HierarchyNode<Datum>) => number;
-  linkJoinY: (node: HierarchyNode<Datum>) => number;
-  linkX: (node: HierarchyNode<Datum>) => number;
-  linkY: (node: HierarchyNode<Datum>) => number;
+  nodeJoinX: (node: Rect) => number;
+  nodeJoinY: (node: Rect) => number;
+  linkJoinX: (node: Rect) => number;
+  linkJoinY: (node: Rect) => number;
+  linkX: (node: Rect) => number;
+  linkY: (node: Rect) => number;
   linkCompactXStart: (node: HierarchyNode<Datum>) => number;
   linkCompactYStart: (node: HierarchyNode<Datum>) => number;
   compactLinkMidX: (node: HierarchyNode<Datum>, state: State<Datum>) => number;
   compactLinkMidY: (node: HierarchyNode<Datum>, state: State<Datum>) => number;
   linkParentX: (node: HierarchyNode<Datum>) => number;
   linkParentY: (node: HierarchyNode<Datum>) => number;
-  buttonX: (node: HierarchyNode<Datum>) => number;
-  buttonY: (node: HierarchyNode<Datum>) => number;
+  buttonX: (node: { width: number; height: number }) => number;
+  buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */
   centerTransform: (params: {
     root: HierarchyNode<Datum>;

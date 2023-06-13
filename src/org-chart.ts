@@ -582,13 +582,13 @@ export class OrgChart<Datum extends ConcreteDatum>
           y: y0,
           width,
           height,
-        } as any);
+        });
         const yo = this.getLayoutBinding().linkJoinY({
           x: x0,
           y: y0,
           width,
           height,
-        } as any);
+        });
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, o);
       });
@@ -656,13 +656,13 @@ export class OrgChart<Datum extends ConcreteDatum>
           y,
           width,
           height,
-        } as any);
+        });
         const yo = this.getLayoutBinding().linkJoinY({
           x,
           y,
           width,
           height,
-        } as any);
+        });
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, null, {
           sy: attrs.linkYOffset,
@@ -687,13 +687,13 @@ export class OrgChart<Datum extends ConcreteDatum>
           y: y0,
           width,
           height,
-        } as any);
+        });
         const yo = this.getLayoutBinding().linkJoinY({
           x: x0,
           y: y0,
           width,
           height,
-        } as any);
+        });
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, null, {
           sy: attrs.linkYOffset,
@@ -716,25 +716,25 @@ export class OrgChart<Datum extends ConcreteDatum>
           y: d._source.y,
           width: d._source.width,
           height: d._source.height,
-        } as any);
+        });
         const ys = this.getLayoutBinding().linkY({
           x: d._source.x,
           y: d._source.y,
           width: d._source.width,
           height: d._source.height,
-        } as any);
+        });
         const xt = this.getLayoutBinding().linkJoinX({
           x: d._target.x,
           y: d._target.y,
           width: d._target.width,
           height: d._target.height,
-        } as any);
+        });
         const yt = this.getLayoutBinding().linkJoinY({
           x: d._target.x,
           y: d._target.y,
           width: d._target.width,
           height: d._target.height,
-        } as any);
+        });
         return attrs.linkGroupArc({
           source: { x: xs, y: ys },
           target: { x: xt, y: yt },
@@ -770,13 +770,13 @@ export class OrgChart<Datum extends ConcreteDatum>
           y: y0,
           width,
           height,
-        } as any);
+        });
         const yj = this.getLayoutBinding().nodeJoinY({
           x: x0,
           y: y0,
           width,
           height,
-        } as any);
+        });
         return `translate(${xj},${yj})`;
       })
       .attr("cursor", "pointer")
@@ -906,11 +906,11 @@ export class OrgChart<Datum extends ConcreteDatum>
         const x = this.getLayoutBinding().buttonX({
           width,
           height,
-        } as any);
+        });
         const y = this.getLayoutBinding().buttonY({
           width,
           height,
-        } as any);
+        });
         return `translate(${x},${y})`;
       })
       .attr("display", ({ data }) => {
@@ -962,13 +962,13 @@ export class OrgChart<Datum extends ConcreteDatum>
           y,
           width,
           height,
-        } as any);
+        });
         const ey = this.getLayoutBinding().nodeJoinY({
           x,
           y,
           width,
           height,
-        } as any);
+        });
         return `translate(${ex},${ey})`;
       })
       .on("end", function (this: any) {
@@ -977,7 +977,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("opacity", 0);
 
     // Store the old positions for transition.
-    nodes.forEach((d: any) => {
+    nodes.forEach((d) => {
       d.x0 = d.x;
       d.y0 = d.y;
     });
