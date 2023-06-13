@@ -420,16 +420,16 @@ export class OrgChart<Datum extends ConcreteDatum>
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
         const rowsMapNew = groupBy(
           compactChildren,
-          (d: any) => d.row,
-          (reducedGroup: any) =>
+          (d) => d.row,
+          (reducedGroup) =>
             d3.max(
               reducedGroup,
-              (d: any) =>
+              (d) =>
                 this.getLayoutBinding().compactDimension.sizeRow(d) +
                 attrs.compactMarginBetween(d)
             )
         );
-        const rowSize = d3.sum(rowsMapNew.map((v) => v[1]) as any);
+        const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
         compactChildren.forEach((node) => {
           node.firstCompactNode = compactChildren[0];
           if ((node as any).firstCompact) {
@@ -480,14 +480,14 @@ export class OrgChart<Datum extends ConcreteDatum>
 
         const rowsMapNew = groupBy(
           compactChildren,
-          (d: any) => d.row,
-          (reducedGroup: any) =>
-            d3.max(reducedGroup, (d: any) =>
+          (d) => d.row,
+          (reducedGroup) =>
+            d3.max(reducedGroup, (d) =>
               this.getLayoutBinding().compactDimension.sizeRow(d)
-            )
+            )!
         );
         const cumSum = d3.cumsum(
-          rowsMapNew.map((d: any) => d[1] + attrs.compactMarginBetween(d))
+          rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween(d as any))
         );
         compactChildren.forEach((node, i) => {
           if (node.row) {
