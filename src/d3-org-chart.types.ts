@@ -1,17 +1,16 @@
-import { Selection, ValueFn, BaseType } from "d3-selection";
+import { Selection, ValueFn } from "d3-selection";
 import { D3ZoomEvent } from "d3-zoom";
 import { Link, DefaultLinkObject } from "d3-shape";
 import { HierarchyNode as D3HierarchyNode } from "d3-hierarchy";
-import { FlextreeLayout, FlextreeNode } from "d3-flextree";
 
 export type NodeId = string | number;
 
-export interface Connection {
+export interface Connection<Datum> {
   from: NodeId;
   to: NodeId;
   label: string;
-  _source: any;
-  _target: any;
+  _source: HierarchyNode<Datum>;
+  _target: HierarchyNode<Datum>;
 }
 
 export interface Point {
@@ -70,15 +69,18 @@ export interface State<Datum> {
   /** Configure how much root node is offset from top  */
   rootMargin: number;
   /** Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}] */
-  connections: Connection[];
+  connections: Connection<Datum>[];
   /** Given a node, returns an id for equality comparisons */
   nodeId: (node: Datum) => NodeId;
   /** Given a node, returns its parent id for equality comparisons */
   parentNodeId: (node: Datum) => NodeId | undefined;
   /** Defining arrows with markers for connections */
-  defs: (state: State<Datum>, visibleConnections: Connection[]) => string;
+  defs: (
+    state: State<Datum>,
+    visibleConnections: Connection<Datum>[]
+  ) => string;
   /** You can update connections with custom styling using this function */
-  connectionsUpdate: ValueFn<SVGPathElement, Connection, void>;
+  connectionsUpdate: ValueFn<SVGPathElement, Connection<Datum>, void>;
   /** You can access and modify actual link DOM element in runtime using this method. */
   linkUpdate: (
     node: HierarchyNode<Datum>,

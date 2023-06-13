@@ -673,7 +673,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  CONNECTIONS ----------------------
 
     const connectionsSel = this.elements.connectionsWrapper
-      .selectAll<SVGPathElement, Connection>("path.connection")
+      .selectAll<SVGPathElement, Connection<Datum>>("path.connection")
       .data(visibleConnections);
 
     // Enter any new connections at the parent's previous position.

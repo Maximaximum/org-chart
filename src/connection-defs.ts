@@ -1,23 +1,23 @@
-import { Connection } from './d3-org-chart.types';
-import { getTextWidth } from './get-text-width';
+import { Connection } from "./d3-org-chart.types";
+import { getTextWidth } from "./get-text-width";
 
-const fillColor = '#E27396';
-const textColor = 'white';
+const fillColor = "#E27396";
+const textColor = "white";
 
-export function connectionArrowhead(conn: Connection) {
+export function connectionArrowhead<Datum>(conn: Connection<Datum>) {
   const reverse = !(conn._source.x < conn._target.x);
 
   return `<marker id="arrow-${
-    conn.from + '_' + conn.to
+    conn.from + "_" + conn.to
   }"  markerWidth="500"  markerHeight="500"  refY="2"  refX="1" orient="${
-    reverse ? 'auto-start-reverse' : 'auto'
+    reverse ? "auto-start-reverse" : "auto"
   }" >
   <path transform="translate(0)" d='M0,0 V4 L2,2 Z' fill='${fillColor}' />
   </marker>`;
 }
 
-export function connectionLabel(
-  conn: Connection,
+export function connectionLabel<Datum>(
+  conn: Connection<Datum>,
   ctx: CanvasRenderingContext2D,
   font: string
 ) {
@@ -29,14 +29,14 @@ export function connectionLabel(
 
   const reverse = !(conn._source.x < conn._target.x);
 
-  return `<marker id="${conn.from + '_' + conn.to}" refX="${
+  return `<marker id="${conn.from + "_" + conn.to}" refX="${
     reverse ? 7 : -7
   }" refY="5" markerWidth="500"  markerHeight="500"  orient="${
-    reverse ? 'auto-start-reverse' : 'auto'
+    reverse ? "auto-start-reverse" : "auto"
   }">
   <rect rx=0.5 width=${
     conn.label ? labelWidth + 3 : 0
   } height=3 y=1  fill="${fillColor}"></rect>
-  <text font-size="2px" x=1 fill="${textColor}" y=3>${conn.label || ''}</text>
+  <text font-size="2px" x=1 fill="${textColor}" y=3>${conn.label || ""}</text>
  </marker>`;
 }
