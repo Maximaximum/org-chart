@@ -201,6 +201,9 @@ export interface State<Datum> {
 
   /** When correcting links which is not working for safari */
   linkYOffset: number;
+
+  nodeGetIsExpanded: (d: Datum) => boolean;
+  nodeSetIsExpanded: (d: Datum, value: boolean) => void;
 }
 
 export type Layout = "left" | "bottom" | "right" | "top";

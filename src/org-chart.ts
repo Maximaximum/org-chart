@@ -170,6 +170,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       .y((d) => d.y),
 
     layoutBindings: defaultLayoutBindings,
+
+    nodeGetIsExpanded: (data) => !!data._expanded,
+    nodeSetIsExpanded: (data, value) => (data._expanded = value),
     // TODO Make non-partial
   } as Partial<State<Datum>> as State<Datum>;
 
@@ -349,8 +352,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       );
       return this;
     }
-    if (obj._centered && !obj._expanded) {
-      obj._expanded = true;
+    if (obj._centered && !attrs.nodeGetIsExpanded(obj)) {
+      attrs.nodeSetIsExpanded(obj, true);
     }
     attrs.data!.push(obj);
 
@@ -1071,7 +1074,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
       // Set each child as expanded
       if (d.children) {
-        d.children.forEach(({ data }) => (data._expanded = true));
+        d.children.forEach(({ data }) => {
+          attrs.nodeSetIsExpanded(data, true);
+        });
       }
     }
 
@@ -1085,7 +1090,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     flag: boolean
   ) {
     // Set flag to the current property
-    data._expanded = flag;
+    this._attrs.nodeSetIsExpanded(data, flag);
 
     // Loop over and recursively update expanded children's descendants
     if (children) {
@@ -1105,7 +1110,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   // Method which only expands nodes, which have property set "expanded=true"
   expandSomeNodes(d: HierarchyNode<Datum>) {
     // If node has expanded property set
-    if (d.data._expanded) {
+    if (this._attrs.nodeGetIsExpanded(d.data)) {
       // Retrieve node's parent
       let parent = d.parent;
 
@@ -1359,7 +1364,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       );
       return this;
     }
-    node.data._expanded = expandedFlag;
+    attrs.nodeSetIsExpanded(node.data, expandedFlag);
     return this;
   }
 
@@ -1376,7 +1381,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       return this;
     }
     node.data._centered = true;
-    node.data._expanded = true;
+    attrs.nodeSetIsExpanded(node.data, true);
     return this;
   }
 
@@ -1392,7 +1397,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       return this;
     }
     node.data._highlighted = true;
-    node.data._expanded = true;
+    attrs.nodeSetIsExpanded(node.data, true);
     node.data._centered = true;
     return this;
   }
@@ -1409,7 +1414,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       return this;
     }
     node.data._upToTheRootHighlighted = true;
-    node.data._expanded = true;
+    attrs.nodeSetIsExpanded(node.data, true);
     node.ancestors().forEach((d) => (d.data._upToTheRootHighlighted = true));
     return this;
   }
@@ -1524,13 +1529,17 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   expandAll() {
-    this.allNodes!.forEach((d) => (d.data._expanded = true));
+    this.allNodes!.forEach((d) => {
+      this._attrs.nodeSetIsExpanded(d.data, true);
+    });
     this.render();
     return this;
   }
 
   collapseAll() {
-    this.allNodes!.forEach((d) => (d.data._expanded = false));
+    this.allNodes!.forEach((d) => {
+      this._attrs.nodeSetIsExpanded(d.data, false);
+    });
     this.expandLevel = 0;
     this.render();
     return this;
