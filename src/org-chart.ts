@@ -1091,6 +1091,18 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
+  /**
+   * Ensure that all the node's ancestors are expanded so that the node becomes visible
+   * @param node to make visible
+   */
+  ensureAncestorsAreExpanded(node: HierarchyNode<Datum>) {
+    this._attrs.nodeSetIsExpanded(node.data, true);
+
+    if (node.parent) {
+      this.ensureAncestorsAreExpanded(node.parent);
+    }
+  }
+
   // Method which only expands nodes, which have property set "expanded=true"
   expandSomeNodes(d: HierarchyNode<Datum>) {
     // If node has expanded property set
