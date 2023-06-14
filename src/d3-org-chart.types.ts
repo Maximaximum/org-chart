@@ -286,11 +286,3 @@ export interface ConcreteDatum {
   _pagingButton?: boolean;
   _pagingStep?: number;
 }
-
-export interface Calc {
-  id: string;
-  chartWidth: number;
-  chartHeight: number;
-  centerX: number;
-  centerY: number;
-}

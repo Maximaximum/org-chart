@@ -16,7 +16,6 @@ import {
   Connection,
   Elements,
   Point,
-  Calc,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -242,16 +241,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     const containerRect = container.node()!.getBoundingClientRect();
     if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
 
-    //Calculated properties
-    const calc = {
-      id: `ID${Math.floor(Math.random() * 1000000)}`, // id for event handlings,
-      chartWidth: attrs.svgWidth,
-      chartHeight: attrs.svgHeight,
-      // Calculate max node depth (it's needed for layout heights calculation)
-      centerX: attrs.svgWidth / 2,
-      centerY: attrs.svgHeight / 2,
-    };
-
     // ******************* BEHAVIORS  **********************
     if (this.firstDraw) {
       this.zoomBehavior = d3
@@ -296,7 +285,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // *************************  DRAWING **************************
     this.draw({
-      calc,
       container,
       defaultFont: attrs.defaultFont,
       root: this.root!,
@@ -1556,7 +1544,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     defaultFont,
     rootMargin,
     root,
-    calc,
   }: {
     container: Selection<HTMLElement, unknown, null, undefined>;
     svgWidth: number;
@@ -1564,7 +1551,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     defaultFont: string;
     rootMargin: number;
     root: HierarchyNode<Datum>;
-    calc: Calc;
   }) {
     //Add svg
     const svg = (
@@ -1661,13 +1647,13 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (this.firstDraw) {
       centerG.attr("transform", () => {
         return this.getLayoutBinding().centerTransform({
-          centerX: calc.centerX,
-          centerY: calc.centerY,
+          centerX: svgWidth / 2,
+          centerY: svgHeight / 2,
           scale: this.lastTransform.k,
           rootMargin: rootMargin,
           root: root,
-          chartHeight: calc.chartHeight,
-          chartWidth: calc.chartWidth,
+          chartHeight: svgHeight,
+          chartWidth: svgWidth,
         });
       });
     }
