@@ -349,7 +349,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       );
       return this;
     }
-    if (obj._centered && !obj._expanded) obj._expanded = true;
+    if (obj._centered && !obj._expanded) {
+      obj._expanded = true;
+    }
     attrs.data!.push(obj);
 
     // Update state of nodes and redraw graph
@@ -1067,7 +1069,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.children = d._children;
       d._children = undefined;
 
-      // Set each children as expanded
+      // Set each child as expanded
       if (d.children) {
         d.children.forEach(({ data }) => (data._expanded = true));
       }
