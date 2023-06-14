@@ -128,7 +128,6 @@ export interface State<Datum> {
   *
   * You can also access additional properties to style your node:
   *
-  * d=>d.data._centeredWithDescendants - when node is centered with descendants
   * d=>d.data._directSubordinatesPaging - subordinates count in paging mode
   * d=>d.data._directSubordinates - subordinates count
   * d=>d.data._totalSubordinates - total subordinates count
