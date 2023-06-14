@@ -160,16 +160,10 @@ export interface State<Datum> {
    *   ```
    */
   layoutBindings: Record<Layout, LayoutBinding<Datum>>;
+  nodeGetIsExpanded: (d: Datum) => boolean;
+  nodeSetIsExpanded: (d: Datum, value: boolean) => void;
 
   // The properties underneath were meant to be non-public
-
-  calc:
-    | {
-        id: string;
-        chartWidth: number;
-        chartHeight: number;
-      }
-    | undefined;
 
   /** Configure minimum number of visible nodes , after which paging button appears */
   minPagingVisibleNodes: (d: HierarchyNode<Datum>) => number;
@@ -201,9 +195,6 @@ export interface State<Datum> {
 
   /** When correcting links which is not working for safari */
   linkYOffset: number;
-
-  nodeGetIsExpanded: (d: Datum) => boolean;
-  nodeSetIsExpanded: (d: Datum, value: boolean) => void;
 }
 
 export type Layout = "left" | "bottom" | "right" | "top";
@@ -294,4 +285,12 @@ export interface ConcreteDatum {
   _centeredWithDescendants?: boolean;
   _pagingButton?: boolean;
   _pagingStep?: number;
+}
+
+export interface Calc {
+  id: string;
+  chartWidth: number;
+  chartHeight: number;
+  centerX: number;
+  centerY: number;
 }

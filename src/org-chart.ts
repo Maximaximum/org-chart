@@ -16,6 +16,7 @@ import {
   Connection,
   Elements,
   Point,
+  Calc,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -173,8 +174,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     nodeGetIsExpanded: (data) => !!data._expanded,
     nodeSetIsExpanded: (data, value) => (data._expanded = value),
-    // TODO Make non-partial
-  } as Partial<State<Datum>> as State<Datum>;
+  } as State<Datum>;
 
   private elements!: Elements;
   root: HierarchyNode<Datum> | undefined;
@@ -251,7 +251,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       centerX: attrs.svgWidth / 2,
       centerY: attrs.svgHeight / 2,
     };
-    attrs.calc = calc;
 
     // ******************* BEHAVIORS  **********************
     if (this.firstDraw) {
@@ -523,7 +522,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     y?: number;
   }) {
     const attrs = this.getChartState();
-    const calc = attrs.calc;
 
     // Paging
     if (attrs.compact) {
@@ -1566,13 +1564,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     defaultFont: string;
     rootMargin: number;
     root: HierarchyNode<Datum>;
-    calc: {
-      id: string;
-      chartWidth: number;
-      chartHeight: number;
-      centerX: number;
-      centerY: number;
-    };
+    calc: Calc;
   }) {
     //Add svg
     const svg = (
