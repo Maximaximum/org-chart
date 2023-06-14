@@ -134,8 +134,6 @@ export interface State<Datum> {
   * d=>d.data._totalSubordinates - total subordinates count
   * d=>d._highlighted - when node is highlighted
   * d=>d._upToTheRootHighlighted - when node is highlighted up to the root
-  * d=>d._expanded - when node is expanded
-  * d=>d.data._centered - when node is centered
   */
   nodeContent: (
     node: HierarchyNode<Datum>,
@@ -162,6 +160,7 @@ export interface State<Datum> {
   layoutBindings: Record<Layout, LayoutBinding<Datum>>;
   nodeGetIsExpanded: (d: Datum) => boolean;
   nodeSetIsExpanded: (d: Datum, value: boolean) => void;
+  centeredNode: HierarchyNode<Datum> | undefined;
 
   // The properties underneath were meant to be non-public
 
@@ -279,7 +278,6 @@ export interface ConcreteDatum {
   _upToTheRootHighlighted?: boolean;
   _highlighted?: boolean;
   _expanded?: boolean;
-  _centered?: boolean;
   _filtered?: boolean;
   _filteredOut?: boolean;
   _centeredWithDescendants?: boolean;

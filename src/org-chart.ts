@@ -173,6 +173,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     nodeGetIsExpanded: (data) => !!data._expanded,
     nodeSetIsExpanded: (data, value) => (data._expanded = value),
+    centeredNode: undefined,
   } as State<Datum>;
 
   private elements!: Elements;
@@ -339,9 +340,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       );
       return this;
     }
-    if (obj._centered && !attrs.nodeGetIsExpanded(obj)) {
-      attrs.nodeSetIsExpanded(obj, true);
-    }
+
     attrs.data!.push(obj);
 
     // Update state of nodes and redraw graph
@@ -976,7 +975,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // CHECK FOR CENTERING
-    const centeredNode = this.allNodes!.filter((d) => d.data._centered)[0];
+    const centeredNode = this._attrs.centeredNode;
     if (centeredNode) {
       let centeredNodes = [centeredNode];
       if (centeredNode.data._centeredWithDescendants) {
@@ -995,7 +994,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         }
       }
       centeredNode.data._centeredWithDescendants = undefined;
-      centeredNode.data._centered = undefined;
+      this._attrs.centeredNode = undefined;
       this.fit({
         animate: true,
         scale: false,
@@ -1041,7 +1040,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       return;
     }
     if (attrs.setActiveNodeCentered) {
-      d.data._centered = true;
+      attrs.centeredNode = d;
       d.data._centeredWithDescendants = true;
     }
 
@@ -1366,7 +1365,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       );
       return this;
     }
-    node.data._centered = true;
+    attrs.centeredNode = node;
     attrs.nodeSetIsExpanded(node.data, true);
     return this;
   }
@@ -1384,7 +1383,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
     node.data._highlighted = true;
     attrs.nodeSetIsExpanded(node.data, true);
-    node.data._centered = true;
+    this._attrs.centeredNode = node;
     return this;
   }
 
