@@ -161,6 +161,7 @@ export interface State<Datum> {
   nodeGetIsExpanded: (d: Datum) => boolean;
   nodeSetIsExpanded: (d: Datum, value: boolean) => void;
   centeredNode: HierarchyNode<Datum> | undefined;
+  centerWithDescendants: boolean;
 
   // The properties underneath were meant to be non-public
 
@@ -280,7 +281,6 @@ export interface ConcreteDatum {
   _expanded?: boolean;
   _filtered?: boolean;
   _filteredOut?: boolean;
-  _centeredWithDescendants?: boolean;
   _pagingButton?: boolean;
   _pagingStep?: number;
 }

@@ -174,6 +174,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeGetIsExpanded: (data) => !!data._expanded,
     nodeSetIsExpanded: (data, value) => (data._expanded = value),
     centeredNode: undefined,
+    centerWithDescendants: true,
   } as State<Datum>;
 
   private elements!: Elements;
@@ -978,7 +979,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const centeredNode = this._attrs.centeredNode;
     if (centeredNode) {
       let centeredNodes = [centeredNode];
-      if (centeredNode.data._centeredWithDescendants) {
+      if (this._attrs.centerWithDescendants) {
         if (attrs.compact) {
           centeredNodes = centeredNode.descendants().filter((d, i) => i < 7);
         } else {
@@ -993,7 +994,6 @@ export class OrgChart<Datum extends ConcreteDatum>
           });
         }
       }
-      centeredNode.data._centeredWithDescendants = undefined;
       this._attrs.centeredNode = undefined;
       this.fit({
         animate: true,
@@ -1041,7 +1041,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
     if (attrs.setActiveNodeCentered) {
       attrs.centeredNode = d;
-      d.data._centeredWithDescendants = true;
     }
 
     // If childrens are expanded
