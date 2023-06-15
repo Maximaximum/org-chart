@@ -196,6 +196,28 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   getChartState = () => this._attrs;
 
+  /**
+   * Get all node descendants, including the node itself and non-visible (hidden) descendants
+   * @param node
+   */
+  *getAllNodeDescendants(
+    node: HierarchyNode<Datum>
+  ): Generator<HierarchyNode<Datum>> {
+    yield node;
+
+    if (node.children) {
+      for (const child of node.children) {
+        yield* this.getAllNodeDescendants(child);
+      }
+    }
+
+    if (node._children) {
+      for (const child of node._children) {
+        yield* this.getAllNodeDescendants(child);
+      }
+    }
+  }
+
   // This method retrieves passed node's children IDs (including node)
   getNodeChildren(
     { data, children, _children }: HierarchyNode<Datum>,
@@ -1065,6 +1087,7 @@ export class OrgChart<Datum extends ConcreteDatum>
    */
   ensureAncestorsAreExpanded(node: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(node.data, true);
+    this.updateChildrenProperty(node);
 
     if (node.parent) {
       this.ensureAncestorsAreExpanded(node.parent);
