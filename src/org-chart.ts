@@ -1228,22 +1228,14 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  // Function which collapses passed node and it's descendants
   collapse(d: HierarchyNode<Datum>) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach((ch) => this.collapse(ch));
-      d.children = undefined;
-    }
+    this._attrs.nodeSetIsExpanded(d.data, false);
+    this.updateChildrenProperty(d);
   }
 
-  // Function which expands passed node and it's descendants
   expand(d: HierarchyNode<Datum>) {
-    if (d._children) {
-      d.children = d._children;
-      d.children.forEach((ch) => this.expand(ch));
-      d._children = undefined;
-    }
+    this._attrs.nodeSetIsExpanded(d.data, true);
+    this.updateChildrenProperty(d);
   }
 
   /* Zoom handler function */
