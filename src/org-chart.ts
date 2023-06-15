@@ -1071,36 +1071,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  // Method which only expands nodes, which have property set "expanded=true"
-  expandSomeNodes(d: HierarchyNode<Datum>) {
-    // If node has expanded property set
-    if (this._attrs.nodeGetIsExpanded(d.data)) {
-      // Retrieve node's parent
-      let parent = d.parent;
-
-      // While we can go up
-      while (parent) {
-        // Expand all current parent's children
-        if (parent._children) {
-          parent.children = parent._children;
-        }
-
-        // Replace current parent holding object
-        parent = parent.parent;
-      }
-    }
-
-    // Recursivelly do the same for collapsed nodes
-    if (d._children) {
-      d._children.forEach((ch) => this.expandSomeNodes(ch));
-    }
-
-    // Recursivelly do the same for expanded nodes
-    if (d.children) {
-      d.children.forEach((ch) => this.expandSomeNodes(ch));
-    }
-  }
-
   // This function updates nodes state and redraws graph, usually after data change
   updateNodesState() {
     const attrs = this.getChartState();
@@ -1176,22 +1146,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
     });
 
-    if (this.root!.children) {
-      if (expandNodesFirst) {
-        // Expand all nodes first
-        this.root!.children.forEach(this.expand);
-      }
-      // Then collapse them all
-      this.root!.children.forEach((d) => this.collapse(d));
-
-      // Collapse root if level is 0
-      if (this.expandLevel == 0) {
-        this.root!._children = this.root!.children;
-        this.root!.children = undefined;
-      }
-
-      // Then only expand nodes, which have expanded proprty set to true
-      [this.root!].forEach((ch) => this.expandSomeNodes(ch));
+    for (const node of this.root!.descendants()) {
+      this.updateChildrenProperty(node);
     }
   }
 
