@@ -1033,6 +1033,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
   }
 
+  toggleExpandNode(node: HierarchyNode<Datum>) {
+    this._attrs.nodeSetIsExpanded(
+      node.data,
+      !this._attrs.nodeGetIsExpanded(node.data)
+    );
+    this.updateChildrenProperty(node);
+  }
+
   // TODO Refactor using toggleExpandNode() from GraphComponent
   // Toggle children on click.
   onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
@@ -1040,29 +1048,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (d.data._pagingButton) {
       return;
     }
+
+    this.toggleExpandNode(d);
+
     if (attrs.setActiveNodeCentered) {
       attrs.centeredNode = d;
-    }
-
-    // If childrens are expanded
-    if (d.children) {
-      //Collapse them
-      d._children = d.children;
-      d.children = undefined;
-
-      // Set descendants expanded property to false
-      this.setExpansionFlagToChildren(d, false);
-    } else {
-      // Expand children
-      d.children = d._children;
-      d._children = undefined;
-
-      // Set each child as expanded
-      if (d.children) {
-        d.children.forEach(({ data }) => {
-          attrs.nodeSetIsExpanded(data, true);
-        });
-      }
     }
 
     // Redraw Graph
