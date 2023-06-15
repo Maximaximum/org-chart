@@ -1059,29 +1059,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.update(d);
   }
 
-  // This function changes `expanded` property to descendants
-  setExpansionFlagToChildren(
-    { data, children, _children }: HierarchyNode<Datum>,
-    flag: boolean
-  ) {
-    // Set flag to the current property
-    this._attrs.nodeSetIsExpanded(data, flag);
-
-    // Loop over and recursively update expanded children's descendants
-    if (children) {
-      children.forEach((d) => {
-        this.setExpansionFlagToChildren(d, flag);
-      });
-    }
-
-    // Loop over and recursively update collapsed children's descendants
-    if (_children) {
-      _children.forEach((d) => {
-        this.setExpansionFlagToChildren(d, flag);
-      });
-    }
-  }
-
   /**
    * Ensure that all the node's ancestors are expanded so that the node becomes visible
    * @param node to make visible
