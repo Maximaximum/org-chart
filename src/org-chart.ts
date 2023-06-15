@@ -1033,6 +1033,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
   }
 
+  // TODO Refactor using toggleExpandNode() from GraphComponent
   // Toggle children on click.
   onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
@@ -1539,6 +1540,18 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.expandLevel = 0;
     this.render();
     return this;
+  }
+
+  updateChildrenProperty(node: HierarchyNode<Datum>) {
+    if (this._attrs.nodeGetIsExpanded(node.data)) {
+      // Expand children
+      node.children = node.children || node._children;
+      node._children = undefined;
+    } else {
+      // Collapse them
+      node._children = node._children || node.children;
+      node.children = undefined;
+    }
   }
 
   private getLayoutBinding() {
