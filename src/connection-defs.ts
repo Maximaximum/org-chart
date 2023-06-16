@@ -14,13 +14,8 @@ export function connectionArrowhead<Datum>(conn: Connection<Datum>) {
   </marker>`;
 }
 
-export function connectionLabel<Datum>(
-  conn: Connection<Datum>,
-  ctx: CanvasRenderingContext2D,
-  font: string
-) {
+export function connectionLabel<Datum>(conn: Connection<Datum>, font: string) {
   const labelWidth = getTextWidth(conn.label, {
-    ctx,
     fontSize: 2,
     font,
   });

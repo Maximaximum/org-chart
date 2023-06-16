@@ -51,7 +51,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   // #region NOT INTENDED FOR PUBLIC OVERRIDE
   /** Id for event handlings */
   private id = `ID${Math.floor(Math.random() * 1000000)}`;
-  private ctx = document.createElement("canvas").getContext("2d")!;
   /** Panning and zooming values */
   private lastTransform = {
     x: 0,
@@ -142,7 +141,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         ${visibleConnections
           .map((conn) => {
             return [
-              connectionLabel(conn, this.ctx, state.defaultFont),
+              connectionLabel(conn, state.defaultFont),
               connectionArrowhead(conn),
             ].join("");
           })
