@@ -112,9 +112,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       return pagingButton(min);
     },
     nodeUpdate: function (d, i, arr) {
-      d3.select(this as any)
+      d3.select<SVGGElement, HierarchyNode<Datum>>(this)
         .select(".node-rect")
-        .attr("stroke", (d: any) =>
+        .attr("stroke", (d) =>
           d.data._highlighted || d.data._upToTheRootHighlighted
             ? highlightColor
             : "none"
@@ -124,7 +124,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 1
         );
     },
-    linkUpdate: function (this: SVGPathElement, d, i, arr) {
+    linkUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, HierarchyNode<Datum>>(this)
         .attr("stroke", (d) =>
           d.data._upToTheRootHighlighted ? highlightColor : linkColor
@@ -135,7 +135,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         d3.select(this).raise();
       }
     },
-    defs: function (this: OrgChart<Datum>, state, visibleConnections) {
+    defs: (state, visibleConnections) => {
       return `
       <defs>
         ${visibleConnections

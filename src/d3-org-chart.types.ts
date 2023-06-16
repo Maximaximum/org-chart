@@ -39,7 +39,7 @@ export interface Elements {
   nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>;
   connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>;
   defsWrapper: Selection<SVGGElement, string, SVGSVGElement, string>;
-  chart: Selection<any, any, any, any>;
+  chart: Selection<SVGGElement, string, SVGSVGElement, string>;
 }
 
 /**
@@ -83,13 +83,16 @@ export interface State<Datum> {
   connectionsUpdate: ValueFn<SVGPathElement, Connection<Datum>, void>;
   /** You can access and modify actual link DOM element in runtime using this method. */
   linkUpdate: (
+    /** Link <path> element */
     this: SVGPathElement,
     node: HierarchyNode<Datum>,
     index: number,
     nodes: HierarchyNode<Datum>[]
   ) => void;
-  /** You can access and modify actual node DOM element in runtime using this method. */
+  /** You can access and modify actual node DOM element at runtime using this method. */
   nodeUpdate: (
+    /** Node <g> element */
+    this: SVGGElement,
     node: HierarchyNode<Datum>,
     index: number,
     nodes: HierarchyNode<Datum>[]
