@@ -517,7 +517,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     // console.table(nodes.map(d => ({ x: d.x, y: d.y, width: d.width, height: d.height, flexCompactDim: d.flexCompactDim + "" })))
 
     // Get all links
-    const links = treeData.descendants().slice(1);
+    const links = (
+      treeData.descendants() as any as HierarchyNode<Datum>[]
+    ).slice(1);
     nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
@@ -549,7 +551,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // --------------------------  LINKS ----------------------
     // Get links selection
     const linkSelection = this.elements.linksWrapper
-      .selectAll<SVGPathElement, FlextreeNode<Datum>>("path.link")
+      .selectAll<SVGPathElement, HierarchyNode<Datum>>("path.link")
       .data(links, (d) => attrs.nodeId(d.data)!);
 
     // Enter any new links at the parent's previous position.
@@ -580,7 +582,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Styling links
     linkUpdate.attr("fill", "none");
 
-    const displayFn = (d: FlextreeNode<Datum>) => {
+    const displayFn = (d: HierarchyNode<Datum>) => {
       return d.data._pagingButton ? "none" : "auto";
     };
 
@@ -597,7 +599,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     linkUpdate
       .transition()
       .duration(attrs.duration)
-      .attr("d", (d: any) => {
+      .attr("d", (d) => {
         const n =
           attrs.compact && d.flexCompactDim
             ? {
@@ -631,7 +633,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .exit()
       .transition()
       .duration(attrs.duration)
-      .attr("d", (d: any) => {
+      .attr("d", (d) => {
         const xo = this.getLayoutBinding().linkJoinX({
           x,
           y,
@@ -691,7 +693,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     connUpdate
       .transition()
       .duration(attrs.duration)
-      .attr("d", (d: any) => {
+      .attr("d", (d) => {
         const xs = this.getLayoutBinding().linkX({
           x: d._source.x,
           y: d._source.y,
