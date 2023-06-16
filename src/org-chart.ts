@@ -484,14 +484,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   // This function basically redraws visible graph, based on nodes state
-  update({
-    x0,
-    y0,
-    x = 0,
-    y = 0,
-    width,
-    height,
-  }: {
+  update(dimensions: {
     x0: number;
     y0: number;
     width: number;
@@ -499,6 +492,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     x?: number;
     y?: number;
   }) {
+    const fullDimensions = {
+      x: 0,
+      y: 0,
+      ...dimensions,
+    };
+
     const attrs = this.getChartState();
 
     // Paging
@@ -550,9 +549,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.elements.defsWrapper.html(defsString);
     }
 
-    this.drawLinks(links, { x0, y0, x, y, width, height });
-    this.drawConnections(visibleConnections, { x0, y0, width, height });
-    this.drawNodes(nodes, { x0, y0, width, height, x, y });
+    this.drawLinks(links, fullDimensions);
+    this.drawConnections(visibleConnections, fullDimensions);
+    this.drawNodes(nodes, fullDimensions);
 
     // CHECK FOR CENTERING
     const centeredNode = this._attrs.centeredNode;
