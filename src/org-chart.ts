@@ -218,32 +218,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  // This method retrieves passed node's children IDs (including node)
-  getNodeChildren(
-    { data, children, _children }: HierarchyNode<Datum>,
-    nodeStore: Datum[]
-  ) {
-    // Store current node ID
-    nodeStore.push(data);
-
-    // Loop over children and recursively store descendants id (expanded nodes)
-    if (children) {
-      children.forEach((d) => {
-        this.getNodeChildren(d, nodeStore);
-      });
-    }
-
-    // Loop over _children and recursively store descendants id (collapsed nodes)
-    if (_children) {
-      _children.forEach((d) => {
-        this.getNodeChildren(d, nodeStore);
-      });
-    }
-
-    // Return result
-    return nodeStore;
-  }
-
   /** This method can be invoked via chart.setZoomFactor API, it zooms to particular scale */
   initialZoom(zoomLevel: number) {
     const attrs = this.getChartState();
@@ -385,11 +359,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       return this;
     }
 
-    const descendants = this.getNodeChildren(node, []);
-    descendants.forEach((d) => (d._filtered = true));
+    const descendants = Array.from(this.getAllNodeDescendants(node)).map(
+      (desc) => desc.data
+    );
 
     // Filter out retrieved nodes and reassign data
-    attrs.data = attrs.data!.filter((d) => !d._filtered);
+    attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
     const updateNodesState = this.updateNodesState.bind(this);
     // Update state of nodes and redraw graph

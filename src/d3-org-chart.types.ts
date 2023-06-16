@@ -274,7 +274,6 @@ export interface ConcreteDatum {
   /** when node is highlighted */
   _highlighted?: boolean;
   _expanded?: boolean;
-  _filtered?: boolean;
   _pagingButton?: boolean;
   _pagingStep?: number;
 }
