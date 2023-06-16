@@ -1217,7 +1217,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .append("g")
       .attr("class", "node")
       .attr("transform", (d) => {
-        if (d == this.root) return `translate(${x0},${y0})`;
+        if (d == this.root) {
+          return `translate(${x0},${y0})`;
+        }
+
         const xj = this.getLayoutBinding().nodeJoinX({
           x: x0,
           y: y0,
