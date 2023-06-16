@@ -1188,14 +1188,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private drawNodes(
     nodes: HierarchyNode<Datum>[],
-    {
-      x,
-      y,
-      width,
-      height,
-      x0,
-      y0,
-    }: {
+    animationSource: {
       x0: number;
       y0: number;
       width: number;
@@ -1218,20 +1211,20 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("class", "node")
       .attr("transform", (d) => {
         if (d == this.root) {
-          return `translate(${x0},${y0})`;
+          return `translate(${animationSource.x0},${animationSource.y0})`;
         }
 
         const xj = this.getLayoutBinding().nodeJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
+          x: animationSource.x0,
+          y: animationSource.y0,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         const yj = this.getLayoutBinding().nodeJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
+          x: animationSource.x0,
+          y: animationSource.y0,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         return `translate(${xj},${yj})`;
       })
@@ -1335,7 +1328,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .attr("opacity", 0)
       .duration(attrs.duration)
-      .attr("transform", ({ x, y, width, height }: any) => {
+      .attr("transform", ({ x, y, width, height }) => {
         return this.getLayoutBinding().nodeUpdateTransform({
           x,
           y,
@@ -1414,16 +1407,16 @@ export class OrgChart<Datum extends ConcreteDatum>
       .duration(attrs.duration)
       .attr("transform", (d: any) => {
         const ex = this.getLayoutBinding().nodeJoinX({
-          x,
-          y,
-          width,
-          height,
+          x: animationSource.x,
+          y: animationSource.y,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         const ey = this.getLayoutBinding().nodeJoinY({
-          x,
-          y,
-          width,
-          height,
+          x: animationSource.x,
+          y: animationSource.y,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         return `translate(${ex},${ey})`;
       })
