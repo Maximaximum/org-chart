@@ -65,7 +65,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   /** Configure how many nodes to show when making new nodes appear  */
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
-  private flexTreeLayout: FlextreeLayout<Datum> | undefined;
   allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
 
   private _attrs = {
@@ -250,32 +249,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //****************** ROOT node work ************************
-
-    this.flexTreeLayout = flextree<Datum>({
-      nodeSize: (n) => {
-        const node = n as HierarchyNode<Datum>;
-        const width = attrs.nodeWidth(node);
-        const height = attrs.nodeHeight(node);
-        const siblingsMargin = attrs.siblingsMargin(node);
-        const childrenMargin = attrs.childrenMargin(node);
-        return this.getLayoutBinding().nodeFlexSize({
-          state: attrs,
-          node: node,
-          width,
-          height,
-          siblingsMargin,
-          childrenMargin,
-        });
-      },
-    }).spacing((nodeA, nodeB) =>
-      nodeA.parent == nodeB.parent
-        ? 0
-        : attrs.neighbourMargin(
-            nodeA as HierarchyNode<Datum>,
-            nodeB as HierarchyNode<Datum>
-          )
-    );
-
     this.setLayouts();
 
     // *************************  DRAWING **************************
@@ -505,8 +478,33 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.calculateCompactFlexDimensions(this.root!);
     }
 
+    const flexTreeLayout = flextree<Datum>({
+      nodeSize: (n) => {
+        const node = n as HierarchyNode<Datum>;
+        const width = attrs.nodeWidth(node);
+        const height = attrs.nodeHeight(node);
+        const siblingsMargin = attrs.siblingsMargin(node);
+        const childrenMargin = attrs.childrenMargin(node);
+        return this.getLayoutBinding().nodeFlexSize({
+          state: attrs,
+          node: node,
+          width,
+          height,
+          siblingsMargin,
+          childrenMargin,
+        });
+      },
+    }).spacing((nodeA, nodeB) =>
+      nodeA.parent == nodeB.parent
+        ? 0
+        : attrs.neighbourMargin(
+            nodeA as HierarchyNode<Datum>,
+            nodeB as HierarchyNode<Datum>
+          )
+    );
+
     //  Assigns the x and y position for the nodes
-    const treeData = this.flexTreeLayout!(this.root!);
+    const treeData = flexTreeLayout!(this.root!);
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
