@@ -83,6 +83,7 @@ export interface State<Datum> {
   connectionsUpdate: ValueFn<SVGPathElement, Connection<Datum>, void>;
   /** You can access and modify actual link DOM element in runtime using this method. */
   linkUpdate: (
+    this: SVGPathElement,
     node: HierarchyNode<Datum>,
     index: number,
     nodes: HierarchyNode<Datum>[]

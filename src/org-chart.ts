@@ -52,7 +52,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   /** Id for event handlings */
   private id = `ID${Math.floor(Math.random() * 1000000)}`;
   private ctx = document.createElement("canvas").getContext("2d")!;
-  private expandLevel = 1;
   /** CSS color, for example "#2C3E50" */
   private nodeDefaultBackground = "none";
   /** Panning and zooming values */
@@ -128,17 +127,15 @@ export class OrgChart<Datum extends ConcreteDatum>
           d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 1
         );
     },
-    linkUpdate: function (d, i, arr) {
-      d3.select(this as any)
-        .attr("stroke", (d: any) =>
+    linkUpdate: function (this: SVGPathElement, d, i, arr) {
+      d3.select<SVGPathElement, HierarchyNode<Datum>>(this)
+        .attr("stroke", (d) =>
           d.data._upToTheRootHighlighted ? highlightColor : linkColor
         )
-        .attr("stroke-width", (d: any) =>
-          d.data._upToTheRootHighlighted ? 5 : 1
-        );
+        .attr("stroke-width", (d) => (d.data._upToTheRootHighlighted ? 5 : 1));
 
       if (d.data._upToTheRootHighlighted) {
-        d3.select(this as any).raise();
+        d3.select(this).raise();
       }
     },
     defs: function (this: OrgChart<Datum>, state, visibleConnections) {
