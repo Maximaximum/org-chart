@@ -113,11 +113,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node,
     }) => {
       if (state.compact && node.flexCompactDim) {
-        const result = [node.flexCompactDim[0], node.flexCompactDim[1]] as [
-          number,
-          number
-        ];
-        return result;
+        return node.flexCompactDim;
       }
       return [width + siblingsMargin, height + childrenMargin];
     },
