@@ -1,10 +1,10 @@
 import "./patternify";
 
-import { BaseType, select, Selection } from "d3-selection";
+import { select, Selection } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
-import { flextree, FlextreeLayout, FlextreeNode } from "d3-flextree";
+import { flextree, FlextreeLayout } from "d3-flextree";
 import { DefaultLinkObject, Link, linkHorizontal } from "d3-shape";
 
 import {
