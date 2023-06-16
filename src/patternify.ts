@@ -11,19 +11,19 @@ function patternify<
 >(
   this: Selection<PElement, PDatum, GPElement, GPDatum>,
   params: {
-    selector: string;
+    className: string;
     tag: string;
     data?: Datum[] | ValueFn<PElement, PDatum, Datum[] | Iterable<Datum>>;
   }
 ) {
   var container = this;
-  var selector = params.selector;
+  var className = params.className;
   var elementTag = params.tag;
-  var data = params.data || [selector];
+  var data = params.data || [className];
 
   // Pattern in action
   var selection = container
-    .selectAll<GElement, Datum | string>("." + selector)
+    .selectAll<GElement, Datum | string>("." + className)
     .data(data as (Datum | string)[], (d, i) => {
       if (typeof d === "object") {
         if ((d as any).id) {
@@ -37,7 +37,7 @@ function patternify<
     .enter()
     .append(elementTag as any)
     .merge(selection);
-  selection.attr("class", selector);
+  selection.attr("class", className);
   return selection;
 }
 

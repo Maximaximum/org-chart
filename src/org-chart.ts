@@ -1071,7 +1071,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const svg = (
       container.patternify({
         tag: "svg",
-        selector: "svg-chart-container",
+        className: "svg-chart-container",
       }) as Selection<SVGSVGElement, string, HTMLElement, any>
     )
       .attr("width", svgWidth)
@@ -1095,7 +1095,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       undefined
     >({
       tag: "g",
-      selector: "chart",
+      className: "chart",
     });
 
     // Add one more container g element, for better positioning controls
@@ -1108,7 +1108,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >({
       tag: "g",
-      selector: "center-group",
+      className: "center-group",
     });
 
     const linksWrapper = centerG.patternify<
@@ -1120,7 +1120,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >({
       tag: "g",
-      selector: "links-wrapper",
+      className: "links-wrapper",
     });
 
     const nodesWrapper = centerG.patternify<
@@ -1132,7 +1132,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >({
       tag: "g",
-      selector: "nodes-wrapper",
+      className: "nodes-wrapper",
     });
 
     const connectionsWrapper = centerG.patternify<
@@ -1144,7 +1144,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >({
       tag: "g",
-      selector: "connections-wrapper",
+      className: "connections-wrapper",
     });
 
     const defsWrapper = svg.patternify<
@@ -1156,7 +1156,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >({
       tag: "g",
-      selector: "defs-wrapper",
+      className: "defs-wrapper",
     });
 
     if (this.firstDraw) {
@@ -1248,7 +1248,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Add background rectangle for the nodes
     nodeEnter.patternify({
       tag: "rect",
-      selector: "node-rect",
+      className: "node-rect",
       data: (d) => [d],
     });
 
@@ -1261,7 +1261,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const fo = nodeUpdate
       .patternify({
         tag: "foreignObject",
-        selector: "node-foreign-object",
+        className: "node-foreign-object",
         data: (d) => [d],
       })
       .style("overflow", "visible");
@@ -1269,7 +1269,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Add foreign object
     fo.patternify({
       tag: "xhtml:div",
-      selector: "node-foreign-object-div",
+      className: "node-foreign-object-div",
       data: (d) => [d],
     });
 
@@ -1279,7 +1279,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const nodeButtonGroups = nodeEnter
       .patternify({
         tag: "g",
-        selector: "node-button-g",
+        className: "node-button-g",
         data: (d) => [d],
       })
       .on("click", (event: PointerEvent, d) => {
@@ -1289,7 +1289,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeButtonGroups
       .patternify({
         tag: "rect",
-        selector: "node-button-rect",
+        className: "node-button-rect",
         data: (d) => [d],
       })
       .attr("opacity", 0)
@@ -1303,7 +1303,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const nodeFo = nodeButtonGroups
       .patternify({
         tag: "foreignObject",
-        selector: "node-button-foreign-object",
+        className: "node-button-foreign-object",
         data: (d) => [d],
       })
       .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
@@ -1313,7 +1313,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .style("overflow", "visible")
       .patternify({
         tag: "xhtml:div",
-        selector: "node-button-div",
+        className: "node-button-div",
         data: (d) => [d],
       })
       .style("pointer-events", "none")
