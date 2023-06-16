@@ -275,7 +275,6 @@ export interface ConcreteDatum {
   _highlighted?: boolean;
   _expanded?: boolean;
   _filtered?: boolean;
-  _filteredOut?: boolean;
   _pagingButton?: boolean;
   _pagingStep?: number;
 }

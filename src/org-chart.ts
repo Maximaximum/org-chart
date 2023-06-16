@@ -385,10 +385,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       return this;
     }
 
-    // Remove all node childs
-    // Retrieve all children nodes ids (including current node itself)
-    node.descendants().forEach((d) => (d.data._filteredOut = true));
-
     const descendants = this.getNodeChildren(node, []);
     descendants.forEach((d) => (d._filtered = true));
 
