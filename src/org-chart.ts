@@ -655,89 +655,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .remove();
 
-    // --------------------------  CONNECTIONS ----------------------
-
-    const connectionsSel = this.elements.connectionsWrapper
-      .selectAll<SVGPathElement, Connection<Datum>>("path.connection")
-      .data(visibleConnections);
-
-    // Enter any new connections at the parent's previous position.
-    const connEnter = connectionsSel
-      .enter()
-      .insert("path", "g")
-      .attr("class", "connection")
-      .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null, {
-          sy: attrs.linkYOffset,
-        });
-      });
-
-    // Get connections update selection
-    const connUpdate = connEnter.merge(connectionsSel);
-
-    // Styling connections
-    connUpdate.attr("fill", "none");
-
-    // Transition back to the parent element position
-    connUpdate
-      .transition()
-      .duration(attrs.duration)
-      .attr("d", (d) => {
-        const xs = this.getLayoutBinding().linkX({
-          x: d._source.x,
-          y: d._source.y,
-          width: d._source.width,
-          height: d._source.height,
-        });
-        const ys = this.getLayoutBinding().linkY({
-          x: d._source.x,
-          y: d._source.y,
-          width: d._source.width,
-          height: d._source.height,
-        });
-        const xt = this.getLayoutBinding().linkJoinX({
-          x: d._target.x,
-          y: d._target.y,
-          width: d._target.width,
-          height: d._target.height,
-        });
-        const yt = this.getLayoutBinding().linkJoinY({
-          x: d._target.x,
-          y: d._target.y,
-          width: d._target.width,
-          height: d._target.height,
-        });
-        return attrs.linkGroupArc({
-          source: { x: xs, y: ys },
-          target: { x: xt, y: yt },
-        } as any);
-      });
-
-    // Allow external modifications
-    connUpdate.each(attrs.connectionsUpdate);
-
-    // Remove any  links which is exiting after animation
-    const connExit = connectionsSel
-      .exit()
-      .transition()
-      .duration(attrs.duration)
-      .attr("opacity", 0)
-      .remove();
-
-    // --------------------------  NODES ----------------------
+    this.drawConnections(visibleConnections, { x0, y0, width, height });
     this.drawNodes(nodes, { x0, y0, width, height, x, y });
 
     // CHECK FOR CENTERING
@@ -1620,5 +1538,102 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.x0 = d.x;
       d.y0 = d.y;
     });
+  }
+
+  private drawConnections(
+    visibleConnections: Connection<Datum>[],
+    {
+      x0,
+      y0,
+      width,
+      height,
+    }: {
+      x0: number;
+      y0: number;
+      width: number;
+      height: number;
+    }
+  ) {
+    const attrs = this.getChartState();
+
+    const connectionsSel = this.elements.connectionsWrapper
+      .selectAll<SVGPathElement, Connection<Datum>>("path.connection")
+      .data(visibleConnections);
+
+    // Enter any new connections at the parent's previous position.
+    const connEnter = connectionsSel
+      .enter()
+      .insert("path", "g")
+      .attr("class", "connection")
+      .attr("d", (d) => {
+        const xo = this.getLayoutBinding().linkJoinX({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        const yo = this.getLayoutBinding().linkJoinY({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        const o = { x: xo, y: yo };
+        return this.getLayoutBinding().diagonal(o, o, null, {
+          sy: attrs.linkYOffset,
+        });
+      });
+
+    // Get connections update selection
+    const connUpdate = connEnter.merge(connectionsSel);
+
+    // Styling connections
+    connUpdate.attr("fill", "none");
+
+    // Transition back to the parent element position
+    connUpdate
+      .transition()
+      .duration(attrs.duration)
+      .attr("d", (d) => {
+        const xs = this.getLayoutBinding().linkX({
+          x: d._source.x,
+          y: d._source.y,
+          width: d._source.width,
+          height: d._source.height,
+        });
+        const ys = this.getLayoutBinding().linkY({
+          x: d._source.x,
+          y: d._source.y,
+          width: d._source.width,
+          height: d._source.height,
+        });
+        const xt = this.getLayoutBinding().linkJoinX({
+          x: d._target.x,
+          y: d._target.y,
+          width: d._target.width,
+          height: d._target.height,
+        });
+        const yt = this.getLayoutBinding().linkJoinY({
+          x: d._target.x,
+          y: d._target.y,
+          width: d._target.width,
+          height: d._target.height,
+        });
+        return attrs.linkGroupArc({
+          source: { x: xs, y: ys },
+          target: { x: xt, y: yt },
+        } as any);
+      });
+
+    // Allow external modifications
+    connUpdate.each(attrs.connectionsUpdate);
+
+    // Remove any  links which is exiting after animation
+    const connExit = connectionsSel
+      .exit()
+      .transition()
+      .duration(attrs.duration)
+      .attr("opacity", 0)
+      .remove();
   }
 }
