@@ -738,234 +738,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .remove();
 
     // --------------------------  NODES ----------------------
-    // Get nodes selection
-    const nodesSelection = this.elements.nodesWrapper
-      .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
-      .data(nodes, ({ data }) => attrs.nodeId(data));
-
-    // Enter any new nodes at the parent's previous position.
-    const nodeEnter = nodesSelection
-      .enter()
-      .append("g")
-      .attr("class", "node")
-      .attr("transform", (d) => {
-        if (d == this.root) return `translate(${x0},${y0})`;
-        const xj = this.getLayoutBinding().nodeJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const yj = this.getLayoutBinding().nodeJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        return `translate(${xj},${yj})`;
-      })
-      .attr("cursor", "pointer")
-      .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
-        const { data } = node;
-        const targetClasses = (event.target! as HTMLElement).classList;
-        if (targetClasses.contains("node-button-foreign-object")) {
-          return;
-        }
-        if (targetClasses.contains("paging-button-wrapper")) {
-          this.loadPagingNodes(node);
-          return;
-        }
-        if (!data._pagingButton) {
-          attrs.onNodeClick(node);
-          console.log("node clicked");
-          return;
-        }
-        console.log("event fired, no handlers");
-      });
-
-    // Add background rectangle for the nodes
-    nodeEnter.patternify({
-      tag: "rect",
-      selector: "node-rect",
-      data: (d) => [d],
-    });
-
-    // Node update styles
-    const nodeUpdate = nodeEnter
-      .merge(nodesSelection)
-      .style("font", "12px sans-serif");
-
-    // Add foreignObject element inside rectangle
-    const fo = nodeUpdate
-      .patternify({
-        tag: "foreignObject",
-        selector: "node-foreign-object",
-        data: (d) => [d],
-      })
-      .style("overflow", "visible");
-
-    // Add foreign object
-    fo.patternify({
-      tag: "xhtml:div",
-      selector: "node-foreign-object-div",
-      data: (d) => [d],
-    });
-
-    this.restyleForeignObjectElements();
-
-    // Add Node button circle's group (expand-collapse button)
-    const nodeButtonGroups = nodeEnter
-      .patternify({
-        tag: "g",
-        selector: "node-button-g",
-        data: (d) => [d],
-      })
-      .on("click", (event: PointerEvent, d) => {
-        this.onButtonClick(event, d as HierarchyNode<Datum>);
-      });
-
-    nodeButtonGroups
-      .patternify({
-        tag: "rect",
-        selector: "node-button-rect",
-        data: (d) => [d],
-      })
-      .attr("opacity", 0)
-      .attr("pointer-events", "all")
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
-
-    // Add expand collapse button content
-    const nodeFo = nodeButtonGroups
-      .patternify({
-        tag: "foreignObject",
-        selector: "node-button-foreign-object",
-        data: (d) => [d],
-      })
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
-      .style("overflow", "visible")
-      .patternify({
-        tag: "xhtml:div",
-        selector: "node-button-div",
-        data: (d) => [d],
-      })
-      .style("pointer-events", "none")
-      .style("display", "flex")
-      .style("width", "100%")
-      .style("height", "100%");
-
-    // Transition to the proper position for the node
-    nodeUpdate
-      .transition()
-      .attr("opacity", 0)
-      .duration(attrs.duration)
-      .attr("transform", ({ x, y, width, height }: any) => {
-        return this.getLayoutBinding().nodeUpdateTransform({
-          x,
-          y,
-          width,
-          height,
-        });
-      })
-      .attr("opacity", 1);
-
-    // Style node rectangles
-    nodeUpdate
-      .select(".node-rect")
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0)
-      .attr("cursor", "pointer")
-      .attr("rx", 3)
-      .attr("fill", nodeBackground);
-
-    nodeUpdate
-      .select(".node-button-g")
-      .attr("transform", ({ data, width, height }) => {
-        const x = this.getLayoutBinding().buttonX({
-          width,
-          height,
-        });
-        const y = this.getLayoutBinding().buttonY({
-          width,
-          height,
-        });
-        return `translate(${x},${y})`;
-      })
-      .attr("display", ({ data }) => {
-        return data._directSubordinates! > 0 ? null : "none";
-      })
-      .attr("opacity", ({ data, children, _children }) => {
-        if (data._pagingButton) {
-          return 0;
-        }
-        if (children || _children) {
-          return 1;
-        }
-        return 0;
-      });
-
-    // Restyle node button circle
-    nodeUpdate
-      .select(".node-button-foreign-object .node-button-div")
-      .html((node) => {
-        return attrs.buttonContent({ node, state: attrs });
-      });
-
-    // Restyle button texts
-    nodeUpdate
-      .select(".node-button-text")
-      .attr("text-anchor", "middle")
-      .attr("alignment-baseline", "middle")
-      .attr("font-size", ({ children }) => {
-        if (children) return 40;
-        return 26;
-      })
-      .text(({ children }) => {
-        if (children) return "-";
-        return "+";
-      })
-      .attr("y", isEdge() ? 10 : 0);
-
-    nodeUpdate.each(attrs.nodeUpdate as any);
-
-    // Remove any exiting nodes after transition
-    const nodeExitTransition = nodesSelection
-      .exit()
-      .attr("opacity", 1)
-      .transition()
-      .duration(attrs.duration)
-      .attr("transform", (d: any) => {
-        const ex = this.getLayoutBinding().nodeJoinX({
-          x,
-          y,
-          width,
-          height,
-        });
-        const ey = this.getLayoutBinding().nodeJoinY({
-          x,
-          y,
-          width,
-          height,
-        });
-        return `translate(${ex},${ey})`;
-      })
-      .on("end", function (this: any) {
-        d3.select(this).remove();
-      })
-      .attr("opacity", 0);
-
-    // Store the old positions for transition.
-    nodes.forEach((d) => {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
+    this.drawNodes(nodes, { x0, y0, width, height, x, y });
 
     // CHECK FOR CENTERING
     const centeredNode = this._attrs.centeredNode;
@@ -1597,5 +1370,255 @@ export class OrgChart<Datum extends ConcreteDatum>
       defsWrapper,
       chart,
     };
+  }
+
+  private drawNodes(
+    nodes: HierarchyNode<Datum>[],
+    {
+      x,
+      y,
+      width,
+      height,
+      x0,
+      y0,
+    }: {
+      x0: number;
+      y0: number;
+      width: number;
+      height: number;
+      x: number;
+      y: number;
+    }
+  ) {
+    const attrs = this.getChartState();
+
+    // Get nodes selection
+    const nodesSelection = this.elements.nodesWrapper
+      .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
+      .data(nodes, ({ data }) => attrs.nodeId(data));
+
+    // Enter any new nodes at the parent's previous position.
+    const nodeEnter = nodesSelection
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", (d) => {
+        if (d == this.root) return `translate(${x0},${y0})`;
+        const xj = this.getLayoutBinding().nodeJoinX({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        const yj = this.getLayoutBinding().nodeJoinY({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        return `translate(${xj},${yj})`;
+      })
+      .attr("cursor", "pointer")
+      .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
+        const { data } = node;
+        const targetClasses = (event.target! as HTMLElement).classList;
+        if (targetClasses.contains("node-button-foreign-object")) {
+          return;
+        }
+        if (targetClasses.contains("paging-button-wrapper")) {
+          this.loadPagingNodes(node);
+          return;
+        }
+        if (!data._pagingButton) {
+          attrs.onNodeClick(node);
+          console.log("node clicked");
+          return;
+        }
+        console.log("event fired, no handlers");
+      });
+
+    // Add background rectangle for the nodes
+    nodeEnter.patternify({
+      tag: "rect",
+      selector: "node-rect",
+      data: (d) => [d],
+    });
+
+    // Node update styles
+    const nodeUpdate = nodeEnter
+      .merge(nodesSelection)
+      .style("font", "12px sans-serif");
+
+    // Add foreignObject element inside rectangle
+    const fo = nodeUpdate
+      .patternify({
+        tag: "foreignObject",
+        selector: "node-foreign-object",
+        data: (d) => [d],
+      })
+      .style("overflow", "visible");
+
+    // Add foreign object
+    fo.patternify({
+      tag: "xhtml:div",
+      selector: "node-foreign-object-div",
+      data: (d) => [d],
+    });
+
+    this.restyleForeignObjectElements();
+
+    // Add Node button circle's group (expand-collapse button)
+    const nodeButtonGroups = nodeEnter
+      .patternify({
+        tag: "g",
+        selector: "node-button-g",
+        data: (d) => [d],
+      })
+      .on("click", (event: PointerEvent, d) => {
+        this.onButtonClick(event, d as HierarchyNode<Datum>);
+      });
+
+    nodeButtonGroups
+      .patternify({
+        tag: "rect",
+        selector: "node-button-rect",
+        data: (d) => [d],
+      })
+      .attr("opacity", 0)
+      .attr("pointer-events", "all")
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
+
+    // Add expand collapse button content
+    const nodeFo = nodeButtonGroups
+      .patternify({
+        tag: "foreignObject",
+        selector: "node-button-foreign-object",
+        data: (d) => [d],
+      })
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
+      .style("overflow", "visible")
+      .patternify({
+        tag: "xhtml:div",
+        selector: "node-button-div",
+        data: (d) => [d],
+      })
+      .style("pointer-events", "none")
+      .style("display", "flex")
+      .style("width", "100%")
+      .style("height", "100%");
+
+    // Transition to the proper position for the node
+    nodeUpdate
+      .transition()
+      .attr("opacity", 0)
+      .duration(attrs.duration)
+      .attr("transform", ({ x, y, width, height }: any) => {
+        return this.getLayoutBinding().nodeUpdateTransform({
+          x,
+          y,
+          width,
+          height,
+        });
+      })
+      .attr("opacity", 1);
+
+    // Style node rectangles
+    nodeUpdate
+      .select(".node-rect")
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0)
+      .attr("cursor", "pointer")
+      .attr("rx", 3)
+      .attr("fill", nodeBackground);
+
+    nodeUpdate
+      .select(".node-button-g")
+      .attr("transform", ({ data, width, height }) => {
+        const x = this.getLayoutBinding().buttonX({
+          width,
+          height,
+        });
+        const y = this.getLayoutBinding().buttonY({
+          width,
+          height,
+        });
+        return `translate(${x},${y})`;
+      })
+      .attr("display", ({ data }) => {
+        return data._directSubordinates! > 0 ? null : "none";
+      })
+      .attr("opacity", ({ data, children, _children }) => {
+        if (data._pagingButton) {
+          return 0;
+        }
+        if (children || _children) {
+          return 1;
+        }
+        return 0;
+      });
+
+    // Restyle node button circle
+    nodeUpdate
+      .select(".node-button-foreign-object .node-button-div")
+      .html((node) => {
+        return attrs.buttonContent({ node, state: attrs });
+      });
+
+    // Restyle button texts
+    nodeUpdate
+      .select(".node-button-text")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("font-size", ({ children }) => {
+        if (children) return 40;
+        return 26;
+      })
+      .text(({ children }) => {
+        if (children) return "-";
+        return "+";
+      })
+      .attr("y", isEdge() ? 10 : 0);
+
+    nodeUpdate.each(attrs.nodeUpdate as any);
+
+    // Remove any exiting nodes after transition
+    const nodeExitTransition = nodesSelection
+      .exit()
+      .attr("opacity", 1)
+      .transition()
+      .duration(attrs.duration)
+      .attr("transform", (d: any) => {
+        const ex = this.getLayoutBinding().nodeJoinX({
+          x,
+          y,
+          width,
+          height,
+        });
+        const ey = this.getLayoutBinding().nodeJoinY({
+          x,
+          y,
+          width,
+          height,
+        });
+        return `translate(${ex},${ey})`;
+      })
+      .on("end", function (this: any) {
+        d3.select(this).remove();
+      })
+      .attr("opacity", 0);
+
+    // Store the old positions for transition.
+    nodes.forEach((d) => {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
   }
 }
