@@ -27,7 +27,7 @@ import { connectionArrowhead, connectionLabel } from "./connection-defs";
 import { pagingButton } from "./paging-button";
 import { D3ZoomEvent } from "d3";
 import { groupBy } from "./group-by";
-import { highlightColor, linkColor } from "./default-colors";
+import { highlightColor, linkColor, nodeBackground } from "./default-colors";
 
 const d3 = {
   select,
@@ -52,8 +52,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   /** Id for event handlings */
   private id = `ID${Math.floor(Math.random() * 1000000)}`;
   private ctx = document.createElement("canvas").getContext("2d")!;
-  /** CSS color, for example "#2C3E50" */
-  private nodeDefaultBackground = "none";
   /** Panning and zooming values */
   private lastTransform = {
     x: 0,
@@ -882,7 +880,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("y", ({ height }) => 0)
       .attr("cursor", "pointer")
       .attr("rx", 3)
-      .attr("fill", this.nodeDefaultBackground);
+      .attr("fill", nodeBackground);
 
     nodeUpdate
       .select(".node-button-g")
@@ -1444,7 +1442,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.allNodes!.forEach((d) => {
       this._attrs.nodeSetIsExpanded(d.data, false);
     });
-    this.expandLevel = 0;
     this.render();
     return this;
   }
