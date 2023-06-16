@@ -125,14 +125,6 @@ export interface State<Datum> {
   * node=> node.depth - to access node's depth
   * node=> node.height - to access node's height
   * node=> node.width - to access node's width
-  *
-  * You can also access additional properties to style your node:
-  *
-  * d=>d.data._directSubordinatesPaging - subordinates count in paging mode
-  * d=>d.data._directSubordinates - subordinates count
-  * d=>d.data._totalSubordinates - total subordinates count
-  * d=>d._highlighted - when node is highlighted
-  * d=>d._upToTheRootHighlighted - when node is highlighted up to the root
   */
   nodeContent: (
     node: HierarchyNode<Datum>,
@@ -273,9 +265,13 @@ export type StateGetSet<T, TSelf> = {
 };
 
 export interface ConcreteDatum {
+  /**subordinates count */
   _directSubordinates?: number;
+  /**subordinates count in paging mode */
   _directSubordinatesPaging?: number;
+  /** when node is highlighted up to the root */
   _upToTheRootHighlighted?: boolean;
+  /** when node is highlighted */
   _highlighted?: boolean;
   _expanded?: boolean;
   _filtered?: boolean;
