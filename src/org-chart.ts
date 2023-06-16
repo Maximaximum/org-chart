@@ -27,6 +27,7 @@ import { connectionArrowhead, connectionLabel } from "./connection-defs";
 import { pagingButton } from "./paging-button";
 import { D3ZoomEvent } from "d3";
 import { groupBy } from "./group-by";
+import { highlightColor, linkColor } from "./default-colors";
 
 const d3 = {
   select,
@@ -119,7 +120,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         .select(".node-rect")
         .attr("stroke", (d: any) =>
           d.data._highlighted || d.data._upToTheRootHighlighted
-            ? "#E27396"
+            ? highlightColor
             : "none"
         )
         .attr(
@@ -130,7 +131,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     linkUpdate: function (d, i, arr) {
       d3.select(this as any)
         .attr("stroke", (d: any) =>
-          d.data._upToTheRootHighlighted ? "#E27396" : "#E4E2E9"
+          d.data._upToTheRootHighlighted ? highlightColor : linkColor
         )
         .attr("stroke-width", (d: any) =>
           d.data._upToTheRootHighlighted ? 5 : 1
@@ -156,7 +157,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     },
     connectionsUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, Connection<Datum>>(this)
-        .attr("stroke", (d) => "#E27396")
+        .attr("stroke", (d) => highlightColor)
         .attr("stroke-linecap", "round")
         .attr("stroke-width", (d) => "5")
         .attr("pointer-events", "none")

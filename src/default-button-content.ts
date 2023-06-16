@@ -3,7 +3,8 @@ import {
   HierarchyNode,
   Layout,
   State,
-} from './d3-org-chart.types';
+} from "./d3-org-chart.types";
+import { linkColor } from "./default-colors";
 
 const arrowPaths: Record<Layout, string> = {
   top: '<path d="M11.457 8.07005L3.49199 16.4296C3.35903 16.569 3.28485 16.7543 3.28485 16.9471C3.28485 17.1398 3.35903 17.3251 3.49199 17.4646L3.50099 17.4736C3.56545 17.5414 3.64304 17.5954 3.72904 17.6324C3.81504 17.6693 3.90765 17.6883 4.00124 17.6883C4.09483 17.6883 4.18745 17.6693 4.27344 17.6324C4.35944 17.5954 4.43703 17.5414 4.50149 17.4736L12.0015 9.60155L19.4985 17.4736C19.563 17.5414 19.6405 17.5954 19.7265 17.6324C19.8125 17.6693 19.9052 17.6883 19.9987 17.6883C20.0923 17.6883 20.1849 17.6693 20.2709 17.6324C20.3569 17.5954 20.4345 17.5414 20.499 17.4736L20.508 17.4646C20.641 17.3251 20.7151 17.1398 20.7151 16.9471C20.7151 16.7543 20.641 16.569 20.508 16.4296L12.543 8.07005C12.4729 7.99653 12.3887 7.93801 12.2954 7.89801C12.202 7.85802 12.1015 7.8374 12 7.8374C11.8984 7.8374 11.798 7.85802 11.7046 7.89801C11.6113 7.93801 11.527 7.99653 11.457 8.07005Z" fill="#716E7B" stroke="#716E7B"/>',
@@ -18,20 +19,20 @@ function numChildrenSpan(
   _directSubordinatesPaging: number | undefined,
   addMargin: boolean
 ) {
-  const margin = addMargin ? 'margin-left:1px;' : '';
+  const margin = addMargin ? "margin-left:1px;" : "";
   return `<span style="${margin}color:#716E7B">${_directSubordinatesPaging} </span>`;
 }
 
 function getOppositeDirection(layout: Layout): Layout {
   switch (layout) {
-    case 'top':
-      return 'bottom';
-    case 'bottom':
-      return 'top';
-    case 'left':
-      return 'right';
-    case 'right':
-      return 'left';
+    case "top":
+      return "bottom";
+    case "bottom":
+      return "top";
+    case "left":
+      return "right";
+    case "right":
+      return "left";
   }
 }
 
@@ -44,11 +45,11 @@ function wrapIconPath(content: string) {
 }
 
 function outerWrap(content: string) {
-  return `<div style="border:1px solid #E4E2E9;border-radius:3px;padding:3px;font-size:9px;margin:auto auto;background-color:white"><div style="display:flex;">${content}</div></div>`;
+  return `<div style="border:1px solid ${linkColor};border-radius:3px;padding:3px;font-size:9px;margin:auto auto;background-color:white"><div style="display:flex;">${content}</div></div>`;
 }
 
 function isLayoutVertical(layout: Layout) {
-  return layout === 'bottom' || layout === 'top';
+  return layout === "bottom" || layout === "top";
 }
 
 export function defaultButtonContent<Datum extends ConcreteDatum>({
