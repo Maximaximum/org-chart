@@ -279,7 +279,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           )
     );
 
-    this.setLayouts({ expandNodesFirst: false });
+    this.setLayouts();
 
     // *************************  DRAWING **************************
     this.draw({
@@ -1069,13 +1069,13 @@ export class OrgChart<Datum extends ConcreteDatum>
   updateNodesState() {
     const attrs = this.getChartState();
 
-    this.setLayouts({ expandNodesFirst: true });
+    this.setLayouts();
 
     // Redraw Graphs
     this.update(this.root!);
   }
 
-  setLayouts({ expandNodesFirst = true }) {
+  setLayouts() {
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
     this.root = d3
