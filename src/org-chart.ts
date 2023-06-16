@@ -279,7 +279,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.setLayouts();
 
     // *************************  DRAWING **************************
-    this.draw({
+    this.drawContainers({
       container,
       defaultFont: attrs.defaultFont,
       root: this.root!,
@@ -288,7 +288,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       svgWidth: attrs.svgWidth,
     });
 
-    // Display tree contenrs
+    // Display tree contents
     this.update(this.root!);
 
     //#########################################  UTIL FUNCS ##################################
@@ -550,111 +550,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.elements.defsWrapper.html(defsString);
     }
 
-    // --------------------------  LINKS ----------------------
-    // Get links selection
-    const linkSelection = this.elements.linksWrapper
-      .selectAll<SVGPathElement, HierarchyNode<Datum>>("path.link")
-      .data(links, (d) => attrs.nodeId(d.data)!);
-
-    // Enter any new links at the parent's previous position.
-    const linkEnter = linkSelection
-      .enter()
-      .insert("path", "g")
-      .attr("class", "link")
-      .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, o);
-      });
-
-    // Get links update selection
-    const linkUpdate = linkEnter.merge(linkSelection);
-
-    // Styling links
-    linkUpdate.attr("fill", "none");
-
-    const displayFn = (d: HierarchyNode<Datum>) => {
-      return d.data._pagingButton ? "none" : "auto";
-    };
-
-    if (isEdge()) {
-      linkUpdate.style("display", displayFn);
-    } else {
-      linkUpdate.attr("display", displayFn);
-    }
-
-    // Allow external modifications
-    linkUpdate.each(attrs.linkUpdate as any);
-
-    // Transition back to the parent element position
-    linkUpdate
-      .transition()
-      .duration(attrs.duration)
-      .attr("d", (d) => {
-        const n =
-          attrs.compact && d.flexCompactDim
-            ? {
-                x: this.getLayoutBinding().compactLinkMidX(d, attrs),
-                y: this.getLayoutBinding().compactLinkMidY(d, attrs),
-              }
-            : {
-                x: this.getLayoutBinding().linkX(d),
-                y: this.getLayoutBinding().linkY(d),
-              };
-
-        const p = {
-          x: this.getLayoutBinding().linkParentX(d),
-          y: this.getLayoutBinding().linkParentY(d),
-        };
-
-        const m =
-          attrs.compact && d.flexCompactDim
-            ? {
-                x: this.getLayoutBinding().linkCompactXStart(d),
-                y: this.getLayoutBinding().linkCompactYStart(d),
-              }
-            : n;
-        return this.getLayoutBinding().diagonal(n, p, m, {
-          sy: attrs.linkYOffset,
-        });
-      });
-
-    // Remove any  links which is exiting after animation
-    const linkExit = linkSelection
-      .exit()
-      .transition()
-      .duration(attrs.duration)
-      .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x,
-          y,
-          width,
-          height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x,
-          y,
-          width,
-          height,
-        });
-        const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null, {
-          sy: attrs.linkYOffset,
-        });
-      })
-      .remove();
-
+    this.drawLinks(links, { x0, y0, x, y, width, height });
     this.drawConnections(visibleConnections, { x0, y0, width, height });
     this.drawNodes(nodes, { x0, y0, width, height, x, y });
 
@@ -724,8 +620,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.updateChildrenProperty(node);
   }
 
-  // TODO Refactor using toggleExpandNode() from GraphComponent
-  // Toggle children on click.
+  /**
+   * Default node expansion toggle button click handler
+   */
   onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
     if (d.data._pagingButton) {
@@ -1158,7 +1055,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     return attrs.layoutBindings[attrs.layout];
   }
 
-  private draw({
+  private drawContainers({
     container,
     svgWidth,
     svgHeight,
@@ -1634,6 +1531,131 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("opacity", 0)
+      .remove();
+  }
+
+  private drawLinks(
+    links: HierarchyNode<Datum>[],
+    {
+      x0,
+      y0,
+      x,
+      y,
+      width,
+      height,
+    }: {
+      x0: number;
+      y0: number;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  ) {
+    const attrs = this.getChartState();
+
+    // Get links selection
+    const linkSelection = this.elements.linksWrapper
+      .selectAll<SVGPathElement, HierarchyNode<Datum>>("path.link")
+      .data(links, (d) => attrs.nodeId(d.data)!);
+
+    // Enter any new links at the parent's previous position.
+    const linkEnter = linkSelection
+      .enter()
+      .insert("path", "g")
+      .attr("class", "link")
+      .attr("d", (d) => {
+        const xo = this.getLayoutBinding().linkJoinX({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        const yo = this.getLayoutBinding().linkJoinY({
+          x: x0,
+          y: y0,
+          width,
+          height,
+        });
+        const o = { x: xo, y: yo };
+        return this.getLayoutBinding().diagonal(o, o, o);
+      });
+
+    // Get links update selection
+    const linkUpdate = linkEnter.merge(linkSelection);
+
+    // Styling links
+    linkUpdate.attr("fill", "none");
+
+    const displayFn = (d: HierarchyNode<Datum>) => {
+      return d.data._pagingButton ? "none" : "auto";
+    };
+
+    if (isEdge()) {
+      linkUpdate.style("display", displayFn);
+    } else {
+      linkUpdate.attr("display", displayFn);
+    }
+
+    // Allow external modifications
+    linkUpdate.each(attrs.linkUpdate as any);
+
+    // Transition back to the parent element position
+    linkUpdate
+      .transition()
+      .duration(attrs.duration)
+      .attr("d", (d) => {
+        const n =
+          attrs.compact && d.flexCompactDim
+            ? {
+                x: this.getLayoutBinding().compactLinkMidX(d, attrs),
+                y: this.getLayoutBinding().compactLinkMidY(d, attrs),
+              }
+            : {
+                x: this.getLayoutBinding().linkX(d),
+                y: this.getLayoutBinding().linkY(d),
+              };
+
+        const p = {
+          x: this.getLayoutBinding().linkParentX(d),
+          y: this.getLayoutBinding().linkParentY(d),
+        };
+
+        const m =
+          attrs.compact && d.flexCompactDim
+            ? {
+                x: this.getLayoutBinding().linkCompactXStart(d),
+                y: this.getLayoutBinding().linkCompactYStart(d),
+              }
+            : n;
+        return this.getLayoutBinding().diagonal(n, p, m, {
+          sy: attrs.linkYOffset,
+        });
+      });
+
+    // Remove any  links which is exiting after animation
+    const linkExit = linkSelection
+      .exit()
+      .transition()
+      .duration(attrs.duration)
+      .attr("d", (d) => {
+        const xo = this.getLayoutBinding().linkJoinX({
+          x,
+          y,
+          width,
+          height,
+        });
+        const yo = this.getLayoutBinding().linkJoinY({
+          x,
+          y,
+          width,
+          height,
+        });
+        const o = { x: xo, y: yo };
+        return this.getLayoutBinding().diagonal(o, o, null, {
+          sy: attrs.linkYOffset,
+        });
+      })
       .remove();
   }
 }
