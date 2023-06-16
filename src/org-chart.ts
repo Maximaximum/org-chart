@@ -1,6 +1,6 @@
 import "./patternify";
 
-import { select, Selection } from "d3-selection";
+import { BaseType, select, Selection } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
@@ -229,8 +229,10 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
 
     //Drawing containers
-    // 'as HTMLElement' is a TS bug workaround
-    const container = d3.select(attrs.container as HTMLElement);
+    // 'as string' is a TS bug workaround
+    const container = d3.select<HTMLElement, unknown>(
+      attrs.container as string
+    );
     const containerRect = container.node()!.getBoundingClientRect();
     if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
 
@@ -1473,7 +1475,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     rootMargin,
     root,
   }: {
-    container: Selection<HTMLElement, unknown, null, undefined>;
+    container: Selection<HTMLElement, unknown, any, any>;
     svgWidth: number;
     svgHeight: number;
     defaultFont: string;
@@ -1485,7 +1487,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       container.patternify({
         tag: "svg",
         selector: "svg-chart-container",
-      }) as unknown as Selection<SVGSVGElement, string, HTMLElement, any>
+      }) as Selection<SVGSVGElement, string, HTMLElement, any>
     )
       .attr("width", svgWidth)
       .attr("height", svgHeight)
