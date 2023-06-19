@@ -1221,9 +1221,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
       .data(nodes, ({ data }) => attrs.nodeId(data));
 
+    const enter = nodesSelection.enter();
+    const exit = nodesSelection.exit();
+
     // Enter any new nodes at the parent's previous position.
-    const nodeEnter = nodesSelection
-      .enter()
+    const nodeEnter = enter
       .append("g")
       .attr("class", "node")
       .attr("transform", (d) => {
@@ -1262,12 +1264,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Node update styles
-    const nodeUpdate = nodeEnter
+    const joinedEnterAndUpdate = nodeEnter
       .merge(nodesSelection)
       .style("font", "12px sans-serif");
 
     // Add foreignObject element inside rectangle
-    const fo = nodeUpdate
+    const fo = joinedEnterAndUpdate
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
@@ -1331,7 +1333,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .style("height", "100%");
 
     // Transition to the proper position for the node
-    nodeUpdate
+    joinedEnterAndUpdate
       .transition()
       .attr("opacity", 0)
       .duration(attrs.duration)
@@ -1346,7 +1348,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("opacity", 1);
 
     // Style node rectangles
-    nodeUpdate
+    joinedEnterAndUpdate
       .select(".node-rect")
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
@@ -1356,7 +1358,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("rx", 3)
       .attr("fill", nodeBackground);
 
-    nodeUpdate
+    joinedEnterAndUpdate
       .select(".node-button-g")
       .attr("transform", ({ data, width, height }) => {
         const x = this.getLayoutBinding().buttonX({
@@ -1383,14 +1385,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
 
     // Restyle node button circle
-    nodeUpdate
+    joinedEnterAndUpdate
       .select(".node-button-foreign-object .node-button-div")
       .html((node) => {
         return attrs.buttonContent({ node, state: attrs });
       });
 
     // Restyle button texts
-    nodeUpdate
+    joinedEnterAndUpdate
       .select(".node-button-text")
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "middle")
@@ -1404,15 +1406,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("y", isEdge() ? 10 : 0);
 
-    nodeUpdate.each(attrs.nodeUpdate as any);
+    joinedEnterAndUpdate.each(attrs.nodeUpdate as any);
 
     // Remove any exiting nodes after transition
-    const nodeExitTransition = nodesSelection
-      .exit()
+    const nodeExitTransition = exit
       .attr("opacity", 1)
       .transition()
       .duration(attrs.duration)
-      .attr("transform", (d: any) => {
+      .attr("transform", (d) => {
         const ex = this.getLayoutBinding().nodeJoinX({
           x: animationSource.x,
           y: animationSource.y,
@@ -1427,7 +1428,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
         return `translate(${ex},${ey})`;
       })
-      .on("end", function (this: any) {
+      .on("end", function (this) {
         d3.select(this).remove();
       })
       .attr("opacity", 0);
