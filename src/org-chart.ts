@@ -65,7 +65,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   /** Whether chart is drawn for the first time */
   private firstDraw = true;
-  /** Configure how many nodes to show when making new nodes appear  */
+  /** Number of nodes to show within a "page" */
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
@@ -515,9 +515,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     // console.table(nodes.map(d => ({ x: d.x, y: d.y, width: d.width, height: d.height, flexCompactDim: d.flexCompactDim + "" })))
 
     // Get all links
-    const links = (
-      treeData.descendants() as any as HierarchyNode<Datum>[]
-    ).slice(1);
+    const links = (treeData.descendants() as any as HierarchyNode<Datum>[])
+      .slice(1)
+      .filter((l) => !l.data._pagingButton);
     nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
@@ -616,9 +616,6 @@ export class OrgChart<Datum extends ConcreteDatum>
    */
   onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
     const attrs = this.getChartState();
-    if (d.data._pagingButton) {
-      return;
-    }
 
     this.toggleExpandNode(d);
 
@@ -1499,6 +1496,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Add Node button circle's group (expand-collapse button)
     const nodeButtonGroups = joinedEnterAndUpdate
+      .select(function (d, i) {
+        return !d.data._pagingButton ? this : null;
+      })
       .patternify({
         tag: "g",
         className: "node-button-g",
@@ -1506,7 +1506,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .style("cursor", "pointer")
       .on("click", (event: PointerEvent, d) => {
-        this.onButtonClick(event, d as HierarchyNode<Datum>);
+        this.onButtonClick(event, d);
       });
 
     nodeButtonGroups

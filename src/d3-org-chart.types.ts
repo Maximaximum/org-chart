@@ -275,6 +275,7 @@ export interface ConcreteDatum {
   /** when node is highlighted */
   _highlighted?: boolean;
   _expanded?: boolean;
+  /** If true, the data node should be replaced with a "pagination button" node */
   _pagingButton?: boolean;
   _pagingStep?: number;
 }
