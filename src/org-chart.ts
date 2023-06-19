@@ -1278,11 +1278,25 @@ export class OrgChart<Datum extends ConcreteDatum>
       .style("font", "12px sans-serif");
 
     // Add background rectangle for the nodes
-    joinedEnterAndUpdate.patternify({
-      tag: "rect",
-      className: "node-rect",
-      data: (d) => [d],
-    });
+    (
+      joinedEnterAndUpdate.patternify({
+        tag: "rect",
+        className: "node-rect",
+        data: (d) => [d],
+      }) as Selection<
+        SVGRectElement,
+        HierarchyNode<Datum>,
+        SVGGElement,
+        HierarchyNode<Datum>
+      >
+    )
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0)
+      .attr("cursor", "pointer")
+      .attr("rx", 3)
+      .attr("fill", nodeBackground);
 
     // Add foreignObject element inside rectangle
     const fo = joinedEnterAndUpdate
@@ -1318,17 +1332,6 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
       })
       .attr("opacity", 1);
-
-    // Style node rectangles
-    joinedEnterAndUpdate
-      .select(".node-rect")
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0)
-      .attr("cursor", "pointer")
-      .attr("rx", 3)
-      .attr("fill", nodeBackground);
 
     joinedEnterAndUpdate.each(attrs.nodeUpdate as any);
 
