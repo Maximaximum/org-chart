@@ -220,7 +220,6 @@ export interface LayoutBinding<Datum> {
   buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */
   centerTransform: (params: {
-    root: HierarchyNode<Datum>;
     rootMargin: number;
     centerY: number;
     scale: number;

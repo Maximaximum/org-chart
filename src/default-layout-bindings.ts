@@ -36,7 +36,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkParentY: (node) => node.parent!.y,
     buttonX: (node) => node.width,
     buttonY: (node) => node.height / 2,
-    centerTransform: ({ root, rootMargin, centerY, scale, centerX }) =>
+    centerTransform: ({ rootMargin, centerY, scale, centerX }) =>
       `translate(${rootMargin},${centerY}) scale(${scale})`,
     compactDimension: {
       sizeColumn: (node) => node.height,
@@ -102,7 +102,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkParentY: (node) => node.parent!.y + node.parent!.height,
     buttonX: (node) => node.width / 2,
     buttonY: (node) => node.height,
-    centerTransform: ({ root, rootMargin, centerY, scale, centerX }) =>
+    centerTransform: ({ rootMargin, centerY, scale, centerX }) =>
       `translate(${centerX},${rootMargin}) scale(${scale})`,
     nodeFlexSize: ({
       height,
@@ -152,14 +152,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkParentY: (node) => node.parent!.y - node.parent!.height,
     buttonX: (node) => node.width / 2,
     buttonY: (node) => 0,
-    centerTransform: ({
-      root,
-      rootMargin,
-      centerY,
-      scale,
-      centerX,
-      chartHeight,
-    }) => `translate(${centerX},${chartHeight - rootMargin}) scale(${scale})`,
+    centerTransform: ({ rootMargin, centerY, scale, centerX, chartHeight }) =>
+      `translate(${centerX},${chartHeight - rootMargin}) scale(${scale})`,
     nodeFlexSize: ({
       height,
       width,
@@ -209,14 +203,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node.firstCompactNode!.y +
       node.firstCompactNode!.flexCompactDim![0] / 4 +
       state.compactMarginPair(node) / 4,
-    centerTransform: ({
-      root,
-      rootMargin,
-      centerY,
-      scale,
-      centerX,
-      chartWidth,
-    }) => `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
+    centerTransform: ({ rootMargin, centerY, scale, centerX, chartWidth }) =>
+      `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
     nodeFlexSize: ({
       height,
       width,

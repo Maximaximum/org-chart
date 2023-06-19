@@ -252,10 +252,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.setLayouts();
 
     // *************************  DRAWING **************************
-    this.drawContainers({
-      container,
+    container.call(this.drawContainers, {
       defaultFont: attrs.defaultFont,
-      root: this.root!,
       rootMargin: attrs.rootMargin,
       svgHeight: attrs.svgHeight,
       svgWidth: attrs.svgWidth,
@@ -1075,21 +1073,20 @@ export class OrgChart<Datum extends ConcreteDatum>
     return attrs.layoutBindings[attrs.layout];
   }
 
-  private drawContainers({
-    container,
-    svgWidth,
-    svgHeight,
-    defaultFont,
-    rootMargin,
-    root,
-  }: {
-    container: Selection<HTMLElement, unknown, any, any>;
-    svgWidth: number;
-    svgHeight: number;
-    defaultFont: string;
-    rootMargin: number;
-    root: HierarchyNode<Datum>;
-  }) {
+  private drawContainers = (
+    container: Selection<HTMLElement, unknown, any, any>,
+    {
+      svgWidth,
+      svgHeight,
+      defaultFont,
+      rootMargin,
+    }: {
+      svgWidth: number;
+      svgHeight: number;
+      defaultFont: string;
+      rootMargin: number;
+    }
+  ) => {
     //Add svg
     const svg = container
       .patternify({
@@ -1146,7 +1143,6 @@ export class OrgChart<Datum extends ConcreteDatum>
           centerY: svgHeight / 2,
           scale: this.lastTransform.k,
           rootMargin: rootMargin,
-          root: root,
           chartHeight: svgHeight,
           chartWidth: svgWidth,
         });
@@ -1162,7 +1158,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       defsWrapper,
       chart,
     };
-  }
+  };
 
   private drawNodes = (
     nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
