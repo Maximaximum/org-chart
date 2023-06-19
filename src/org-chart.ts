@@ -253,7 +253,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // *************************  DRAWING **************************
     container.call(this.drawContainers, {
-      defaultFont: attrs.defaultFont,
       rootMargin: attrs.rootMargin,
       svgHeight: attrs.svgHeight,
       svgWidth: attrs.svgWidth,
@@ -1078,12 +1077,10 @@ export class OrgChart<Datum extends ConcreteDatum>
     {
       svgWidth,
       svgHeight,
-      defaultFont,
       rootMargin,
     }: {
       svgWidth: number;
       svgHeight: number;
-      defaultFont: string;
       rootMargin: number;
     }
   ) => {
@@ -1094,8 +1091,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         className: "svg-chart-container",
       })
       .attr("width", svgWidth)
-      .attr("height", svgHeight)
-      .attr("font-family", defaultFont);
+      .attr("height", svgHeight);
 
     if (this.firstDraw) {
       svg
