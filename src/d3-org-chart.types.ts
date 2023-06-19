@@ -114,8 +114,6 @@ export interface State<Datum> {
   compactMarginPair: (node: HierarchyNode<Datum>) => number;
   /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
   compactMarginBetween: () => number;
-  /** A function which is triggered when the node is clicked. */
-  onNodeClick: (node: HierarchyNode<Datum>) => void;
   /** Link generator for connections */
   linkGroupArc: Link<any, DefaultLinkObject, Point>;
   /** A function which renders the given node as HTML content.

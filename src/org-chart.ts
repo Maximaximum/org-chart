@@ -3,7 +3,7 @@ import "./patternify";
 import { select, Selection } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
-import { zoom, zoomIdentity, ZoomBehavior } from "d3-zoom";
+import { zoom, zoomIdentity, ZoomBehavior, D3ZoomEvent } from "d3-zoom";
 import { flextree, FlextreeLayout } from "d3-flextree";
 import { DefaultLinkObject, Link, linkHorizontal } from "d3-shape";
 
@@ -25,7 +25,7 @@ import { defaultButtonContent } from "./default-button-content";
 import { defaultNodeContent } from "./default-node-content";
 import { connectionArrowhead, connectionLabel } from "./connection-defs";
 import { pagingButton } from "./paging-button";
-import { D3ZoomEvent } from "d3";
+import { create } from "d3";
 import { groupBy } from "./group-by";
 import { highlightColor, linkColor, nodeBackground } from "./default-colors";
 
@@ -40,6 +40,7 @@ const d3 = {
   zoomIdentity,
   linkHorizontal,
   flextree,
+  create,
 };
 
 // This is separated from the implementation declaration to not have to replicate the propertied of StateGetSet
@@ -100,7 +101,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
     onZoomEnd: (e, d) => {},
-    onNodeClick: (d) => d,
     nodeContent: defaultNodeContent,
     buttonContent: defaultButtonContent<Datum>,
     pagingButton: (d, i, arr, state) => {
@@ -580,6 +580,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   restyleForeignObjectElements() {
+    const that = this;
     const attrs = this.getChartState();
 
     this.elements.svg
@@ -590,23 +591,41 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("height", ({ height }) => height)
       .attr("x", ({ width }) => 0)
       .attr("y", ({ height }) => 0);
-    this.elements.svg
+    const foDiv = this.elements.svg
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         ".node-foreign-object-div"
       )
       .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`)
-      .html(function (d, i, arr) {
-        if (d.data._pagingButton) {
-          return `<div class="paging-button-wrapper"><div style="pointer-events:none">${attrs.pagingButton(
-            d,
-            i,
-            arr as HTMLDivElement[],
-            attrs
-          )}</div></div>`;
-        }
-        return attrs.nodeContent.bind(this)(d, i, arr as any, attrs);
-      });
+      .style("height", ({ height }) => `${height}px`);
+
+    foDiv.each(function (d, i, arr) {
+      if (d.data._pagingButton) {
+        d3.select(this).append(function () {
+          return d3
+            .create("div")
+            .classed("paging-button-wrapper", true)
+            .style("cursor", "pointer")
+            .on("click", () => {
+              that.loadPagingNodes(d);
+            })
+            .html(() => {
+              return `<div style="pointer-events:none">${attrs.pagingButton(
+                d,
+                i,
+                arr as HTMLDivElement[],
+                attrs
+              )}</div>`;
+            })
+            .node()!;
+        });
+
+        return;
+      }
+
+      d3.select(this).html(
+        attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
+      );
+    });
   }
 
   toggleExpandNode(node: HierarchyNode<Datum>) {
@@ -1226,22 +1245,13 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
         return `translate(${xj},${yj})`;
       })
+      .attr("cursor", "default")
       .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
-        const { data } = node;
         const targetClasses = (event.target! as HTMLElement).classList;
-        if (targetClasses.contains("node-button-foreign-object")) {
-          return;
-        }
         if (targetClasses.contains("paging-button-wrapper")) {
           this.loadPagingNodes(node);
           return;
         }
-        if (!data._pagingButton) {
-          attrs.onNodeClick(node);
-          console.log("node clicked");
-          return;
-        }
-        console.log("event fired, no handlers");
       });
 
     // Add background rectangle for the nodes
