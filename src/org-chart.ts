@@ -1244,14 +1244,6 @@ export class OrgChart<Datum extends ConcreteDatum>
                 height: animationSource.height,
               });
               return `translate(${xj},${yj})`;
-            })
-            .attr("cursor", "default")
-            .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
-              const targetClasses = (event.target! as HTMLElement).classList;
-              if (targetClasses.contains("paging-button-wrapper")) {
-                this.loadPagingNodes(node);
-                return;
-              }
             });
         },
         (update) => update,
@@ -1282,6 +1274,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             .attr("opacity", 0);
         }
       )
+      .attr("cursor", "default")
       .style("font", "12px sans-serif");
 
     // Add background rectangle for the nodes
