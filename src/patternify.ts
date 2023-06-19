@@ -32,13 +32,10 @@ function patternify<
       }
       return i;
     });
-  selection.exit().remove();
-  selection = selection
-    .enter()
-    .append(elementTag as any)
-    .merge(selection);
-  selection.attr("class", className);
-  return selection;
+
+  return selection
+    .join<GElement, string | Datum>(elementTag)
+    .attr("class", className);
 }
 
 selection.prototype.patternify = patternify;
