@@ -1226,7 +1226,6 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
         return `translate(${xj},${yj})`;
       })
-      .attr("cursor", "pointer")
       .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
         const { data } = node;
         const targetClasses = (event.target! as HTMLElement).classList;
