@@ -43,6 +43,8 @@ const d3 = {
   create,
 };
 
+const childrenToFitInCompactMode = 7;
+
 // This is separated from the implementation declaration to not have to replicate the propertied of StateGetSet
 export interface OrgChart<Datum> extends StateGetSet<Datum, OrgChart<Datum>> {}
 
@@ -521,29 +523,26 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Connections
     const connections = attrs.connections;
 
-    const allNodesMap = Object.fromEntries(
+    const allNodesMap = new Map(
       this.allNodes!.map((d) => [attrs.nodeId(d.data), d])
     );
-
-    const visibleNodesMap = Object.fromEntries(
+    const visibleNodesMap = new Map(
       nodes.map((d) => [attrs.nodeId(d.data), d])
     );
 
     connections.forEach((connection) => {
-      const source = allNodesMap[connection.from];
-      const target = allNodesMap[connection.to];
+      const source = allNodesMap.get(connection.from)!;
+      const target = allNodesMap.get(connection.to)!;
       connection._source = source;
       connection._target = target;
     });
     const visibleConnections = connections.filter(
-      (d) => visibleNodesMap[d.from] && visibleNodesMap[d.to]
+      (d) => visibleNodesMap.get(d.from) && visibleNodesMap.get(d.to)
     );
-    const defsString = attrs.defs.bind(this)(attrs, visibleConnections);
-    const existingString = this.elements.defsWrapper.html();
-    if (defsString !== existingString) {
-      this.elements.defsWrapper.html(defsString);
-    }
 
+    this.elements.defsWrapper.html(
+      attrs.defs.bind(this)(attrs, visibleConnections)
+    );
     this.elements.linksWrapper.call(this.drawLinks, links, fullDimensions);
     this.elements.connectionsWrapper.call(
       this.drawConnections,
@@ -552,32 +551,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     );
     this.elements.nodesWrapper.call(this.drawNodes, nodes, fullDimensions);
 
-    // CHECK FOR CENTERING
-    const centeredNode = this._attrs.centeredNode;
-    if (centeredNode) {
-      let centeredNodes = [centeredNode];
-      if (this._attrs.centerWithDescendants) {
-        if (attrs.compact) {
-          centeredNodes = centeredNode.descendants().filter((d, i) => i < 7);
-        } else {
-          centeredNodes = centeredNode.descendants().filter((d, i, arr) => {
-            const h = Math.round(arr.length / 2);
-            const spread = 2;
-            if (arr.length % 2) {
-              return i > h - spread && i < h + spread - 1;
-            }
-
-            return i > h - spread && i < h + spread;
-          });
-        }
-      }
-      this._attrs.centeredNode = undefined;
-      this.fit({
-        animate: true,
-        scale: false,
-        nodes: centeredNodes,
-      });
-    }
+    this.translateChartGroupIfNeeded();
   }
 
   restyleForeignObjectElements() {
@@ -1616,4 +1590,51 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("y", isEdge() ? 10 : 0);
   }
+
+  private translateChartGroupIfNeeded() {
+    const attrs = this.getChartState();
+
+    // CHECK FOR CENTERING
+    const centeredNode = this._attrs.centeredNode;
+
+    if (centeredNode) {
+      this._attrs.centeredNode = undefined;
+
+      this.fit({
+        animate: true,
+        scale: false,
+        nodes: getNodesToFit(
+          centeredNode,
+          attrs.compact,
+          attrs.centerWithDescendants
+        ),
+      });
+    }
+  }
+}
+
+function getNodesToFit(
+  centeredNode: HierarchyNode<any>,
+  compact: boolean,
+  centerWithDescendants: boolean
+) {
+  let centeredNodes = [centeredNode];
+  if (centerWithDescendants) {
+    if (compact) {
+      centeredNodes = centeredNode
+        .descendants()
+        .filter((d, i) => i < childrenToFitInCompactMode);
+    } else {
+      centeredNodes = centeredNode.descendants().filter((d, i, arr) => {
+        const h = Math.round(arr.length / 2);
+        const spread = 2;
+        if (arr.length % 2) {
+          return i > h - spread && i < h + spread - 1;
+        }
+
+        return i > h - spread && i < h + spread;
+      });
+    }
+  }
+  return centeredNodes;
 }
