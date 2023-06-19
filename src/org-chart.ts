@@ -547,7 +547,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.elements.defsWrapper.html(defsString);
     }
 
-    this.drawLinks(links, fullDimensions);
+    this.elements.linksWrapper.call(this.drawLinks, links, fullDimensions);
     this.drawConnections(visibleConnections, fullDimensions);
     this.elements.nodesWrapper.call(this.drawNodes, nodes, fullDimensions);
 
@@ -1391,7 +1391,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .remove();
   }
 
-  private drawLinks(
+  private drawLinks = (
+    linksWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     links: HierarchyNode<Datum>[],
     {
       x0,
@@ -1408,11 +1409,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       width: number;
       height: number;
     }
-  ) {
+  ) => {
     const attrs = this.getChartState();
-
     // Get links selection
-    const linkSelection = this.elements.linksWrapper
+    const linkSelection = linksWrapper
       .selectAll<SVGPathElement, HierarchyNode<Datum>>("path.link")
       .data(links, (d) => attrs.nodeId(d.data)!);
 
@@ -1514,7 +1514,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
       })
       .remove();
-  }
+  };
 
   drawNodeExpandCollapseButton(
     joinedEnterAndUpdate: Selection<
