@@ -1249,7 +1249,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         (update) => update,
         (exit) => {
           // Remove any exiting nodes after transition
-          const nodeExitTransition = exit
+          return exit
             .attr("opacity", 1)
             .transition()
             .duration(attrs.duration)
