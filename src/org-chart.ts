@@ -1302,52 +1302,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.restyleForeignObjectElements();
 
-    // Add Node button circle's group (expand-collapse button)
-    const nodeButtonGroups = joinedEnterAndUpdate
-      .patternify({
-        tag: "g",
-        className: "node-button-g",
-        data: (d) => [d],
-      })
-      .style("cursor", "pointer")
-      .on("click", (event: PointerEvent, d) => {
-        this.onButtonClick(event, d as HierarchyNode<Datum>);
-      });
-
-    nodeButtonGroups
-      .patternify({
-        tag: "rect",
-        className: "node-button-rect",
-        data: (d) => [d],
-      })
-      .attr("opacity", 0)
-      .attr("pointer-events", "all")
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
-
-    // Add expand collapse button content
-    const nodeFo = nodeButtonGroups
-      .patternify({
-        tag: "foreignObject",
-        className: "node-button-foreign-object",
-        data: (d) => [d],
-      })
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
-      .style("overflow", "visible")
-      .patternify({
-        tag: "xhtml:div",
-        className: "node-button-div",
-        data: (d) => [d],
-      })
-      .style("pointer-events", "none")
-      .style("display", "flex")
-      .style("width", "100%")
-      .style("height", "100%");
+    this.drawNodeExpandCollapseButton(joinedEnterAndUpdate);
 
     // Transition to the proper position for the node
     joinedEnterAndUpdate
@@ -1374,52 +1329,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("cursor", "pointer")
       .attr("rx", 3)
       .attr("fill", nodeBackground);
-
-    joinedEnterAndUpdate
-      .select(".node-button-g")
-      .attr("transform", ({ data, width, height }) => {
-        const x = this.getLayoutBinding().buttonX({
-          width,
-          height,
-        });
-        const y = this.getLayoutBinding().buttonY({
-          width,
-          height,
-        });
-        return `translate(${x},${y})`;
-      })
-      .attr("display", ({ data }) => {
-        return data._directSubordinates! > 0 ? null : "none";
-      })
-      .attr("opacity", ({ data, children, _children }) => {
-        if (data._pagingButton) {
-          return 0;
-        }
-        if (children || _children) {
-          return 1;
-        }
-        return 0;
-      });
-
-    // Restyle node button circle
-    joinedEnterAndUpdate
-      .select(".node-button-foreign-object .node-button-div")
-      .html((node) => {
-        return attrs.buttonContent({ node, state: attrs });
-      });
-
-    // Restyle button texts
-    joinedEnterAndUpdate
-      .select(".node-button-text")
-      .attr("text-anchor", "middle")
-      .attr("alignment-baseline", "middle")
-      .attr("font-size", ({ children }) => {
-        return children ? 40 : 26;
-      })
-      .text(({ children }) => {
-        return children ? "-" : "+";
-      })
-      .attr("y", isEdge() ? 10 : 0);
 
     joinedEnterAndUpdate.each(attrs.nodeUpdate as any);
 
@@ -1650,5 +1559,109 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
       })
       .remove();
+  }
+
+  drawNodeExpandCollapseButton(
+    joinedEnterAndUpdate: Selection<
+      SVGGElement,
+      HierarchyNode<Datum>,
+      SVGGElement,
+      string
+    >
+  ) {
+    const attrs = this.getChartState();
+
+    // Add Node button circle's group (expand-collapse button)
+    const nodeButtonGroups = joinedEnterAndUpdate
+      .patternify({
+        tag: "g",
+        className: "node-button-g",
+        data: (d) => [d],
+      })
+      .style("cursor", "pointer")
+      .on("click", (event: PointerEvent, d) => {
+        this.onButtonClick(event, d as HierarchyNode<Datum>);
+      });
+
+    nodeButtonGroups
+      .patternify({
+        tag: "rect",
+        className: "node-button-rect",
+        data: (d) => [d],
+      })
+      .attr("opacity", 0)
+      .attr("pointer-events", "all")
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
+
+    // Add expand collapse button content
+    const nodeFo = nodeButtonGroups
+      .patternify({
+        tag: "foreignObject",
+        className: "node-button-foreign-object",
+        data: (d) => [d],
+      })
+      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
+      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
+      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
+      .style("overflow", "visible")
+      .patternify({
+        tag: "xhtml:div",
+        className: "node-button-div",
+        data: (d) => [d],
+      })
+      .style("pointer-events", "none")
+      .style("display", "flex")
+      .style("width", "100%")
+      .style("height", "100%");
+
+    joinedEnterAndUpdate
+      .select(".node-button-g")
+      .attr("transform", ({ data, width, height }) => {
+        const x = this.getLayoutBinding().buttonX({
+          width,
+          height,
+        });
+        const y = this.getLayoutBinding().buttonY({
+          width,
+          height,
+        });
+        return `translate(${x},${y})`;
+      })
+      .attr("display", ({ data }) => {
+        return data._directSubordinates! > 0 ? null : "none";
+      })
+      .attr("opacity", ({ data, children, _children }) => {
+        if (data._pagingButton) {
+          return 0;
+        }
+        if (children || _children) {
+          return 1;
+        }
+        return 0;
+      });
+
+    // Restyle node button circle
+    joinedEnterAndUpdate
+      .select(".node-button-foreign-object .node-button-div")
+      .html((node) => {
+        return attrs.buttonContent({ node, state: attrs });
+      });
+
+    // Restyle button texts
+    joinedEnterAndUpdate
+      .select(".node-button-text")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("font-size", ({ children }) => {
+        return children ? 40 : 26;
+      })
+      .text(({ children }) => {
+        return children ? "-" : "+";
+      })
+      .attr("y", isEdge() ? 10 : 0);
   }
 }
