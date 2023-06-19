@@ -1256,17 +1256,17 @@ export class OrgChart<Datum extends ConcreteDatum>
         }
       });
 
-    // Add background rectangle for the nodes
-    nodeEnter.patternify({
-      tag: "rect",
-      className: "node-rect",
-      data: (d) => [d],
-    });
-
     // Node update styles
     const joinedEnterAndUpdate = nodeEnter
       .merge(nodesSelection)
       .style("font", "12px sans-serif");
+
+    // Add background rectangle for the nodes
+    joinedEnterAndUpdate.patternify({
+      tag: "rect",
+      className: "node-rect",
+      data: (d) => [d],
+    });
 
     // Add foreignObject element inside rectangle
     const fo = joinedEnterAndUpdate
@@ -1287,12 +1287,13 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.restyleForeignObjectElements();
 
     // Add Node button circle's group (expand-collapse button)
-    const nodeButtonGroups = nodeEnter
+    const nodeButtonGroups = joinedEnterAndUpdate
       .patternify({
         tag: "g",
         className: "node-button-g",
         data: (d) => [d],
       })
+      .style("cursor", "pointer")
       .on("click", (event: PointerEvent, d) => {
         this.onButtonClick(event, d as HierarchyNode<Datum>);
       });
