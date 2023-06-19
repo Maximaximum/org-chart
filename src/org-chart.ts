@@ -1414,12 +1414,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "middle")
       .attr("font-size", ({ children }) => {
-        if (children) return 40;
-        return 26;
+        return children ? 40 : 26;
       })
       .text(({ children }) => {
-        if (children) return "-";
-        return "+";
+        return children ? "-" : "+";
       })
       .attr("y", isEdge() ? 10 : 0);
 
