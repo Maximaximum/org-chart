@@ -1217,48 +1217,71 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     // Get nodes selection
-    const nodesSelection = this.elements.nodesWrapper
+    const joinedEnterAndUpdate = this.elements.nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
-      .data(nodes, ({ data }) => attrs.nodeId(data));
+      .data(nodes, ({ data }) => attrs.nodeId(data))
+      .join(
+        (enter) => {
+          // Enter any new nodes at the parent's previous position.
+          return enter
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", (d) => {
+              if (d == this.root) {
+                return `translate(${animationSource.x0},${animationSource.y0})`;
+              }
 
-    const enter = nodesSelection.enter();
-    const exit = nodesSelection.exit();
-
-    // Enter any new nodes at the parent's previous position.
-    const nodeEnter = enter
-      .append("g")
-      .attr("class", "node")
-      .attr("transform", (d) => {
-        if (d == this.root) {
-          return `translate(${animationSource.x0},${animationSource.y0})`;
+              const xj = this.getLayoutBinding().nodeJoinX({
+                x: animationSource.x0,
+                y: animationSource.y0,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              const yj = this.getLayoutBinding().nodeJoinY({
+                x: animationSource.x0,
+                y: animationSource.y0,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              return `translate(${xj},${yj})`;
+            })
+            .attr("cursor", "default")
+            .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
+              const targetClasses = (event.target! as HTMLElement).classList;
+              if (targetClasses.contains("paging-button-wrapper")) {
+                this.loadPagingNodes(node);
+                return;
+              }
+            });
+        },
+        (update) => update,
+        (exit) => {
+          // Remove any exiting nodes after transition
+          const nodeExitTransition = exit
+            .attr("opacity", 1)
+            .transition()
+            .duration(attrs.duration)
+            .attr("transform", (d) => {
+              const ex = this.getLayoutBinding().nodeJoinX({
+                x: animationSource.x,
+                y: animationSource.y,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              const ey = this.getLayoutBinding().nodeJoinY({
+                x: animationSource.x,
+                y: animationSource.y,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              return `translate(${ex},${ey})`;
+            })
+            .on("end", function (this) {
+              d3.select(this).remove();
+            })
+            .attr("opacity", 0);
         }
-
-        const xj = this.getLayoutBinding().nodeJoinX({
-          x: animationSource.x0,
-          y: animationSource.y0,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
-        const yj = this.getLayoutBinding().nodeJoinY({
-          x: animationSource.x0,
-          y: animationSource.y0,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
-        return `translate(${xj},${yj})`;
-      })
-      .attr("cursor", "default")
-      .on("click", (event: PointerEvent, node: HierarchyNode<Datum>) => {
-        const targetClasses = (event.target! as HTMLElement).classList;
-        if (targetClasses.contains("paging-button-wrapper")) {
-          this.loadPagingNodes(node);
-          return;
-        }
-      });
-
-    // Node update styles
-    const joinedEnterAndUpdate = nodeEnter
-      .merge(nodesSelection)
+      )
       .style("font", "12px sans-serif");
 
     // Add background rectangle for the nodes
@@ -1408,31 +1431,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("y", isEdge() ? 10 : 0);
 
     joinedEnterAndUpdate.each(attrs.nodeUpdate as any);
-
-    // Remove any exiting nodes after transition
-    const nodeExitTransition = exit
-      .attr("opacity", 1)
-      .transition()
-      .duration(attrs.duration)
-      .attr("transform", (d) => {
-        const ex = this.getLayoutBinding().nodeJoinX({
-          x: animationSource.x,
-          y: animationSource.y,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
-        const ey = this.getLayoutBinding().nodeJoinY({
-          x: animationSource.x,
-          y: animationSource.y,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
-        return `translate(${ex},${ey})`;
-      })
-      .on("end", function (this) {
-        d3.select(this).remove();
-      })
-      .attr("opacity", 0);
 
     // Store the old positions for transition.
     nodes.forEach((d) => {
