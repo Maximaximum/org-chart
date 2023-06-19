@@ -549,7 +549,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.drawLinks(links, fullDimensions);
     this.drawConnections(visibleConnections, fullDimensions);
-    this.drawNodes(nodes, fullDimensions);
+    this.elements.nodesWrapper.call(this.drawNodes, nodes, fullDimensions);
 
     // CHECK FOR CENTERING
     const centeredNode = this._attrs.centeredNode;
@@ -1160,7 +1160,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     };
   }
 
-  private drawNodes(
+  private drawNodes = (
+    nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     nodes: HierarchyNode<Datum>[],
     animationSource: {
       x0: number;
@@ -1170,11 +1171,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       x: number;
       y: number;
     }
-  ) {
+  ) => {
     const attrs = this.getChartState();
 
     // Get nodes selection
-    const joinedEnterAndUpdate = this.elements.nodesWrapper
+    const joinedEnterAndUpdate = nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
       .data(nodes, ({ data }) => attrs.nodeId(data))
       .join(
@@ -1289,7 +1290,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.x0 = d.x;
       d.y0 = d.y;
     });
-  }
+
+    return joinedEnterAndUpdate;
+  };
 
   private drawConnections(
     visibleConnections: Connection<Datum>[],
