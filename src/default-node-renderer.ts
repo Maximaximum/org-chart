@@ -44,8 +44,8 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       })
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0)
+      .attr("x", 0)
+      .attr("y", 0)
       .attr("cursor", "pointer")
       .attr("rx", 3)
       .attr("fill", nodeBackground);
@@ -70,8 +70,8 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     nodeForeignObjects
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0);
+      .attr("x", 0)
+      .attr("y", 0);
 
     const foDiv = nodeForeignObjects
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(

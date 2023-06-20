@@ -42,7 +42,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       .data<HierarchyNode<Datum>>([node], (d) => attrs.nodeId(d.data));
 
     // Add foreignObject element inside rectangle
-    const fo = pagingNodeContainer
+    pagingNodeContainer
       .patternify({
         tag: "foreignObject",
         className: "paging-node-foreign-object",
@@ -51,10 +51,9 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       .style("overflow", "visible")
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0);
+      .attr("x", 0)
+      .attr("y", 0)
 
-    const divs = fo
       .patternify({
         tag: "xhtml:div" as "div",
         className: "paging-node-foreign-object-div",
@@ -71,12 +70,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
             that.loadNextPageOfNodes(d);
           })
           .html(() => {
-            return `<div style="pointer-events:none">${that.pagingButton(
-              d,
-              i,
-              arr as HTMLDivElement[],
-              attrs
-            )}</div>`;
+            return that.pagingButton(d, i, arr as HTMLDivElement[], attrs);
           })
           .node()!;
       });
@@ -111,6 +105,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
 function pagingButton(nextPageAmount: number) {
   return `
+    <div style="pointer-events:none">
       <div style="margin-top:90px;">
         <div style="display:flex;width:170px;border-radius:20px;padding:5px 15px; padding-bottom:4px;;background-color:#E5E9F2">
         <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -118,5 +113,6 @@ function pagingButton(nextPageAmount: number) {
         </svg>
         </div><div style="line-height:2"> Show next ${nextPageAmount} nodes </div></div>
       </div>
+    </div>
   `;
 }
