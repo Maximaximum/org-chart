@@ -1213,10 +1213,11 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.restyleNodeForeignObjectElements();
 
-    joinedEnterAndUpdate.call(
-      this.drawNodeExpandCollapseButton,
-      this.getChartState()
-    );
+    joinedEnterAndUpdate
+      .select(function (d, i) {
+        return !d.data._pagingButton ? this : null;
+      })
+      .call(this.drawNodeExpandCollapseButton, this.getChartState());
 
     // Transition to the proper position for the node
     joinedEnterAndUpdate
@@ -1468,8 +1469,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   };
 
   drawNodeExpandCollapseButton = (
-    joinedEnterAndUpdate: Selection<
-      SVGGElement,
+    nodeContainer: Selection<
+      SVGGElement | null,
       HierarchyNode<Datum>,
       SVGGElement,
       string
@@ -1482,10 +1483,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const nodeButtonY = -nodeButtonHeight / 2;
 
     // Add Node button circle's group (expand-collapse button)
-    const nodeButtonGroups = joinedEnterAndUpdate
-      .select(function (d, i) {
-        return !d.data._pagingButton ? this : null;
-      })
+    const nodeButtonGroups = nodeContainer
       .patternify({
         tag: "g",
         className: "node-button-g",
@@ -1540,7 +1538,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .style("width", "100%")
       .style("height", "100%");
 
-    joinedEnterAndUpdate
+    nodeContainer
       .select(".node-button-g")
       .attr("transform", ({ data, width, height }) => {
         const x = this.getLayoutBinding().buttonX({
@@ -1567,14 +1565,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       });
 
     // Restyle node button circle
-    joinedEnterAndUpdate
+    nodeContainer
       .select(".node-button-foreign-object .node-button-div")
       .html((node) => {
         return attrs.buttonContent({ node, state: attrs });
       });
 
     // Restyle button texts
-    joinedEnterAndUpdate
+    nodeContainer
       .select(".node-button-text")
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "middle")
