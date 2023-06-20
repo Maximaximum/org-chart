@@ -2,12 +2,12 @@ import { ValueFn } from "d3";
 import { BaseType, selection, Selection } from "d3-selection";
 
 function patternify<
+  TTagName extends keyof ElementTagNameMap,
   Datum,
   PElement extends BaseType,
   PDatum,
   GPElement extends BaseType,
-  GPDatum,
-  TTagName extends keyof ElementTagNameMap
+  GPDatum
 >(
   this: Selection<PElement, PDatum, GPElement, GPDatum>,
   params: {
@@ -18,12 +18,12 @@ function patternify<
 ): Selection<ElementTagNameMap[TTagName], Datum, PElement, PDatum>;
 
 function patternify<
+  TTagName extends keyof ElementTagNameMap,
   Datum,
   PElement extends BaseType,
   PDatum,
   GPElement extends BaseType,
-  GPDatum,
-  TTagName extends keyof ElementTagNameMap
+  GPDatum
 >(
   this: Selection<PElement, PDatum, GPElement, GPDatum>,
   params: {
@@ -33,12 +33,12 @@ function patternify<
 ): Selection<ElementTagNameMap[TTagName], string, PElement, PDatum>;
 
 function patternify<
+  TTagName extends keyof ElementTagNameMap,
   Datum,
   PElement extends BaseType,
   PDatum,
   GPElement extends BaseType,
-  GPDatum,
-  TTagName extends keyof ElementTagNameMap
+  GPDatum
 >(
   this: Selection<PElement, PDatum, GPElement, GPDatum>,
   params: {

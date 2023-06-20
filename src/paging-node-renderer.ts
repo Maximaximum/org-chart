@@ -28,7 +28,9 @@ const d3 = {
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
 
-  /** Number of nodes to show within a "page" */
+  /** Number of nodes to show within a node's children "page"
+   * @param d parent node containing paginated nodes
+   */
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
@@ -40,14 +42,14 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     const fo = pagingNodeContainer
       .patternify({
         tag: "foreignObject",
-        className: "node-foreign-object",
+        className: "paging-node-foreign-object",
         data: (d) => [d],
       })
       .style("overflow", "visible");
 
     fo.patternify({
       tag: "xhtml:div" as "div",
-      className: "node-foreign-object-div",
+      className: "paging-node-foreign-object-div",
       data: (d) => [d],
     });
 
@@ -61,7 +63,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
     const foDiv = nodeForeignObjects
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        ".node-foreign-object-div"
+        ".paging-node-foreign-object-div"
       )
       .style("width", ({ width }) => `${width}px`)
       .style("height", ({ height }) => `${height}px`);
@@ -73,7 +75,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
           .classed("paging-button-wrapper", true)
           .style("cursor", "pointer")
           .on("click", () => {
-            that.loadPagingNodes(d);
+            that.loadNextPageOfNodes(d);
           })
           .html(() => {
             return `<div style="pointer-events:none">${that.pagingButton(
@@ -89,14 +91,14 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   };
 
   // Load Paging Nodes
-  loadPagingNodes(node: HierarchyNode<Datum>) {
+  loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
     const attrs = this.chart.getChartState();
-    node.data._pagingButton = false;
-    const current = node.parent!.data._pagingStep!;
-    const step = this.pagingStep(node.parent!);
+    paginationButtonNode.data._pagingButton = false;
+    const current = paginationButtonNode.parent!.data._pagingStep!;
+    const step = this.pagingStep(paginationButtonNode.parent!);
     const newPagingIndex = current + step;
-    node.parent!.data._pagingStep = newPagingIndex;
-    console.log("loading paging nodes", node);
+    paginationButtonNode.parent!.data._pagingStep = newPagingIndex;
+    console.log("loading paging nodes", paginationButtonNode);
     this.chart.updateNodesState();
   }
 
@@ -115,14 +117,14 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   };
 }
 
-function pagingButton(min: number) {
+function pagingButton(nextPageAmount: number) {
   return `
       <div style="margin-top:90px;">
         <div style="display:flex;width:170px;border-radius:20px;padding:5px 15px; padding-bottom:4px;;background-color:#E5E9F2">
         <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5.59 7.41L10.18 12L5.59 16.59L7 18L13 12L7 6L5.59 7.41ZM16 6H18V18H16V6Z" fill="#716E7B" stroke="#716E7B"/>
         </svg>
-        </div><div style="line-height:2"> Show next ${min}  nodes </div></div>
+        </div><div style="line-height:2"> Show next ${nextPageAmount} nodes </div></div>
       </div>
   `;
 }
