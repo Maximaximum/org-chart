@@ -1,6 +1,6 @@
 import "./patternify";
 
-import { select, Selection } from "d3-selection";
+import { BaseType, select, Selection } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior, D3ZoomEvent } from "d3-zoom";
@@ -547,7 +547,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       fullDimensions
     );
 
-    const nodeWrapperGElement = this.drawNodeWrappers(
+    const nodeWrapperGElements = this.drawNodeWrappers(
       this.elements.nodesWrapper,
       nodes,
       fullDimensions,
@@ -558,24 +558,29 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
     );
 
-    nodeWrapperGElement.call(this.drawNodes, nodes);
+    nodeWrapperGElements.call(this.drawNodes, nodes);
 
     this.translateChartGroupIfNeeded();
   }
 
-  restyleNodeForeignObjectElements() {
+  restyleNodeForeignObjectElements = <TParent extends BaseType, TParentData>(
+    nodeForeignObjects: Selection<
+      SVGForeignObjectElement,
+      HierarchyNode<Datum>,
+      TParent,
+      TParentData
+    >
+  ) => {
     const that = this;
     const attrs = this.getChartState();
 
-    this.elements.svg
-      .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
-        ".node-foreign-object"
-      )
+    nodeForeignObjects
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
       .attr("x", ({ width }) => 0)
       .attr("y", ({ height }) => 0);
-    const foDiv = this.elements.svg
+
+    const foDiv = nodeForeignObjects
       .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
         ".node-foreign-object-div"
       )
@@ -610,7 +615,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
       );
     });
-  }
+  };
 
   toggleExpandNode(node: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(
@@ -738,7 +743,12 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Apply new styles to the foreign object element
     if (isEdge()) {
-      this.restyleNodeForeignObjectElements();
+      this.restyleNodeForeignObjectElements(
+        this.elements.svg.selectAll<
+          SVGForeignObjectElement,
+          HierarchyNode<Datum>
+        >(".node-foreign-object")
+      );
     }
   }
 
@@ -1121,7 +1131,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   };
 
   private drawNodes = (
-    nodeWrapperGElement: Selection<
+    nodeWrapperGElements: Selection<
       SVGGElement,
       HierarchyNode<Datum>,
       SVGGElement,
@@ -1131,7 +1141,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   ) => {
     const attrs = this.getChartState();
 
-    const actualDataNodes = nodeWrapperGElement.select(function (d, i) {
+    const actualDataNodes = nodeWrapperGElements.select(function (d, i) {
       return !d.data._pagingButton ? this : null;
     });
 
@@ -1151,20 +1161,21 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("fill", nodeBackground);
 
     // Add foreignObject element inside rectangle
-    const fo = nodeWrapperGElement
+    const fo = nodeWrapperGElements
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
         data: (d) => [d],
       })
-      .style("overflow", "visible")
-      .patternify({
-        tag: "xhtml:div" as "div",
-        className: "node-foreign-object-div",
-        data: (d) => [d],
-      });
+      .style("overflow", "visible");
 
-    this.restyleNodeForeignObjectElements();
+    fo.patternify({
+      tag: "xhtml:div" as "div",
+      className: "node-foreign-object-div",
+      data: (d) => [d],
+    });
+
+    fo.call(this.restyleNodeForeignObjectElements);
 
     actualDataNodes.call(
       this.drawNodeExpandCollapseButton,
@@ -1172,7 +1183,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     );
 
     // Transition to the proper position for the node
-    nodeWrapperGElement
+    nodeWrapperGElements
       .transition()
       .attr("opacity", 0)
       .duration(attrs.duration)
@@ -1186,7 +1197,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("opacity", 1);
 
-    nodeWrapperGElement.each(attrs.nodeUpdate);
+    nodeWrapperGElements.each(attrs.nodeUpdate);
 
     // Store the old positions for transition.
     nodes.forEach((d) => {
@@ -1194,7 +1205,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.y0 = d.y;
     });
 
-    return nodeWrapperGElement;
+    return nodeWrapperGElements;
   };
 
   private drawConnections = (
