@@ -1077,27 +1077,51 @@ export class OrgChart<Datum extends ConcreteDatum>
   ) => {
     const attrs = this.getChartState();
 
-    const actualDataNodes = nodeWrapperGElements.select(function (d, i) {
-      return !d.data._pagingButton ? this : null;
+    const that = this;
+    nodeWrapperGElements.each(function (d) {
+      if (d.data._pagingButton) {
+        that.drawPagingNode(this, d);
+      } else {
+        that.drawActualNode(this, d);
+      }
     });
 
-    // Add background rectangle for the nodes
-    actualDataNodes
-      .patternify({
-        tag: "rect",
-        className: "node-rect",
-        data: (d) => [d],
+    // Transition to the proper position for the node
+    nodeWrapperGElements
+      .transition()
+      .attr("opacity", 0)
+      .duration(attrs.duration)
+      .attr("transform", ({ x, y, width, height }) => {
+        return this.getLayoutBinding().nodeUpdateTransform({
+          x,
+          y,
+          width,
+          height,
+        });
       })
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0)
-      .attr("cursor", "pointer")
-      .attr("rx", 3)
-      .attr("fill", nodeBackground);
+      .attr("opacity", 1);
+
+    nodeWrapperGElements.each(attrs.nodeUpdate);
+
+    // Store the old positions for transition.
+    nodes.forEach((d) => {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+
+    return nodeWrapperGElements;
+  };
+
+  private drawPagingNode = (
+    container: SVGGElement,
+    node: HierarchyNode<Datum>
+  ) => {
+    const pagingNodeContainer = d3.select(container).datum(node);
+    const attrs = this.getChartState();
+    const that = this;
 
     // Add foreignObject element inside rectangle
-    const fo = nodeWrapperGElements
+    const fo = pagingNodeContainer
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
@@ -1126,65 +1150,92 @@ export class OrgChart<Datum extends ConcreteDatum>
       .style("width", ({ width }) => `${width}px`)
       .style("height", ({ height }) => `${height}px`);
 
-    const that = this;
     foDiv.each(function (d, i, arr) {
-      if (d.data._pagingButton) {
-        d3.select(this).append(function () {
-          return d3
-            .create("div")
-            .classed("paging-button-wrapper", true)
-            .style("cursor", "pointer")
-            .on("click", () => {
-              that.loadPagingNodes(d);
-            })
-            .html(() => {
-              return `<div style="pointer-events:none">${attrs.pagingButton(
-                d,
-                i,
-                arr as HTMLDivElement[],
-                attrs
-              )}</div>`;
-            })
-            .node()!;
-        });
+      d3.select(this).append(function () {
+        return d3
+          .create("div")
+          .classed("paging-button-wrapper", true)
+          .style("cursor", "pointer")
+          .on("click", () => {
+            that.loadPagingNodes(d);
+          })
+          .html(() => {
+            return `<div style="pointer-events:none">${attrs.pagingButton(
+              d,
+              i,
+              arr as HTMLDivElement[],
+              attrs
+            )}</div>`;
+          })
+          .node()!;
+      });
+    });
+  };
 
-        return;
-      }
+  private drawActualNode = (
+    container: SVGGElement,
+    node: HierarchyNode<Datum>
+  ) => {
+    const actualDataNodeContainer = d3.select(container).datum(node);
+    const attrs = this.getChartState();
 
+    // Add background rectangle for the nodes
+    actualDataNodeContainer
+      .patternify({
+        tag: "rect",
+        className: "node-rect",
+        data: (d) => [d],
+      })
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0)
+      .attr("cursor", "pointer")
+      .attr("rx", 3)
+      .attr("fill", nodeBackground);
+
+    // Add foreignObject element inside rectangle
+    const fo = actualDataNodeContainer
+      .patternify({
+        tag: "foreignObject",
+        className: "node-foreign-object",
+        data: (d) => [d],
+      })
+      .style("overflow", "visible");
+
+    fo.patternify({
+      tag: "xhtml:div" as "div",
+      className: "node-foreign-object-div",
+      data: (d) => [d],
+    });
+
+    const nodeForeignObjects = fo;
+
+    nodeForeignObjects
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0);
+
+    const foDiv = nodeForeignObjects
+      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
+        ".node-foreign-object-div"
+      )
+      .style("width", ({ width }) => `${width}px`)
+      .style("height", ({ height }) => `${height}px`);
+
+    foDiv.each(function (d, i, arr) {
       d3.select(this).html(
         attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
       );
     });
 
-    actualDataNodes.call(
+    actualDataNodeContainer.call(
       this.drawNodeExpandCollapseButton,
       this.getChartState()
     );
 
-    // Transition to the proper position for the node
-    nodeWrapperGElements
-      .transition()
-      .attr("opacity", 0)
-      .duration(attrs.duration)
-      .attr("transform", ({ x, y, width, height }) => {
-        return this.getLayoutBinding().nodeUpdateTransform({
-          x,
-          y,
-          width,
-          height,
-        });
-      })
-      .attr("opacity", 1);
-
-    nodeWrapperGElements.each(attrs.nodeUpdate);
-
-    // Store the old positions for transition.
-    nodes.forEach((d) => {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
-
-    return nodeWrapperGElements;
+    return actualDataNodeContainer;
   };
 
   private drawConnections = (
@@ -1410,12 +1461,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       .remove();
   };
 
-  drawNodeExpandCollapseButton = (
+  drawNodeExpandCollapseButton = <TParent extends BaseType, TPDatum>(
     nodeContainer: Selection<
-      SVGGElement | null,
-      HierarchyNode<Datum>,
       SVGGElement,
-      string
+      HierarchyNode<Datum>,
+      TParent,
+      TPDatum
     >,
     attrs: State<Datum>
   ) => {
