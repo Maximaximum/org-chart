@@ -88,8 +88,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
     compactMarginBetween: () => 20,
-    nodeButtonX: (d) => -20,
-    nodeButtonY: (d) => -20,
     linkYOffset: 30,
     minPagingVisibleNodes: (d) => 2000,
     scaleExtent: [0.001, 20],
@@ -1469,7 +1467,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .remove();
   };
 
-  drawNodeExpandCollapseButton(
+  drawNodeExpandCollapseButton = (
     joinedEnterAndUpdate: Selection<
       SVGGElement,
       HierarchyNode<Datum>,
@@ -1477,9 +1475,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       string
     >,
     attrs: State<Datum>
-  ) {
+  ) => {
     const nodeButtonHeight = 40;
     const nodeButtonWidth = 40;
+    const nodeButtonX = -nodeButtonWidth / 2;
+    const nodeButtonY = -nodeButtonHeight / 2;
 
     // Add Node button circle's group (expand-collapse button)
     const nodeButtonGroups = joinedEnterAndUpdate
@@ -1515,8 +1515,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("pointer-events", "all")
       .attr("width", (d) => nodeButtonWidth)
       .attr("height", (d) => nodeButtonHeight)
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
+      .attr("x", (d) => nodeButtonX)
+      .attr("y", (d) => nodeButtonY);
 
     // Add expand collapse button content
     const nodeFo = nodeButtonGroups
@@ -1527,8 +1527,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("width", (d) => nodeButtonWidth)
       .attr("height", (d) => nodeButtonHeight)
-      .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
-      .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
+      .attr("x", (d) => nodeButtonX)
+      .attr("y", (d) => nodeButtonY)
       .style("overflow", "visible")
       .patternify({
         tag: "xhtml:div" as "div",
@@ -1585,7 +1585,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         return children ? "-" : "+";
       })
       .attr("y", isEdge() ? 10 : 0);
-  }
+  };
 
   private translateChartGroupIfNeeded() {
     const attrs = this.getChartState();

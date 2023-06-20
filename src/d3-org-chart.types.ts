@@ -170,11 +170,6 @@ export interface State<Datum> {
     state: State<Datum>
   ) => string;
 
-  /** Configure expand & collapse button x position */
-  nodeButtonX: (d: HierarchyNode<Datum>) => number;
-  /** Configure expand & collapse button y position */
-  nodeButtonY: (d: HierarchyNode<Datum>) => number;
-
   /** Callback for zoom & panning  */
   onZoom: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
   /** Callback for zoom & panning start */
