@@ -31,7 +31,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   /** Number of nodes to show within a "page" */
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
-  drawPagingNode = (container: SVGGElement, node: HierarchyNode<Datum>) => {
+  draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
     const pagingNodeContainer = d3.select(container).datum(node);
     const attrs = this.chart.getChartState();
     const that = this;

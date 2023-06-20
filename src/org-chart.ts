@@ -1090,9 +1090,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private drawNode(container: SVGGElement, d: HierarchyNode<Datum>) {
     if (d.data._pagingButton) {
-      new PagingNodeRenderer(this).drawPagingNode(container, d);
+      new PagingNodeRenderer(this).draw(container, d);
     } else {
-      new DefaultNodeRenderer(this).drawActualNode(container, d);
+      new DefaultNodeRenderer(this).draw(container, d);
     }
   }
 

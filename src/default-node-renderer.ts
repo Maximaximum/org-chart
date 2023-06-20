@@ -30,7 +30,7 @@ const d3 = {
 export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
 
-  drawActualNode = (container: SVGGElement, node: HierarchyNode<Datum>) => {
+  draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
     const actualDataNodeContainer = d3.select(container).datum(node);
 
     const attrs = this.chart.getChartState();
