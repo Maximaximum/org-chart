@@ -88,8 +88,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
     compactMarginBetween: () => 20,
-    nodeButtonWidth: (d) => 40,
-    nodeButtonHeight: (d) => 40,
     nodeButtonX: (d) => -20,
     nodeButtonY: (d) => -20,
     linkYOffset: 30,
@@ -609,22 +607,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       !this._attrs.nodeGetIsExpanded(node.data)
     );
     this.updateChildrenProperty(node);
-  }
-
-  /**
-   * Default node expansion toggle button click handler
-   */
-  onButtonClick(event: MouseEvent, d: HierarchyNode<Datum>) {
-    const attrs = this.getChartState();
-
-    this.toggleExpandNode(d);
-
-    if (attrs.setActiveNodeCentered) {
-      attrs.centeredNode = d;
-    }
-
-    // Redraw Graph
-    this.update(d);
   }
 
   /**
@@ -1233,7 +1215,10 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.restyleForeignObjectElements();
 
-    this.drawNodeExpandCollapseButton(joinedEnterAndUpdate);
+    joinedEnterAndUpdate.call(
+      this.drawNodeExpandCollapseButton,
+      this.getChartState()
+    );
 
     // Transition to the proper position for the node
     joinedEnterAndUpdate
@@ -1490,9 +1475,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       HierarchyNode<Datum>,
       SVGGElement,
       string
-    >
+    >,
+    attrs: State<Datum>
   ) {
-    const attrs = this.getChartState();
+    const nodeButtonHeight = 40;
+    const nodeButtonWidth = 40;
 
     // Add Node button circle's group (expand-collapse button)
     const nodeButtonGroups = joinedEnterAndUpdate
@@ -1506,7 +1493,16 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .style("cursor", "pointer")
       .on("click", (event: PointerEvent, d) => {
-        this.onButtonClick(event, d);
+        const attrs = this.getChartState();
+
+        this.toggleExpandNode(d);
+
+        if (attrs.setActiveNodeCentered) {
+          attrs.centeredNode = d;
+        }
+
+        // Redraw Graph
+        this.update(d);
       });
 
     nodeButtonGroups
@@ -1517,8 +1513,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("opacity", 0)
       .attr("pointer-events", "all")
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("width", (d) => nodeButtonWidth)
+      .attr("height", (d) => nodeButtonHeight)
       .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
       .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>));
 
@@ -1529,8 +1525,8 @@ export class OrgChart<Datum extends ConcreteDatum>
         className: "node-button-foreign-object",
         data: (d) => [d],
       })
-      .attr("width", (d) => attrs.nodeButtonWidth(d as HierarchyNode<Datum>))
-      .attr("height", (d) => attrs.nodeButtonHeight(d as HierarchyNode<Datum>))
+      .attr("width", (d) => nodeButtonWidth)
+      .attr("height", (d) => nodeButtonHeight)
       .attr("x", (d) => attrs.nodeButtonX(d as HierarchyNode<Datum>))
       .attr("y", (d) => attrs.nodeButtonY(d as HierarchyNode<Datum>))
       .style("overflow", "visible")

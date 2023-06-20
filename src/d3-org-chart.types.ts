@@ -170,10 +170,6 @@ export interface State<Datum> {
     state: State<Datum>
   ) => string;
 
-  /** Configure expand & collapse button width */
-  nodeButtonWidth: (d: HierarchyNode<Datum>) => number;
-  /** Configure expand & collapse button height */
-  nodeButtonHeight: (d: HierarchyNode<Datum>) => number;
   /** Configure expand & collapse button x position */
   nodeButtonX: (d: HierarchyNode<Datum>) => number;
   /** Configure expand & collapse button y position */
