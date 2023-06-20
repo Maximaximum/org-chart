@@ -95,7 +95,7 @@ export interface State<Datum> {
     this: SVGGElement,
     node: HierarchyNode<Datum>,
     index: number,
-    nodes: HierarchyNode<Datum>[]
+    nodes: SVGGElement[] | ArrayLike<SVGGElement>
   ) => void;
   /** Configure each node width, use with caution, it is better to have the same value set for all nodes */
   nodeWidth: (node: HierarchyNode<Datum>) => number;

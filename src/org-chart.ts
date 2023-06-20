@@ -16,6 +16,7 @@ import {
   Connection,
   Elements,
   Point,
+  LayoutBinding,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -545,7 +546,19 @@ export class OrgChart<Datum extends ConcreteDatum>
       visibleConnections,
       fullDimensions
     );
-    this.elements.nodesWrapper.call(this.drawNodes, nodes, fullDimensions);
+
+    const nodeWrapperGElement = this.drawNodeWrappers(
+      this.elements.nodesWrapper,
+      nodes,
+      fullDimensions,
+      {
+        layoutBinding: this.getLayoutBinding(),
+        duration: attrs.duration,
+        nodeId: attrs.nodeId,
+      }
+    );
+
+    nodeWrapperGElement.call(this.drawNodes, nodes);
 
     this.translateChartGroupIfNeeded();
   }
@@ -1108,82 +1121,22 @@ export class OrgChart<Datum extends ConcreteDatum>
   };
 
   private drawNodes = (
-    nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
-    nodes: HierarchyNode<Datum>[],
-    animationSource: {
-      x0: number;
-      y0: number;
-      width: number;
-      height: number;
-      x: number;
-      y: number;
-    }
+    nodeWrapperGElement: Selection<
+      SVGGElement,
+      HierarchyNode<Datum>,
+      SVGGElement,
+      string
+    >,
+    nodes: HierarchyNode<Datum>[]
   ) => {
     const attrs = this.getChartState();
 
-    // Get nodes selection
-    const joinedEnterAndUpdate = nodesWrapper
-      .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
-      .data(nodes, ({ data }) => attrs.nodeId(data))
-      .join(
-        (enter) => {
-          // Enter any new nodes at the parent's previous position.
-          return enter
-            .append("g")
-            .attr("class", "node")
-            .attr("transform", (d) => {
-              if (d == this.root) {
-                return `translate(${animationSource.x0},${animationSource.y0})`;
-              }
-
-              const xj = this.getLayoutBinding().nodeJoinX({
-                x: animationSource.x0,
-                y: animationSource.y0,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              const yj = this.getLayoutBinding().nodeJoinY({
-                x: animationSource.x0,
-                y: animationSource.y0,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              return `translate(${xj},${yj})`;
-            });
-        },
-        (update) => update,
-        (exit) => {
-          // Remove any exiting nodes after transition
-          return exit
-            .attr("opacity", 1)
-            .transition()
-            .duration(attrs.duration)
-            .attr("transform", (d) => {
-              const ex = this.getLayoutBinding().nodeJoinX({
-                x: animationSource.x,
-                y: animationSource.y,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              const ey = this.getLayoutBinding().nodeJoinY({
-                x: animationSource.x,
-                y: animationSource.y,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              return `translate(${ex},${ey})`;
-            })
-            .on("end", function (this) {
-              d3.select(this).remove();
-            })
-            .attr("opacity", 0);
-        }
-      )
-      .attr("cursor", "default")
-      .style("font", "12px sans-serif");
+    const actualDataNodes = nodeWrapperGElement.select(function (d, i) {
+      return !d.data._pagingButton ? this : null;
+    });
 
     // Add background rectangle for the nodes
-    joinedEnterAndUpdate
+    actualDataNodes
       .patternify({
         tag: "rect",
         className: "node-rect",
@@ -1198,7 +1151,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("fill", nodeBackground);
 
     // Add foreignObject element inside rectangle
-    const fo = joinedEnterAndUpdate
+    const fo = nodeWrapperGElement
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
@@ -1213,14 +1166,13 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.restyleNodeForeignObjectElements();
 
-    joinedEnterAndUpdate
-      .select(function (d, i) {
-        return !d.data._pagingButton ? this : null;
-      })
-      .call(this.drawNodeExpandCollapseButton, this.getChartState());
+    actualDataNodes.call(
+      this.drawNodeExpandCollapseButton,
+      this.getChartState()
+    );
 
     // Transition to the proper position for the node
-    joinedEnterAndUpdate
+    nodeWrapperGElement
       .transition()
       .attr("opacity", 0)
       .duration(attrs.duration)
@@ -1234,7 +1186,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .attr("opacity", 1);
 
-    joinedEnterAndUpdate.each(attrs.nodeUpdate as any);
+    nodeWrapperGElement.each(attrs.nodeUpdate);
 
     // Store the old positions for transition.
     nodes.forEach((d) => {
@@ -1242,7 +1194,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.y0 = d.y;
     });
 
-    return joinedEnterAndUpdate;
+    return nodeWrapperGElement;
   };
 
   private drawConnections = (
@@ -1604,6 +1556,84 @@ export class OrgChart<Datum extends ConcreteDatum>
         ),
       });
     }
+  }
+
+  private drawNodeWrappers(
+    nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
+    nodes: HierarchyNode<Datum>[],
+    animationSource: {
+      x0: number;
+      y0: number;
+      width: number;
+      height: number;
+      x: number;
+      y: number;
+    },
+    attrs: {
+      layoutBinding: LayoutBinding<Datum>;
+      duration: number;
+      nodeId: (node: Datum) => NodeId;
+    }
+  ) {
+    return nodesWrapper
+      .selectAll<SVGGElement, HierarchyNode<Datum>>("g.node")
+      .data(nodes, ({ data }) => attrs.nodeId(data))
+      .join(
+        (enter) => {
+          // Enter any new nodes at the parent's previous position.
+          return enter
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", (d) => {
+              if (d == this.root) {
+                return `translate(${animationSource.x0},${animationSource.y0})`;
+              }
+
+              const xj = this.getLayoutBinding().nodeJoinX({
+                x: animationSource.x0,
+                y: animationSource.y0,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              const yj = this.getLayoutBinding().nodeJoinY({
+                x: animationSource.x0,
+                y: animationSource.y0,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              return `translate(${xj},${yj})`;
+            });
+        },
+        (update) => update,
+        (exit) => {
+          // Remove any exiting nodes after transition
+          return exit
+            .attr("opacity", 1)
+            .transition()
+            .duration(attrs.duration)
+            .attr("transform", (d) => {
+              const ex = this.getLayoutBinding().nodeJoinX({
+                x: animationSource.x,
+                y: animationSource.y,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              const ey = this.getLayoutBinding().nodeJoinY({
+                x: animationSource.x,
+                y: animationSource.y,
+                width: animationSource.width,
+                height: animationSource.height,
+              });
+              return `translate(${ex},${ey})`;
+            })
+            .on("end", function (this) {
+              d3.select(this).remove();
+            })
+            .attr("opacity", 0);
+        }
+      )
+      .attr("cursor", "default")
+      .style("font", "12px sans-serif");
   }
 }
 
