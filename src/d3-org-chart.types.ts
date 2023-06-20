@@ -162,13 +162,6 @@ export interface State<Datum> {
   minPagingVisibleNodes: (d: HierarchyNode<Datum>) => number;
   /** Configure exported PNG and SVG image name */
   imageName: string;
-  /** Node paging button content and styling. You can access same helper methods as above. */
-  pagingButton: (
-    d: HierarchyNode<Datum>,
-    i: number,
-    arr: HTMLDivElement[],
-    state: State<Datum>
-  ) => string;
 
   /** Callback for zoom & panning  */
   onZoom: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;

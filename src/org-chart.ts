@@ -25,11 +25,11 @@ import { defaultLayoutBindings } from "./default-layout-bindings";
 import { defaultButtonContent } from "./default-button-content";
 import { defaultNodeContent } from "./default-node-content";
 import { connectionArrowhead, connectionLabel } from "./connection-defs";
-import { pagingButton } from "./paging-button";
 import { create } from "d3";
 import { groupBy } from "./group-by";
 import { highlightColor, linkColor } from "./default-colors";
 import { DefaultNodeRenderer } from "./default-node-renderer";
+import { PagingNodeRenderer } from "./paging-node-renderer";
 
 const d3 = {
   select,
@@ -67,8 +67,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   /** Whether chart is drawn for the first time */
   private firstDraw = true;
-  /** Number of nodes to show within a "page" */
-  private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
 
@@ -103,13 +101,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     onZoomEnd: (e, d) => {},
     nodeContent: defaultNodeContent,
     buttonContent: defaultButtonContent<Datum>,
-    pagingButton: (d, i, arr, state) => {
-      const step = this.pagingStep(d.parent!);
-      const currentIndex = d.parent!.data._pagingStep;
-      const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
-      const min = Math.min(diff, step);
-      return pagingButton(min);
-    },
     nodeUpdate: function (d, i, arr) {
       d3.select<SVGGElement, HierarchyNode<Datum>>(this)
         .select(".node-rect")
@@ -757,18 +748,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     return this;
   }
 
-  // Load Paging Nodes
-  loadPagingNodes(node: HierarchyNode<Datum>) {
-    const attrs = this.getChartState();
-    node.data._pagingButton = false;
-    const current = node.parent!.data._pagingStep!;
-    const step = this.pagingStep(node.parent!);
-    const newPagingIndex = current + step;
-    node.parent!.data._pagingStep = newPagingIndex;
-    console.log("loading paging nodes", node);
-    this.updateNodesState();
-  }
-
   // This function can be invoked via chart.setExpanded API, it expands or collapses particular node
   setExpanded(id: NodeId, expandedFlag = true) {
     const attrs = this.getChartState();
@@ -1111,71 +1090,11 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private drawNode(container: SVGGElement, d: HierarchyNode<Datum>) {
     if (d.data._pagingButton) {
-      this.drawPagingNode(container, d);
+      new PagingNodeRenderer(this).drawPagingNode(container, d);
     } else {
       new DefaultNodeRenderer(this).drawActualNode(container, d);
     }
   }
-
-  private drawPagingNode = (
-    container: SVGGElement,
-    node: HierarchyNode<Datum>
-  ) => {
-    const pagingNodeContainer = d3.select(container).datum(node);
-    const attrs = this.getChartState();
-    const that = this;
-
-    // Add foreignObject element inside rectangle
-    const fo = pagingNodeContainer
-      .patternify({
-        tag: "foreignObject",
-        className: "node-foreign-object",
-        data: (d) => [d],
-      })
-      .style("overflow", "visible");
-
-    fo.patternify({
-      tag: "xhtml:div" as "div",
-      className: "node-foreign-object-div",
-      data: (d) => [d],
-    });
-
-    const nodeForeignObjects = fo;
-
-    nodeForeignObjects
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0);
-
-    const foDiv = nodeForeignObjects
-      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        ".node-foreign-object-div"
-      )
-      .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`);
-
-    foDiv.each(function (d, i, arr) {
-      d3.select(this).append(function () {
-        return d3
-          .create("div")
-          .classed("paging-button-wrapper", true)
-          .style("cursor", "pointer")
-          .on("click", () => {
-            that.loadPagingNodes(d);
-          })
-          .html(() => {
-            return `<div style="pointer-events:none">${attrs.pagingButton(
-              d,
-              i,
-              arr as HTMLDivElement[],
-              attrs
-            )}</div>`;
-          })
-          .node()!;
-      });
-    });
-  };
 
   private drawConnections = (
     connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>,
