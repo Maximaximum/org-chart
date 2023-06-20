@@ -550,7 +550,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.translateChartGroupIfNeeded();
   }
 
-  restyleForeignObjectElements() {
+  restyleNodeForeignObjectElements() {
     const that = this;
     const attrs = this.getChartState();
 
@@ -725,7 +725,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Apply new styles to the foreign object element
     if (isEdge()) {
-      this.restyleForeignObjectElements();
+      this.restyleNodeForeignObjectElements();
     }
   }
 
@@ -1211,7 +1211,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         data: (d) => [d],
       });
 
-    this.restyleForeignObjectElements();
+    this.restyleNodeForeignObjectElements();
 
     joinedEnterAndUpdate.call(
       this.drawNodeExpandCollapseButton,
