@@ -34,9 +34,12 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
-    const pagingNodeContainer = d3.select(container).datum(node);
     const attrs = this.chart.getChartState();
     const that = this;
+
+    const pagingNodeContainer = d3
+      .select<SVGGElement, HierarchyNode<Datum>>(container)
+      .data<HierarchyNode<Datum>>([node], (d) => attrs.nodeId(d.data));
 
     // Add foreignObject element inside rectangle
     const fo = pagingNodeContainer
@@ -45,31 +48,21 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
         className: "paging-node-foreign-object",
         data: (d) => [d],
       })
-      .style("overflow", "visible");
-
-    fo.patternify({
-      tag: "xhtml:div" as "div",
-      className: "paging-node-foreign-object-div",
-      data: (d) => [d],
-    });
-
-    const nodeForeignObjects = fo;
-
-    nodeForeignObjects
+      .style("overflow", "visible")
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
       .attr("x", ({ width }) => 0)
       .attr("y", ({ height }) => 0);
 
-    const foDiv = nodeForeignObjects
-      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        ".paging-node-foreign-object-div"
-      )
+    const divs = fo
+      .patternify({
+        tag: "xhtml:div" as "div",
+        className: "paging-node-foreign-object-div",
+        data: (d) => [d],
+      })
       .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`);
-
-    foDiv.each(function (d, i, arr) {
-      d3.select(this).append(function () {
+      .style("height", ({ height }) => `${height}px`)
+      .append(function (d, i, arr) {
         return d3
           .create("div")
           .classed("paging-button-wrapper", true)
@@ -87,7 +80,6 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
           })
           .node()!;
       });
-    });
   };
 
   // Load Paging Nodes
