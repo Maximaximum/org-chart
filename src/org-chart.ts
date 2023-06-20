@@ -1079,11 +1079,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const that = this;
     nodeWrapperGElements.each(function (d) {
-      if (d.data._pagingButton) {
-        that.drawPagingNode(this, d);
-      } else {
-        that.drawActualNode(this, d);
-      }
+      that.drawNode(this, d);
     });
 
     // Transition to the proper position for the node
@@ -1111,6 +1107,14 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     return nodeWrapperGElements;
   };
+
+  private drawNode(container: SVGGElement, d: HierarchyNode<Datum>) {
+    if (d.data._pagingButton) {
+      this.drawPagingNode(container, d);
+    } else {
+      this.drawActualNode(container, d);
+    }
+  }
 
   private drawPagingNode = (
     container: SVGGElement,
