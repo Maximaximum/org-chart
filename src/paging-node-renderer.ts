@@ -25,13 +25,13 @@ const d3 = {
   create,
 };
 
+/**
+ * Number of nodes to show within a node's children "page"
+ */
+const pagingStep = 5;
+
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
-
-  /** Number of nodes to show within a node's children "page"
-   * @param d parent node containing paginated nodes
-   */
-  private pagingStep = (d: HierarchyNode<Datum>) => 5;
 
   draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
     const attrs = this.chart.getChartState();
@@ -70,7 +70,9 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
             that.loadNextPageOfNodes(d);
           })
           .html(() => {
-            return that.pagingButton(d, i, arr as HTMLDivElement[], attrs);
+            return pagingButton(
+              getNextPageAmount(d, i, arr as HTMLDivElement[], attrs)
+            );
           })
           .node()!;
       });
@@ -78,30 +80,28 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
   // Load Paging Nodes
   loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
-    const attrs = this.chart.getChartState();
     paginationButtonNode.data._pagingButton = false;
     const current = paginationButtonNode.parent!.data._pagingStep!;
-    const step = this.pagingStep(paginationButtonNode.parent!);
+    const step = pagingStep;
     const newPagingIndex = current + step;
     paginationButtonNode.parent!.data._pagingStep = newPagingIndex;
     console.log("loading paging nodes", paginationButtonNode);
     this.chart.updateNodesState();
   }
-
-  /** Node paging button content and styling. You can access same helper methods as above. */
-  private pagingButton = (
-    d: HierarchyNode<Datum>,
-    i: number,
-    arr: HTMLDivElement[],
-    state: State<Datum>
-  ) => {
-    const step = this.pagingStep(d.parent!);
-    const currentIndex = d.parent!.data._pagingStep;
-    const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
-    const min = Math.min(diff, step);
-    return pagingButton(min);
-  };
 }
+
+/** Node paging button content and styling. You can access same helper methods as above. */
+const getNextPageAmount = <Datum extends ConcreteDatum>(
+  d: HierarchyNode<Datum>,
+  i: number,
+  arr: HTMLDivElement[],
+  state: State<Datum>
+) => {
+  const step = pagingStep;
+  const currentIndex = d.parent!.data._pagingStep;
+  const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
+  return Math.min(diff, step);
+};
 
 function pagingButton(nextPageAmount: number) {
   return `
