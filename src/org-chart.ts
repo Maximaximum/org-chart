@@ -563,60 +563,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.translateChartGroupIfNeeded();
   }
 
-  restyleNodeForeignObjectElements = <TParent extends BaseType, TParentData>(
-    nodeForeignObjects: Selection<
-      SVGForeignObjectElement,
-      HierarchyNode<Datum>,
-      TParent,
-      TParentData
-    >
-  ) => {
-    const that = this;
-    const attrs = this.getChartState();
-
-    nodeForeignObjects
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", ({ width }) => 0)
-      .attr("y", ({ height }) => 0);
-
-    const foDiv = nodeForeignObjects
-      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        ".node-foreign-object-div"
-      )
-      .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`);
-
-    foDiv.each(function (d, i, arr) {
-      if (d.data._pagingButton) {
-        d3.select(this).append(function () {
-          return d3
-            .create("div")
-            .classed("paging-button-wrapper", true)
-            .style("cursor", "pointer")
-            .on("click", () => {
-              that.loadPagingNodes(d);
-            })
-            .html(() => {
-              return `<div style="pointer-events:none">${attrs.pagingButton(
-                d,
-                i,
-                arr as HTMLDivElement[],
-                attrs
-              )}</div>`;
-            })
-            .node()!;
-        });
-
-        return;
-      }
-
-      d3.select(this).html(
-        attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
-      );
-    });
-  };
-
   toggleExpandNode(node: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(
       node.data,
@@ -740,16 +686,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Reposition and rescale chart accordingly
     chart.attr("transform", transform.toString());
-
-    // Apply new styles to the foreign object element
-    if (isEdge()) {
-      this.restyleNodeForeignObjectElements(
-        this.elements.svg.selectAll<
-          SVGForeignObjectElement,
-          HierarchyNode<Datum>
-        >(".node-foreign-object")
-      );
-    }
   }
 
   zoomTreeBounds({
@@ -1175,7 +1111,50 @@ export class OrgChart<Datum extends ConcreteDatum>
       data: (d) => [d],
     });
 
-    fo.call(this.restyleNodeForeignObjectElements);
+    const nodeForeignObjects = fo;
+
+    nodeForeignObjects
+      .attr("width", ({ width }) => width)
+      .attr("height", ({ height }) => height)
+      .attr("x", ({ width }) => 0)
+      .attr("y", ({ height }) => 0);
+
+    const foDiv = nodeForeignObjects
+      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
+        ".node-foreign-object-div"
+      )
+      .style("width", ({ width }) => `${width}px`)
+      .style("height", ({ height }) => `${height}px`);
+
+    const that = this;
+    foDiv.each(function (d, i, arr) {
+      if (d.data._pagingButton) {
+        d3.select(this).append(function () {
+          return d3
+            .create("div")
+            .classed("paging-button-wrapper", true)
+            .style("cursor", "pointer")
+            .on("click", () => {
+              that.loadPagingNodes(d);
+            })
+            .html(() => {
+              return `<div style="pointer-events:none">${attrs.pagingButton(
+                d,
+                i,
+                arr as HTMLDivElement[],
+                attrs
+              )}</div>`;
+            })
+            .node()!;
+        });
+
+        return;
+      }
+
+      d3.select(this).html(
+        attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
+      );
+    });
 
     actualDataNodes.call(
       this.drawNodeExpandCollapseButton,
