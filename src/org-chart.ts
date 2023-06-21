@@ -106,16 +106,16 @@ export class OrgChart<Datum extends ConcreteDatum>
     buttonContent: defaultButtonContent<Datum>,
     nodeUpdate: function (d, i, arr) {
       d3.select<SVGGElement, HierarchyNode<Datum>>(this)
-        .select(".node-rect")
-        .attr("stroke", (d) =>
+        .select(".node-foreign-object")
+        .style("border-color", (d) =>
           d.data._highlighted || d.data._upToTheRootHighlighted
             ? highlightColor
             : "none"
         )
-        .attr(
-          "stroke-width",
-          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 1
-        );
+        .style("border-width", (d) =>
+          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 0
+        )
+        .style("border-style", "solid");
     },
     linkUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, HierarchyNode<Datum>>(this)

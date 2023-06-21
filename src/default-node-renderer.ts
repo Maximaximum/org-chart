@@ -48,13 +48,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       (exit) => exit.remove()
     );
 
-    // Add background rectangle for the nodes
-    containerSelection.patternify({
-      tag: "rect",
-      className: "node-rect",
-      data: (d) => [d],
-    });
-
     // Add foreignObject element inside rectangle
     const fo = containerSelection
       .patternify({
