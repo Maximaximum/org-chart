@@ -49,7 +49,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     );
 
     // Add foreignObject element inside rectangle
-    const fo = containerSelection
+    containerSelection
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
@@ -57,32 +57,22 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       })
       .style("overflow", "visible")
       .style("background", nodeBackground)
-      .style("border-radius", "3px");
-
-    fo.patternify({
-      tag: "xhtml:div" as "div",
-      className: "node-foreign-object-div",
-      data: (d) => [d],
-    });
-
-    const nodeForeignObjects = fo;
-
-    nodeForeignObjects
+      .style("border-radius", "3px")
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
       .attr("x", 0)
-      .attr("y", 0);
+      .attr("y", 0)
 
-    const foDiv = nodeForeignObjects
-      .selectAll<HTMLDivElement, HierarchyNode<Datum>>(
-        ".node-foreign-object-div"
-      )
-      .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`);
-
-    foDiv.each(function (d, i, arr) {
-      d3.select(this).html(attrs.nodeContent.bind(this)(d, i, arr, attrs));
-    });
+      .patternify({
+        tag: "xhtml:div" as "div",
+        className: "node-foreign-object-div",
+        data: (d) => [d],
+      })
+      .style("width", "100%")
+      .style("height", "100%")
+      .html(function (d, i, arr) {
+        return attrs.nodeContent.bind(this)(d, i, arr, attrs);
+      });
 
     containerSelection.call(this.drawNodeExpandCollapseButton, attrs);
 
