@@ -49,19 +49,11 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     );
 
     // Add background rectangle for the nodes
-    containerSelection
-      .patternify({
-        tag: "rect",
-        className: "node-rect",
-        data: (d) => [d],
-      })
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("cursor", "pointer")
-      .attr("rx", 3)
-      .attr("fill", nodeBackground);
+    containerSelection.patternify({
+      tag: "rect",
+      className: "node-rect",
+      data: (d) => [d],
+    });
 
     // Add foreignObject element inside rectangle
     const fo = containerSelection
@@ -70,7 +62,9 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         className: "node-foreign-object",
         data: (d) => [d],
       })
-      .style("overflow", "visible");
+      .style("overflow", "visible")
+      .style("background", nodeBackground)
+      .style("border-radius", "3px");
 
     fo.patternify({
       tag: "xhtml:div" as "div",
