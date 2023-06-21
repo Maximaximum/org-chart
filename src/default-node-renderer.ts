@@ -51,7 +51,13 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .style("width", "100%")
       .style("height", "100%")
       .html(function (d, i, arr) {
-        return attrs.nodeContent.bind(this)(d, i, arr, attrs);
+        return `<div style="padding:5px;font-size:10px;">Sample Node(id=${d.id}), override using <br/>
+          <code>chart.nodeContent({data}=>{ <br/>
+           &nbsp;&nbsp;&nbsp;&nbsp;return '' // Custom HTML <br/>
+           })</code>
+           <br/>
+           Or check different <a href="https://github.com/bumbeishvili/org-chart#jump-to-examples" target="_blank">layout examples</a>
+           </div>`;
       });
 
     containerSelection.call(this.drawNodeExpandCollapseButton, attrs);

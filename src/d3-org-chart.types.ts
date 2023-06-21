@@ -128,12 +128,6 @@ export interface State<Datum> {
   * node=> node.height - to access node's height
   * node=> node.width - to access node's width
   */
-  nodeContent: (
-    node: HierarchyNode<Datum>,
-    index: number,
-    nodes: HierarchyNode<Datum>[] | ArrayLike<HTMLDivElement>,
-    state: State<Datum>
-  ) => string;
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */
   layout: Layout;
   /** Node expand & collapse button content and styling. You can access same helper methods as above */
