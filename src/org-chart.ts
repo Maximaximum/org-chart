@@ -553,7 +553,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
     );
 
-    nodeWrapperGElements.call(this.drawNodes, nodes);
+    nodeWrapperGElements.call(this.drawNodes);
+
+    // Store the old positions for transition.
+    nodes.forEach((d) => {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
 
     this.translateChartGroupIfNeeded();
   }
@@ -1055,9 +1061,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       HierarchyNode<Datum>,
       SVGGElement,
       string
-    >,
-    // TODO Should be removed
-    nodes: HierarchyNode<Datum>[]
+    >
   ) => {
     const attrs = this.getChartState();
 
@@ -1082,12 +1086,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("opacity", 1);
 
     nodeWrapperGElements.each(attrs.nodeUpdate);
-
-    // Store the old positions for transition.
-    nodes.forEach((d) => {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
 
     return nodeWrapperGElements;
   };
