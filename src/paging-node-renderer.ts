@@ -1,29 +1,8 @@
 import "./patternify";
 
-import { select } from "d3-selection";
-import { max, min, sum, cumsum } from "d3-array";
-import { stratify } from "d3-hierarchy";
-import { zoom, zoomIdentity } from "d3-zoom";
-import { flextree } from "d3-flextree";
-import { linkHorizontal } from "d3-shape";
-
 import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
-import { create, Selection } from "d3";
+import { Selection } from "d3";
 import { OrgChart } from "./org-chart";
-
-const d3 = {
-  select,
-  max,
-  min,
-  sum,
-  cumsum,
-  stratify,
-  zoom,
-  zoomIdentity,
-  linkHorizontal,
-  flextree,
-  create,
-};
 
 /**
  * Number of nodes to show within a node's children "page"

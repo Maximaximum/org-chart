@@ -1,31 +1,11 @@
 import "./patternify";
 
-import { BaseType, select, Selection } from "d3-selection";
-import { max, min, sum, cumsum } from "d3-array";
-import { stratify } from "d3-hierarchy";
-import { zoom, zoomIdentity } from "d3-zoom";
-import { flextree } from "d3-flextree";
-import { linkHorizontal } from "d3-shape";
+import { BaseType, Selection } from "d3-selection";
 
 import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
-import { create } from "d3";
 import { nodeBackground } from "./default-colors";
 import { OrgChart } from "./org-chart";
-
-const d3 = {
-  select,
-  max,
-  min,
-  sum,
-  cumsum,
-  stratify,
-  zoom,
-  zoomIdentity,
-  linkHorizontal,
-  flextree,
-  create,
-};
 
 export const defaultNodeSelector = ".default-node-wrapper";
 

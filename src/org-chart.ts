@@ -1,6 +1,6 @@
 import "./patternify";
 
-import { select, Selection } from "d3-selection";
+import { select, Selection, create } from "d3-selection";
 import { max, min, sum, cumsum } from "d3-array";
 import { stratify } from "d3-hierarchy";
 import { zoom, zoomIdentity, ZoomBehavior, D3ZoomEvent } from "d3-zoom";
@@ -25,7 +25,6 @@ import { defaultLayoutBindings } from "./default-layout-bindings";
 import { defaultButtonContent } from "./default-button-content";
 import { defaultNodeContent } from "./default-node-content";
 import { connectionArrowhead, connectionLabel } from "./connection-defs";
-import { create } from "d3";
 import { groupBy } from "./group-by";
 import { highlightColor, linkColor } from "./default-colors";
 import {
