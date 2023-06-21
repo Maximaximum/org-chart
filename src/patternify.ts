@@ -47,13 +47,13 @@ function patternify<
     data?: Datum[] | ValueFn<PElement, PDatum, Datum[] | Iterable<Datum>>;
   }
 ) {
-  var container = this;
-  var className = params.className;
-  var elementTag = params.tag;
-  var data = params.data || [className];
+  const container = this;
+  const className = params.className;
+  const elementTag = params.tag;
+  const data = params.data || [className];
 
   // Pattern in action
-  var selection = container
+  const selection = container
     .selectAll<ElementTagNameMap[TTagName], Datum | string>("." + className)
     .data(data as (Datum | string)[], (d, i) => {
       if (typeof d === "object") {
@@ -64,9 +64,11 @@ function patternify<
       return i;
     });
 
-  return selection
-    .join<ElementTagNameMap[TTagName], string | Datum>(elementTag)
-    .attr("class", className);
+  return selection.join<ElementTagNameMap[TTagName], string | Datum>(
+    (enter) => enter.append(elementTag).attr("class", className),
+    (update) => update,
+    (exit) => exit.remove()
+  );
 }
 
 selection.prototype.patternify = patternify;

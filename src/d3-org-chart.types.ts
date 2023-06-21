@@ -131,7 +131,7 @@ export interface State<Datum> {
   nodeContent: (
     node: HierarchyNode<Datum>,
     index: number,
-    nodes: HierarchyNode<Datum>[],
+    nodes: HierarchyNode<Datum>[] | ArrayLike<HTMLDivElement>,
     state: State<Datum>
   ) => string;
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */

@@ -28,8 +28,11 @@ import { connectionArrowhead, connectionLabel } from "./connection-defs";
 import { create } from "d3";
 import { groupBy } from "./group-by";
 import { highlightColor, linkColor } from "./default-colors";
-import { DefaultNodeRenderer } from "./default-node-renderer";
-import { PagingNodeRenderer } from "./paging-node-renderer";
+import {
+  DefaultNodeRenderer,
+  defaultNodeSelector,
+} from "./default-node-renderer";
+import { PagingNodeRenderer, pagingNodeSelector } from "./paging-node-renderer";
 
 const d3 = {
   select,
@@ -1053,13 +1056,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       SVGGElement,
       string
     >,
+    // TODO Should be removed
     nodes: HierarchyNode<Datum>[]
   ) => {
     const attrs = this.getChartState();
 
     const that = this;
-    nodeWrapperGElements.each(function (d) {
-      that.drawNode(this, d);
+    nodeWrapperGElements.call(function (d) {
+      that.drawNode(d);
     });
 
     // Transition to the proper position for the node
@@ -1088,12 +1092,38 @@ export class OrgChart<Datum extends ConcreteDatum>
     return nodeWrapperGElements;
   };
 
-  private drawNode(container: SVGGElement, d: HierarchyNode<Datum>) {
-    if (d.data._pagingButton) {
-      new PagingNodeRenderer(this).draw(container, d);
-    } else {
-      new DefaultNodeRenderer(this).draw(container, d);
-    }
+  private drawNode(
+    containers: Selection<
+      SVGGElement,
+      HierarchyNode<Datum>,
+      SVGGElement,
+      string
+    >
+  ) {
+    const attrs = this.getChartState();
+
+    const pagingNodes = containers
+      .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
+        pagingNodeSelector
+      )
+      .data(
+        (d) => (d.data._pagingButton ? [d] : []),
+        function (d) {
+          return attrs.nodeId(d.data);
+        }
+      );
+
+    const defaultNodes = containers
+      .selectAll<SVGGElement, HierarchyNode<Datum>>(defaultNodeSelector)
+      .data(
+        (d) => (!d.data._pagingButton ? [d] : []),
+        function (d) {
+          return attrs.nodeId(d.data);
+        }
+      );
+
+    new PagingNodeRenderer(this).draw(pagingNodes);
+    new DefaultNodeRenderer(this).draw(defaultNodes);
   }
 
   private drawConnections = (

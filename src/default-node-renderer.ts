@@ -27,16 +27,29 @@ const d3 = {
   create,
 };
 
+export const defaultNodeSelector = ".default-node-wrapper";
+
 export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
 
-  draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
-    const actualDataNodeContainer = d3.select(container).datum(node);
-
+  draw = (
+    containers: Selection<
+      SVGGElement,
+      HierarchyNode<Datum>,
+      SVGGElement,
+      HierarchyNode<Datum>
+    >
+  ) => {
     const attrs = this.chart.getChartState();
 
+    const containerSelection = containers.join(
+      (enter) => enter.append("g").attr("class", "default-node-wrapper"),
+      (update) => update,
+      (exit) => exit.remove()
+    );
+
     // Add background rectangle for the nodes
-    actualDataNodeContainer
+    containerSelection
       .patternify({
         tag: "rect",
         className: "node-rect",
@@ -51,7 +64,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .attr("fill", nodeBackground);
 
     // Add foreignObject element inside rectangle
-    const fo = actualDataNodeContainer
+    const fo = containerSelection
       .patternify({
         tag: "foreignObject",
         className: "node-foreign-object",
@@ -81,14 +94,12 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .style("height", ({ height }) => `${height}px`);
 
     foDiv.each(function (d, i, arr) {
-      d3.select(this).html(
-        attrs.nodeContent.bind(this)(d, i, arr as any, attrs)
-      );
+      d3.select(this).html(attrs.nodeContent.bind(this)(d, i, arr, attrs));
     });
 
-    actualDataNodeContainer.call(this.drawNodeExpandCollapseButton, attrs);
+    containerSelection.call(this.drawNodeExpandCollapseButton, attrs);
 
-    return actualDataNodeContainer;
+    return containerSelection;
   };
 
   private drawNodeExpandCollapseButton = <TParent extends BaseType, TPDatum>(

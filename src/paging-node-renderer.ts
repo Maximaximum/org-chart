@@ -8,7 +8,7 @@ import { flextree } from "d3-flextree";
 import { linkHorizontal } from "d3-shape";
 
 import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
-import { create } from "d3";
+import { create, Selection } from "d3";
 import { OrgChart } from "./org-chart";
 
 const d3 = {
@@ -30,24 +30,31 @@ const d3 = {
  */
 const pagingStep = 5;
 
+export const pagingNodeSelector = ".paging-node-foreign-object";
+
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
 
-  draw = (container: SVGGElement, node: HierarchyNode<Datum>) => {
+  draw = (
+    containerSelection: Selection<
+      SVGForeignObjectElement,
+      HierarchyNode<Datum>,
+      SVGGElement,
+      HierarchyNode<Datum>
+    >
+  ) => {
     const attrs = this.chart.getChartState();
     const that = this;
 
-    const pagingNodeContainer = d3
-      .select<SVGGElement, HierarchyNode<Datum>>(container)
-      .data<HierarchyNode<Datum>>([node], (d) => attrs.nodeId(d.data));
-
-    // Add foreignObject element inside rectangle
-    pagingNodeContainer
-      .patternify({
-        tag: "foreignObject",
-        className: "paging-node-foreign-object",
-        data: (d) => [d],
-      })
+    containerSelection
+      .join(
+        (enter) =>
+          enter
+            .append("foreignObject")
+            .attr("class", "paging-node-foreign-object"),
+        (update) => update,
+        (exit) => exit.remove()
+      )
       .style("overflow", "visible")
       .attr("width", ({ width }) => width)
       .attr("height", ({ height }) => height)
@@ -61,20 +68,18 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       })
       .style("width", ({ width }) => `${width}px`)
       .style("height", ({ height }) => `${height}px`)
-      .append(function (d, i, arr) {
-        return d3
-          .create("div")
-          .classed("paging-button-wrapper", true)
-          .style("cursor", "pointer")
-          .on("click", () => {
-            that.loadNextPageOfNodes(d);
-          })
-          .html(() => {
-            return pagingButton(
-              getNextPageAmount(d, i, arr as HTMLDivElement[], attrs)
-            );
-          })
-          .node()!;
+
+      .patternify({
+        tag: "div",
+        className: "paging-button-wrapper",
+        data: (d) => [d],
+      })
+      .style("cursor", "pointer")
+      .on("click", (e, d) => {
+        that.loadNextPageOfNodes(d);
+      })
+      .html((d, i, arr) => {
+        return pagingButton(getNextPageAmount(d, i, arr, attrs));
       });
   };
 
@@ -94,7 +99,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 const getNextPageAmount = <Datum extends ConcreteDatum>(
   d: HierarchyNode<Datum>,
   i: number,
-  arr: HTMLDivElement[],
+  arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
   state: State<Datum>
 ) => {
   const step = pagingStep;
