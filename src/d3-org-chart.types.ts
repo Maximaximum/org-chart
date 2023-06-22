@@ -83,14 +83,6 @@ export interface State<Datum> {
     index: number,
     nodes: HierarchyNode<Datum>[]
   ) => void;
-  /** You can access and modify actual node DOM element at runtime using this method. */
-  nodeUpdate: (
-    /** Node <g> element */
-    this: SVGGElement,
-    node: HierarchyNode<Datum>,
-    index: number,
-    nodes: SVGGElement[] | ArrayLike<SVGGElement>
-  ) => void;
   drawNode: (
     containers: Selection<
       SVGGElement,

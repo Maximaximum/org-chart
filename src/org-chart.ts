@@ -97,19 +97,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
     onZoomEnd: (e, d) => {},
-    nodeUpdate: function (d, i, arr) {
-      d3.select<SVGGElement, HierarchyNode<Datum>>(this)
-        .select(".node-foreign-object")
-        .style("border-color", (d) =>
-          d.data._highlighted || d.data._upToTheRootHighlighted
-            ? highlightColor
-            : "none"
-        )
-        .style("border-width", (d) =>
-          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 0
-        )
-        .style("border-style", "solid");
-    },
     drawNode: (
       containers: Selection<
         SVGGElement,
@@ -142,6 +129,17 @@ export class OrgChart<Datum extends ConcreteDatum>
 
       new PagingNodeRenderer(this).draw(pagingNodes);
       new DefaultNodeRenderer(this).draw(defaultNodes);
+
+      containers
+        .style("border-color", (d) =>
+          d.data._highlighted || d.data._upToTheRootHighlighted
+            ? highlightColor
+            : "none"
+        )
+        .style("border-width", (d) =>
+          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 0
+        )
+        .style("border-style", "solid");
     },
     linkUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, HierarchyNode<Datum>>(this)
@@ -1065,8 +1063,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   ) => {
     const attrs = this.getChartState();
 
-    nodeWrapperGElements.call(function (d) {
-      attrs.drawNode(d);
+    nodeWrapperGElements.call(function (selection) {
+      attrs.drawNode(selection);
     });
 
     // Transition to the proper position for the node
@@ -1083,8 +1081,6 @@ export class OrgChart<Datum extends ConcreteDatum>
         });
       })
       .attr("opacity", 1);
-
-    nodeWrapperGElements.each(attrs.nodeUpdate);
 
     return nodeWrapperGElements;
   };
