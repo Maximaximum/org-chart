@@ -1017,7 +1017,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           height,
         });
         const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null);
+        return this.getLayoutBinding().diagonal(o, o);
       });
 
     // Get connections update selection
@@ -1189,7 +1189,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           height,
         });
         const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null);
+        return this.getLayoutBinding().diagonal(o, o);
       })
       .remove();
   };

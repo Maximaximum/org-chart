@@ -1,22 +1,22 @@
 import { Point } from "./d3-org-chart.types";
 
+/** Curve radius */
+const rdef = 35;
+
 /**  Horizontal diagonal generation algorithm - https://observablehq.com/@bumbeishvili/curved-edges-compact-horizontal */
-export const hdiagonal = function (s: Point, t: Point, m: Point) {
+export const hdiagonal = function (s: Point, t: Point, m: Point = s) {
   // Define source and target x,y coordinates
   const x = s.x;
   const y = s.y;
   const ex = t.x;
   const ey = t.y;
 
-  let mx = (m && m.x) || x;
-  let my = (m && m.y) || y;
+  let mx = m.x;
+  let my = m.y;
 
   // Values in case of top reversed and left reversed diagonals
   let xrvs = ex - x < 0 ? -1 : 1;
   let yrvs = ey - y < 0 ? -1 : 1;
-
-  // Define preferred curve radius
-  let rdef = 35;
 
   // Reduce curve radius, if source-target x space is smaller
   let r = Math.abs(ex - x) / 2 < rdef ? Math.abs(ex - x) / 2 : rdef;
@@ -46,20 +46,19 @@ export const hdiagonal = function (s: Point, t: Point, m: Point) {
 };
 
 /** Vertical diagonal generation algorithm - https://observablehq.com/@bumbeishvili/curved-edges-compacty-vertical */
-export const vdiagonal = function (s: Point, t: Point, m: Point) {
+export const vdiagonal = function (s: Point, t: Point, m: Point = s) {
   const x = s.x;
   const y = s.y;
 
   const ex = t.x;
   const ey = t.y;
 
-  let mx = (m && m.x) || x;
-  let my = (m && m.y) || y;
+  let mx = m.x;
+  let my = m.y;
 
   let xrvs = ex - x < 0 ? -1 : 1;
   let yrvs = ey - y < 0 ? -1 : 1;
 
-  let rdef = 35;
   let r = Math.abs(ex - x) / 2 < rdef ? Math.abs(ex - x) / 2 : rdef;
 
   r = Math.abs(ey - y) / 2 < r ? Math.abs(ey - y) / 2 : r;

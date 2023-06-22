@@ -205,7 +205,7 @@ export interface LayoutBinding<Datum> {
     centerX: number;
     scale: number;
   }) => string;
-  diagonal(source: Point, target: Point, m: Point | null): string;
+  diagonal(source: Point, target: Point, m?: Point): string;
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
   nodeUpdateTransform: (
