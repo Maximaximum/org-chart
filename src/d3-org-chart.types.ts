@@ -201,8 +201,6 @@ export interface LayoutBinding<Datum> {
     width: number;
     siblingsMargin: number;
     childrenMargin: number;
-    state: State<Datum>;
-    node: HierarchyNode<Datum>;
   }) => [number, number];
   zoomTransform: (params: {
     centerY: number;

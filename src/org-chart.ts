@@ -492,23 +492,26 @@ export class OrgChart<Datum extends ConcreteDatum>
         const height = attrs.nodeHeight(node);
         const siblingsMargin = attrs.siblingsMargin(node);
         const childrenMargin = attrs.childrenMargin(node);
+
+        if (attrs.compact && node.flexCompactDim) {
+          return node.flexCompactDim;
+        }
+
         return this.getLayoutBinding().nodeFlexSize({
-          state: attrs,
-          node: node,
           width,
           height,
           siblingsMargin,
           childrenMargin,
         });
       },
-    }).spacing((nodeA, nodeB) =>
-      nodeA.parent == nodeB.parent
-        ? 0
-        : attrs.neighbourMargin(
-            nodeA as HierarchyNode<Datum>,
-            nodeB as HierarchyNode<Datum>
-          )
-    );
+      spacing: (nodeA, nodeB) =>
+        nodeA.parent == nodeB.parent
+          ? 0
+          : attrs.neighbourMargin(
+              nodeA as HierarchyNode<Datum>,
+              nodeB as HierarchyNode<Datum>
+            ),
+    });
 
     //  Assigns the x and y position for the nodes
     const treeData = flexTreeLayout!(this.root!);

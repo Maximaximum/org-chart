@@ -43,17 +43,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       sizeRow: (node) => node.width,
       reverse: (arr) => arr.slice().reverse(),
     },
-    nodeFlexSize: ({
-      height,
-      width,
-      siblingsMargin,
-      childrenMargin,
-      state,
-      node,
-    }) => {
-      if (state.compact && node.flexCompactDim) {
-        return node.flexCompactDim;
-      }
+    nodeFlexSize: ({ height, width, siblingsMargin, childrenMargin }) => {
       return [height + siblingsMargin, width + childrenMargin];
     },
     zoomTransform: ({ centerY, scale }) =>
@@ -97,17 +87,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     buttonY: (node) => node.height,
     centerTransform: ({ rootMargin, centerY, scale, centerX }) =>
       `translate(${centerX},${rootMargin}) scale(${scale})`,
-    nodeFlexSize: ({
-      height,
-      width,
-      siblingsMargin,
-      childrenMargin,
-      state,
-      node,
-    }) => {
-      if (state.compact && node.flexCompactDim) {
-        return node.flexCompactDim;
-      }
+    nodeFlexSize: ({ height, width, siblingsMargin, childrenMargin }) => {
       return [width + siblingsMargin, height + childrenMargin];
     },
     zoomTransform: ({ centerX, scale }) =>
@@ -147,17 +127,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     buttonY: (node) => 0,
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartHeight }) =>
       `translate(${centerX},${chartHeight - rootMargin}) scale(${scale})`,
-    nodeFlexSize: ({
-      height,
-      width,
-      siblingsMargin,
-      childrenMargin,
-      state,
-      node,
-    }) => {
-      if (state.compact && node.flexCompactDim) {
-        return node.flexCompactDim;
-      }
+    nodeFlexSize: ({ height, width, siblingsMargin, childrenMargin }) => {
       return [width + siblingsMargin, height + childrenMargin];
     },
     zoomTransform: ({ centerX, scale }) =>
@@ -194,17 +164,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       state.compactMarginPair(node) / 4,
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartWidth }) =>
       `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
-    nodeFlexSize: ({
-      height,
-      width,
-      siblingsMargin,
-      childrenMargin,
-      state,
-      node,
-    }) => {
-      if (state.compact && node.flexCompactDim) {
-        return node.flexCompactDim;
-      }
+    nodeFlexSize: ({ height, width, siblingsMargin, childrenMargin }) => {
       return [height + siblingsMargin, width + childrenMargin];
     },
     compactDimension: {
