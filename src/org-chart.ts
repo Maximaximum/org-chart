@@ -113,6 +113,39 @@ export class OrgChart<Datum extends ConcreteDatum>
         )
         .style("border-style", "solid");
     },
+    drawNode: (
+      containers: Selection<
+        SVGGElement,
+        HierarchyNode<Datum>,
+        SVGGElement,
+        string
+      >
+    ) => {
+      const attrs = this.getChartState();
+
+      const pagingNodes = containers
+        .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
+          pagingNodeSelector
+        )
+        .data(
+          (d) => (d.data._pagingButton ? [d] : []),
+          function (d) {
+            return attrs.nodeId(d.data);
+          }
+        );
+
+      const defaultNodes = containers
+        .selectAll<SVGGElement, HierarchyNode<Datum>>(defaultNodeSelector)
+        .data(
+          (d) => (!d.data._pagingButton ? [d] : []),
+          function (d) {
+            return attrs.nodeId(d.data);
+          }
+        );
+
+      new PagingNodeRenderer(this).draw(pagingNodes);
+      new DefaultNodeRenderer(this).draw(defaultNodes);
+    },
     linkUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, HierarchyNode<Datum>>(this)
         .attr("stroke", (d) =>
@@ -1061,9 +1094,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   ) => {
     const attrs = this.getChartState();
 
-    const that = this;
     nodeWrapperGElements.call(function (d) {
-      that.drawNode(d);
+      attrs.drawNode(d);
     });
 
     // Transition to the proper position for the node
@@ -1085,40 +1117,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     return nodeWrapperGElements;
   };
-
-  private drawNode(
-    containers: Selection<
-      SVGGElement,
-      HierarchyNode<Datum>,
-      SVGGElement,
-      string
-    >
-  ) {
-    const attrs = this.getChartState();
-
-    const pagingNodes = containers
-      .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
-        pagingNodeSelector
-      )
-      .data(
-        (d) => (d.data._pagingButton ? [d] : []),
-        function (d) {
-          return attrs.nodeId(d.data);
-        }
-      );
-
-    const defaultNodes = containers
-      .selectAll<SVGGElement, HierarchyNode<Datum>>(defaultNodeSelector)
-      .data(
-        (d) => (!d.data._pagingButton ? [d] : []),
-        function (d) {
-          return attrs.nodeId(d.data);
-        }
-      );
-
-    new PagingNodeRenderer(this).draw(pagingNodes);
-    new DefaultNodeRenderer(this).draw(defaultNodes);
-  }
 
   private drawConnections = (
     connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>,
