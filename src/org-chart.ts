@@ -371,7 +371,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    // Paging
     if (attrs.compact) {
       calculateCompactFlexDimensions(
         this.root!,
@@ -383,20 +382,16 @@ export class OrgChart<Datum extends ConcreteDatum>
     const flexTreeLayout = flextree<Datum>({
       nodeSize: (n) => {
         const node = n as HierarchyNode<Datum>;
-        const width = attrs.nodeWidth(node);
-        const height = attrs.nodeHeight(node);
-        const siblingsMargin = attrs.siblingsMargin(node);
-        const childrenMargin = attrs.childrenMargin(node);
 
         if (attrs.compact && node.flexCompactDim) {
           return node.flexCompactDim;
         }
 
         return this.getLayoutBinding().nodeFlexSize({
-          width,
-          height,
-          siblingsMargin,
-          childrenMargin,
+          width: attrs.nodeWidth(node),
+          height: attrs.nodeHeight(node),
+          siblingsMargin: attrs.siblingsMargin(node),
+          childrenMargin: attrs.childrenMargin(node),
         });
       },
       spacing: (nodeA, nodeB) =>
