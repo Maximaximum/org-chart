@@ -130,11 +130,6 @@ export interface State<Datum> {
   */
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */
   layout: Layout;
-  /** Node expand & collapse button content and styling. You can access same helper methods as above */
-  buttonContent: (params: {
-    node: HierarchyNode<Datum>;
-    state: State<Datum>;
-  }) => string;
   /**
    *   You can customize/offset positions for each node and link by overriding these functions
    *   For example, suppose you want to move link y position 30 px bellow in top layout. You can do it like this:

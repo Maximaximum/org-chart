@@ -6,6 +6,7 @@ import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { nodeBackground } from "./default-colors";
 import { OrgChart } from "./org-chart";
+import { defaultButtonContent } from "./default-button-content";
 
 export const defaultNodeSelector = ".default-node-wrapper";
 
@@ -163,7 +164,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     nodeContainer
       .select(".node-button-foreign-object .node-button-div")
       .html((node) => {
-        return attrs.buttonContent({ node, state: attrs });
+        return defaultButtonContent({ node, state: attrs });
       });
 
     // Restyle button texts

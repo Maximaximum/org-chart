@@ -100,7 +100,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
     onZoomEnd: (e, d) => {},
-    buttonContent: defaultButtonContent<Datum>,
     nodeUpdate: function (d, i, arr) {
       d3.select<SVGGElement, HierarchyNode<Datum>>(this)
         .select(".node-foreign-object")
