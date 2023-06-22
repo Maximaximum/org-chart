@@ -28,7 +28,6 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   y0: number;
   compactEven: boolean | null;
   flexCompactDim: [number, number] | null;
-  firstCompact: boolean | null;
   row: number;
 }
 

@@ -12,7 +12,6 @@ const d3 = {
 
 /**
  * Sets the following propertiy values on nodes:
- * * firstCompact
  * * compactEven
  * * flexCompactDim
  * * firstCompactNode
@@ -26,8 +25,10 @@ export function calculateCompactFlexDimensions<Datum>(
     sizeRow: (node: HierarchyNode<Datum>) => number;
   }
 ) {
+  const firstCompact = new WeakMap<HierarchyNode<Datum>, boolean | null>();
+
   root.eachBefore((node) => {
-    node.firstCompact = null;
+    firstCompact.set(node, null);
     node.compactEven = null;
     node.flexCompactDim = null;
     node.firstCompactNode = undefined;
@@ -40,7 +41,9 @@ export function calculateCompactFlexDimensions<Datum>(
         return;
       }
       leafChildren.forEach((child, i) => {
-        if (!i) child.firstCompact = true;
+        if (!i) {
+          firstCompact.set(child, true);
+        }
         if (i % 2) child.compactEven = false;
         else child.compactEven = true;
         child.row = Math.floor(i / 2);
@@ -68,7 +71,7 @@ export function calculateCompactFlexDimensions<Datum>(
       leafChildren.forEach((leafChild) => {
         leafChild.firstCompactNode = leafChildren[0];
 
-        leafChild.flexCompactDim = leafChild.firstCompact
+        leafChild.flexCompactDim = firstCompact.get(leafChild)
           ? [
               columnSize + attrs.compactMarginPair(leafChild),
               rowSize - attrs.compactMarginBetween(),
