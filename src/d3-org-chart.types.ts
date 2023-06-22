@@ -194,7 +194,6 @@ export interface LayoutBinding<Datum> {
   compactDimension: {
     sizeColumn: (node: HierarchyNode<Datum>) => number;
     sizeRow: (node: HierarchyNode<Datum>) => number;
-    reverse<T>(a: T[]): T[];
   };
   nodeFlexSize: (params: {
     height: number;

@@ -41,7 +41,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     compactDimension: {
       sizeColumn: (node) => node.height,
       sizeRow: (node) => node.width,
-      reverse: (arr) => arr.slice().reverse(),
     },
     nodeFlexSize: ({ height, width, siblingsMargin, childrenMargin }) => {
       return [height + siblingsMargin, width + childrenMargin];
@@ -77,7 +76,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     compactDimension: {
       sizeColumn: (node) => node.width,
       sizeRow: (node) => node.height,
-      reverse: (arr) => arr,
     },
     linkX: (node) => node.x,
     linkY: (node) => node.y,
@@ -119,7 +117,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     compactDimension: {
       sizeColumn: (node) => node.width,
       sizeRow: (node) => node.height,
-      reverse: (arr) => arr,
     },
     linkParentX: (node) => node.parent!.x,
     linkParentY: (node) => node.parent!.y - node.parent!.height,
@@ -170,7 +167,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     compactDimension: {
       sizeColumn: (node) => node.height,
       sizeRow: (node) => node.width,
-      reverse: (arr) => arr.slice().reverse(),
     },
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
