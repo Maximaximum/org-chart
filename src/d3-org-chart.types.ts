@@ -83,6 +83,18 @@ export interface State<Datum> {
     index: number,
     nodes: HierarchyNode<Datum>[]
   ) => void;
+  /** Function used to render a given node data inside a node wrapper svg g element.
+   *
+   * Remember that you can access some helper methods:
+   * * node=> node.data - to access node's original data
+   * * node=> node.leaves() - to access node's leaves
+   * * node=> node.descendants() - to access node's descendants
+   * * node=> node.children - to access node's children
+   * * node=> node.parent - to access node's parent
+   * * node=> node.depth - to access node's depth
+   * * node=> node.height - to access node's height
+   * * node=> node.width - to access node's width
+   */
   drawNode: (
     containers: Selection<
       SVGGElement,
@@ -110,18 +122,6 @@ export interface State<Datum> {
   compactMarginBetween: () => number;
   /** Link generator for connections */
   linkGroupArc: Link<any, DefaultLinkObject, Point>;
-  /** A function which renders the given node as HTML content.
-  * Node HTML content generation , remember that you can access some helper methods:
-
-  * node=> node.data - to access node's original data
-  * node=> node.leaves() - to access node's leaves
-  * node=> node.descendants() - to access node's descendants
-  * node=> node.children - to access node's children
-  * node=> node.parent - to access node's parent
-  * node=> node.depth - to access node's depth
-  * node=> node.height - to access node's height
-  * node=> node.width - to access node's width
-  */
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */
   layout: Layout;
   /**
