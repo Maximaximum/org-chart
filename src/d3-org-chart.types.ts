@@ -48,10 +48,6 @@ export interface Elements {
  * of the organization chart object, per D3 standard.
  */
 export interface State<Datum> {
-  /** Configure svg width  */
-  svgWidth: number;
-  /** Configure svg height  */
-  svgHeight: number;
   /** Configure zoom scale extent , if you don't want any kind of zooming, set it to [1,1] */
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */

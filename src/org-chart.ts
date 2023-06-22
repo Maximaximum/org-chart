@@ -73,8 +73,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
-    svgWidth: 800,
-    svgHeight: window.innerHeight - 100,
     container: "body",
     data: null,
     connections: [],
@@ -255,8 +253,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     const container = d3.select<HTMLElement, unknown>(
       attrs.container as string
     );
-    const containerRect = container.node()!.getBoundingClientRect();
-    if (containerRect.width > 0) attrs.svgWidth = containerRect.width;
 
     // ******************* BEHAVIORS  **********************
     if (this.firstDraw) {
@@ -277,8 +273,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     // *************************  DRAWING **************************
     container.call(this.drawContainers, {
       rootMargin: attrs.rootMargin,
-      svgHeight: attrs.svgHeight,
-      svgWidth: attrs.svgWidth,
     });
 
     // Display tree contents
@@ -731,7 +725,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     y1: number;
     params?: { animate?: boolean; scale?: boolean };
   }) {
-    const { svgWidth: w, svgHeight: h, duration } = this.getChartState();
+    const { duration } = this.getChartState();
+    const w = this.elements.svg.node()!.clientWidth;
+    const h = this.elements.svg.node()!.clientWidth;
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
     let identity = d3.zoomIdentity.translate(w / 2, h / 2);
     identity = identity.scale(params.scale ? scaleVal : this.lastTransform.k);
@@ -866,26 +862,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.update(this.root!);
   }
 
-  // It can take selector which would go fullscreen
-  fullscreen(elem?: Element) {
-    const that = this;
-    const attrs = this.getChartState();
-    const el = d3.select(elem || (attrs.container as any)).node();
-
-    d3.select(document).on("fullscreenchange." + this.id, function (d) {
-      const fsElement = document.fullscreenElement;
-      if (fsElement == el) {
-        setTimeout(() => {
-          that.elements.svg.attr("height", window.innerHeight - 40);
-        }, 500);
-      } else {
-        that.elements.svg.attr("height", attrs.svgHeight);
-      }
-    });
-
-    el?.requestFullscreen();
-  }
-
   // Zoom in exposed method
   zoomIn() {
     this.elements.svg.transition().call(this.zoomBehavior!.scaleBy as any, 1.3);
@@ -1003,12 +979,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawContainers = (
     container: Selection<HTMLElement, unknown, any, any>,
     {
-      svgWidth,
-      svgHeight,
       rootMargin,
     }: {
-      svgWidth: number;
-      svgHeight: number;
       rootMargin: number;
     }
   ) => {
@@ -1018,8 +990,8 @@ export class OrgChart<Datum extends ConcreteDatum>
         tag: "svg",
         className: "svg-chart-container",
       })
-      .attr("width", svgWidth)
-      .attr("height", svgHeight);
+      .style("width", "100%")
+      .style("height", "100%");
 
     if (this.firstDraw) {
       svg
@@ -1062,6 +1034,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     if (this.firstDraw) {
       centerG.attr("transform", () => {
+        const svgWidth = svg.node()!.clientWidth!;
+        const svgHeight = svg.node()!.clientHeight!;
+
         return this.getLayoutBinding().centerTransform({
           centerX: svgWidth / 2,
           centerY: svgHeight / 2,
