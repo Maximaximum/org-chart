@@ -44,8 +44,8 @@ export function calculateCompactFlexDimensions<Datum>(
         if (!i) {
           firstCompact.set(child, true);
         }
-        if (i % 2) child.compactEven = false;
-        else child.compactEven = true;
+
+        child.compactEven = i % 2 === 0;
         child.row = Math.floor(i / 2);
       });
       const evenMaxColumnDimension = d3.max(

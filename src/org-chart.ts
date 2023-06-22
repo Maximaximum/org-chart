@@ -22,9 +22,7 @@ import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
 import { downloadImage } from "./download-image";
 import { defaultLayoutBindings } from "./default-layout-bindings";
-import { defaultButtonContent } from "./default-button-content";
 import { connectionArrowhead, connectionLabel } from "./connection-defs";
-import { groupBy } from "./group-by";
 import { highlightColor, linkColor } from "./default-colors";
 import {
   DefaultNodeRenderer,
