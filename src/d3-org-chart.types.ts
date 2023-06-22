@@ -52,8 +52,6 @@ export interface State<Datum> {
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */
   container: string | HTMLElement;
-  /** Font name, for example "Helvetica" */
-  defaultFont: string;
   /** Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable) */
   data: Datum[] | null;
   /** Configure duration of transitions */

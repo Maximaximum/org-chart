@@ -76,7 +76,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     container: "body",
     data: null,
     connections: [],
-    defaultFont: "Helvetica",
     nodeId: (d) => (d as any).nodeId || (d as any).id,
     parentNodeId: (d) => (d as any).parentNodeId || (d as any).parentId,
     rootMargin: 40,
@@ -160,10 +159,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       <defs>
         ${visibleConnections
           .map((conn) => {
-            return [
-              connectionLabel(conn, state.defaultFont),
-              connectionArrowhead(conn),
-            ].join("");
+            return [connectionLabel(conn), connectionArrowhead(conn)].join("");
           })
           .join("")}
       </defs>

@@ -14,7 +14,10 @@ export function connectionArrowhead<Datum>(conn: Connection<Datum>) {
   </marker>`;
 }
 
-export function connectionLabel<Datum>(conn: Connection<Datum>, font: string) {
+export function connectionLabel<Datum>(
+  conn: Connection<Datum>,
+  font: string = "Helvetica"
+) {
   const labelWidth = getTextWidth(conn.label, {
     fontSize: 2,
     font,
