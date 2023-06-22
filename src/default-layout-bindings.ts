@@ -52,16 +52,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node,
     }) => {
       if (state.compact && node.flexCompactDim) {
-        const result = [node.flexCompactDim[0], node.flexCompactDim[1]] as [
-          number,
-          number
-        ];
-        return result;
+        return node.flexCompactDim;
       }
-      return [height + siblingsMargin, width + childrenMargin] as [
-        number,
-        number
-      ];
+      return [height + siblingsMargin, width + childrenMargin];
     },
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
@@ -163,11 +156,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node,
     }) => {
       if (state.compact && node.flexCompactDim) {
-        const result = [node.flexCompactDim[0], node.flexCompactDim[1]] as [
-          number,
-          number
-        ];
-        return result;
+        return node.flexCompactDim;
       }
       return [width + siblingsMargin, height + childrenMargin];
     },
@@ -214,11 +203,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node,
     }) => {
       if (state.compact && node.flexCompactDim) {
-        const result = [node.flexCompactDim[0], node.flexCompactDim[1]] as [
-          number,
-          number
-        ];
-        return result;
+        return node.flexCompactDim;
       }
       return [height + siblingsMargin, width + childrenMargin];
     },
