@@ -46,14 +46,9 @@ export const hdiagonal = function (s: Point, t: Point, m: Point) {
 };
 
 /** Vertical diagonal generation algorithm - https://observablehq.com/@bumbeishvili/curved-edges-compacty-vertical */
-export const vdiagonal = function (
-  s: Point,
-  t: Point,
-  m: Point,
-  offsets = { sy: 0 }
-) {
+export const vdiagonal = function (s: Point, t: Point, m: Point) {
   const x = s.x;
-  let y = s.y;
+  const y = s.y;
 
   const ex = t.x;
   const ey = t.y;
@@ -63,8 +58,6 @@ export const vdiagonal = function (
 
   let xrvs = ex - x < 0 ? -1 : 1;
   let yrvs = ey - y < 0 ? -1 : 1;
-
-  y += offsets.sy;
 
   let rdef = 35;
   let r = Math.abs(ex - x) / 2 < rdef ? Math.abs(ex - x) / 2 : rdef;

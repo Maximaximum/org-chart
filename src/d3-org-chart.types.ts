@@ -152,9 +152,6 @@ export interface State<Datum> {
   onZoomStart: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
   /** Callback for zoom & panning end */
   onZoomEnd: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
-
-  /** When correcting links which is not working for safari */
-  linkYOffset: number;
 }
 
 export type Layout = "left" | "bottom" | "right" | "top";
@@ -212,12 +209,7 @@ export interface LayoutBinding<Datum> {
     centerX: number;
     scale: number;
   }) => string;
-  diagonal(
-    source: Point,
-    target: Point,
-    m: Point | null,
-    offset?: { sy: number }
-  ): string;
+  diagonal(source: Point, target: Point, m: Point | null): string;
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
   nodeUpdateTransform: (

@@ -86,7 +86,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     childrenMargin: (d) => 60,
     compactMarginPair: (d) => 100,
     compactMarginBetween: () => 20,
-    linkYOffset: 30,
     minPagingVisibleNodes: (d) => 2000,
     scaleExtent: [0.001, 20],
     duration: 400,
@@ -1125,9 +1124,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           height,
         });
         const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null, {
-          sy: attrs.linkYOffset,
-        });
+        return this.getLayoutBinding().diagonal(o, o, null);
       });
 
     // Get connections update selection
@@ -1277,9 +1274,7 @@ export class OrgChart<Datum extends ConcreteDatum>
                 y: this.getLayoutBinding().linkCompactYStart(d),
               }
             : n;
-        return this.getLayoutBinding().diagonal(n, p, m, {
-          sy: attrs.linkYOffset,
-        });
+        return this.getLayoutBinding().diagonal(n, p, m);
       });
 
     // Remove any  links which is exiting after animation
@@ -1301,9 +1296,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           height,
         });
         const o = { x: xo, y: yo };
-        return this.getLayoutBinding().diagonal(o, o, null, {
-          sy: attrs.linkYOffset,
-        });
+        return this.getLayoutBinding().diagonal(o, o, null);
       })
       .remove();
   };
