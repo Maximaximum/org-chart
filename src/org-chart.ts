@@ -31,6 +31,10 @@ import {
   defaultNodeSelector,
 } from "./default-node-renderer";
 import { PagingNodeRenderer, pagingNodeSelector } from "./paging-node-renderer";
+import {
+  calculateCompactFlexDimensions,
+  calculateCompactFlexPositions,
+} from "./compact-layout";
 
 const d3 = {
   select,
@@ -350,119 +354,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     return this;
   }
 
-  calculateCompactFlexDimensions(root: HierarchyNode<Datum>) {
-    const attrs = this.getChartState();
-    root.eachBefore((node) => {
-      node.firstCompact = null;
-      node.compactEven = null;
-      node.flexCompactDim = null;
-      node.firstCompactNode = undefined;
-    });
-    root.eachBefore((node) => {
-      if (node.children && node.children.length > 1) {
-        const compactChildren = node.children.filter((d) => !d.children);
-
-        if (compactChildren.length < 2) {
-          return;
-        }
-        compactChildren.forEach((child, i) => {
-          if (!i) child.firstCompact = true;
-          if (i % 2) child.compactEven = false;
-          else child.compactEven = true;
-          child.row = Math.floor(i / 2);
-        });
-        const evenMaxColumnDimension = d3.max(
-          compactChildren.filter((d) => d.compactEven),
-          this.getLayoutBinding().compactDimension.sizeColumn
-        )!;
-        const oddMaxColumnDimension = d3.max(
-          compactChildren.filter((d) => !d.compactEven),
-          this.getLayoutBinding().compactDimension.sizeColumn
-        )!;
-        const columnSize =
-          Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
-        const rowsMapNew = groupBy(
-          compactChildren,
-          (d) => d.row + "",
-          (reducedGroup) =>
-            d3.max(
-              reducedGroup,
-              (d) =>
-                this.getLayoutBinding().compactDimension.sizeRow(d) +
-                attrs.compactMarginBetween()
-            )
-        );
-        const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
-        compactChildren.forEach((node) => {
-          node.firstCompactNode = compactChildren[0];
-          if (node.firstCompact) {
-            node.flexCompactDim = [
-              columnSize + attrs.compactMarginPair(node),
-              rowSize - attrs.compactMarginBetween(),
-            ];
-          } else {
-            node.flexCompactDim = [0, 0];
-          }
-        });
-        node.flexCompactDim = null;
-      }
-    });
-  }
-
-  calculateCompactFlexPositions(root: HierarchyNode<Datum>) {
-    const attrs = this.getChartState();
-    root.eachBefore((node) => {
-      if (node.children) {
-        const compactChildren = node.children.filter((d) => d.flexCompactDim);
-        const fch = compactChildren[0];
-        if (!fch) {
-          return;
-        }
-        compactChildren.forEach((child, i, arr) => {
-          if (i == 0) fch.x -= fch.flexCompactDim![0] / 2;
-          if (i & ((i % 2) - 1))
-            child.x =
-              fch.x +
-              fch.flexCompactDim![0] * 0.25 -
-              attrs.compactMarginPair(child) / 4;
-          else if (i)
-            child.x =
-              fch.x +
-              fch.flexCompactDim![0] * 0.75 +
-              attrs.compactMarginPair(child) / 4;
-        });
-        const centerX = fch.x + fch.flexCompactDim![0] * 0.5;
-        fch.x =
-          fch.x +
-          fch.flexCompactDim![0] * 0.25 -
-          attrs.compactMarginPair(fch) / 4;
-        const offsetX = node.x - centerX;
-        if (Math.abs(offsetX) < 10) {
-          compactChildren.forEach((d) => (d.x += offsetX));
-        }
-
-        const rowsMapNew = groupBy(
-          compactChildren,
-          (d) => d.row + "",
-          (reducedGroup) =>
-            d3.max(reducedGroup, (d) =>
-              this.getLayoutBinding().compactDimension.sizeRow(d)
-            )!
-        );
-        const cumSum = d3.cumsum(
-          rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween())
-        );
-        compactChildren.forEach((node, i) => {
-          if (node.row) {
-            node.y = fch.y + cumSum[node.row - 1];
-          } else {
-            node.y = fch.y;
-          }
-        });
-      }
-    });
-  }
-
   // This function basically redraws visible graph, based on nodes state
   update(dimensions: {
     x0: number;
@@ -482,7 +373,11 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Paging
     if (attrs.compact) {
-      this.calculateCompactFlexDimensions(this.root!);
+      calculateCompactFlexDimensions(
+        this.root!,
+        this.getChartState(),
+        this.getLayoutBinding().compactDimension
+      );
     }
 
     const flexTreeLayout = flextree<Datum>({
@@ -518,12 +413,14 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
-      this.calculateCompactFlexPositions(this.root!);
+      calculateCompactFlexPositions(
+        this.root!,
+        attrs,
+        this.getLayoutBinding().compactDimension
+      );
     }
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
-
-    // console.table(nodes.map(d => ({ x: d.x, y: d.y, width: d.width, height: d.height, flexCompactDim: d.flexCompactDim + "" })))
 
     // Get all links
     const links = (treeData.descendants() as any as HierarchyNode<Datum>[])
