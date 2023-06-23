@@ -23,8 +23,6 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   width: number;
   x: number;
   y: number;
-  x0: number;
-  y0: number;
 }
 
 export interface Elements {
