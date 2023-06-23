@@ -85,8 +85,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     const nodeButtonX = -nodeButtonWidth / 2;
     const nodeButtonY = -nodeButtonHeight / 2;
 
-    // Add Node button circle's group (expand-collapse button)
-    const nodeButtonGroups = nodeContainer
+    nodeContainer
       .patternify({
         tag: "g",
         className: "node-button-g",
@@ -103,15 +102,9 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         // Redraw Graph
         this.chart.update(d);
       })
-      .attr("transform", ({ data, width, height }) => {
-        const x = this.chart.getLayoutBinding().buttonX({
-          width,
-          height,
-        });
-        const y = this.chart.getLayoutBinding().buttonY({
-          width,
-          height,
-        });
+      .attr("transform", (node) => {
+        const x = this.chart.getLayoutBinding().buttonX(node);
+        const y = this.chart.getLayoutBinding().buttonY(node);
         return `translate(${x},${y})`;
       })
       .attr("display", (node) => {
@@ -124,22 +117,8 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
           return 1;
         }
         return 0;
-      });
-
-    nodeButtonGroups
-      .patternify({
-        tag: "rect",
-        className: "node-button-rect",
-        data: (d) => [d],
       })
-      .attr("opacity", 0)
-      .attr("pointer-events", "all")
-      .attr("width", (d) => nodeButtonWidth)
-      .attr("height", (d) => nodeButtonHeight)
-      .attr("x", (d) => nodeButtonX)
-      .attr("y", (d) => nodeButtonY);
 
-    nodeButtonGroups
       .patternify({
         tag: "foreignObject",
         className: "node-button-foreign-object",
@@ -156,7 +135,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         className: "node-button-div",
         data: (d) => [d],
       })
-      .style("pointer-events", "none")
       .style("display", "flex")
       .style("width", "100%")
       .style("height", "100%")
