@@ -166,28 +166,22 @@ export interface NodeCompactLayoutMetadata<Datum> {
 }
 
 export interface LayoutBinding<Datum> {
-  nodeLeftX: (node: HierarchyNode<Datum>) => number;
-  nodeRightX: (node: HierarchyNode<Datum>) => number;
-  nodeTopY: (node: HierarchyNode<Datum>) => number;
-  nodeBottomY: (node: HierarchyNode<Datum>) => number;
+  nodeLeftX: (node: Rect) => number;
+  nodeRightX: (node: Rect) => number;
+  nodeTopY: (node: Rect) => number;
+  nodeBottomY: (node: Rect) => number;
   nodeJoinX: (node: Rect) => number;
   nodeJoinY: (node: Rect) => number;
   linkJoinX: (node: Rect) => number;
   linkJoinY: (node: Rect) => number;
   linkX: (node: Rect) => number;
   linkY: (node: Rect) => number;
-  linkCompactXStart: (
-    node: HierarchyNode<Datum>,
-    compactEven: boolean
-  ) => number;
-  linkCompactYStart: (
-    node: HierarchyNode<Datum>,
-    compactEven: boolean
-  ) => number;
-  compactLinkMidX: (firstCompactNode: Rect, margin: number) => number;
-  compactLinkMidY: (firstCompactNode: Rect, margin: number) => number;
-  linkTargetX: (node: HierarchyNode<Datum>) => number;
-  linkTargetY: (node: HierarchyNode<Datum>) => number;
+  linkCompactXStart: (node: Rect, compactEven: boolean) => number;
+  linkCompactYStart: (node: Rect, compactEven: boolean) => number;
+  compactLinkMidX: (node: Rect, margin: number) => number;
+  compactLinkMidY: (node: Rect, margin: number) => number;
+  linkTargetX: (node: Rect) => number;
+  linkTargetY: (node: Rect) => number;
   buttonX: (node: { width: number; height: number }) => number;
   buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */

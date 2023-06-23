@@ -372,8 +372,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    const layoutBinding = this.getLayoutBinding();
-
     let nodeCompactLayoutMetadata: NodeCompactLayoutMetadata<Datum>;
 
     if (attrs.compact) {
