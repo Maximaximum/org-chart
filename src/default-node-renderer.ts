@@ -3,12 +3,48 @@ import "./patternify";
 import { BaseType, Selection } from "d3-selection";
 
 import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
-import { isEdge } from "./is-edge";
 import { nodeBackground } from "./default-colors";
 import { OrgChart } from "./org-chart";
-import { defaultButtonContent } from "./default-button-content";
+import { Layout } from "./d3-org-chart.types";
+import { linkColor } from "./default-colors";
+import {
+  getOppositeDirection,
+  isLayoutVertical,
+} from "./default-layout-bindings";
+import { arrowPaths } from "./arrow-paths";
 
 export const defaultNodeSelector = ".default-node-wrapper";
+
+function numChildrenSpan(
+  totalChildrenNumber: number | undefined,
+  addMargin: boolean
+) {
+  const margin = addMargin ? "margin-left:1px;" : "";
+  return `<span style="${margin}color:#716E7B">${totalChildrenNumber} </span>`;
+}
+
+function getArrowDirection(layout: Layout, opposite: boolean) {
+  return opposite ? getOppositeDirection(layout) : layout;
+}
+
+function wrapIconPath(content: string) {
+  return `<span style="align-items:center;display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${content}</svg></span>`;
+}
+
+function outerWrap(content: string) {
+  return `<div style="border:1px solid ${linkColor};border-radius:3px;padding:3px;font-size:9px;margin:auto auto;background-color:white"><div style="display:flex;">${content}</div></div>`;
+}
+
+function buttonContent(
+  isExpanded: boolean,
+  layout: Layout,
+  totalChildrenNumber: number
+) {
+  return outerWrap(
+    wrapIconPath(arrowPaths[getArrowDirection(layout, !isExpanded)]) +
+      numChildrenSpan(totalChildrenNumber, isLayoutVertical(layout))
+  );
+}
 
 export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
@@ -110,9 +146,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .attr("display", ({ children, _children }) => {
         return children || _children ? null : "none";
       })
-      .attr("opacity", ({ data, children, _children }) => {
-        return children || _children ? 1 : 0;
-      })
 
       .patternify({
         tag: "foreignObject",
@@ -134,7 +167,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .style("width", "100%")
       .style("height", "100%")
       .html((node) => {
-        return defaultButtonContent(
+        return buttonContent(
           attrs.nodeGetIsExpanded(node.data),
           attrs.layout,
           getNodeTotalChildren(node.data)

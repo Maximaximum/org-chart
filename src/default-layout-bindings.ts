@@ -3,6 +3,23 @@ import { vdiagonal, hdiagonal } from "./diagonals";
 
 type Datum = any;
 
+export function isLayoutVertical(layout: Layout) {
+  return layout === "bottom" || layout === "top";
+}
+
+export function getOppositeDirection(layout: Layout): Layout {
+  switch (layout) {
+    case "top":
+      return "bottom";
+    case "bottom":
+      return "top";
+    case "left":
+      return "right";
+    case "right":
+      return "left";
+  }
+}
+
 /**
  *   You can customize/offset positions for each node and link by overriding these functions
  *   For example, suppose you want to move link y position 30 px bellow in top layout. You can do it like this:
