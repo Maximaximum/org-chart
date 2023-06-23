@@ -107,16 +107,11 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         const y = this.chart.getLayoutBinding().buttonY(node);
         return `translate(${x},${y})`;
       })
-      .attr("display", (node) => {
-        return (node.children?.length ?? 0) + (node._children?.length ?? 0)! > 0
-          ? null
-          : "none";
+      .attr("display", ({ children, _children }) => {
+        return children || _children ? null : "none";
       })
       .attr("opacity", ({ data, children, _children }) => {
-        if (children || _children) {
-          return 1;
-        }
-        return 0;
+        return children || _children ? 1 : 0;
       })
 
       .patternify({
