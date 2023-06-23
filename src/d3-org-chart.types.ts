@@ -3,7 +3,7 @@ import { D3ZoomEvent } from "d3-zoom";
 import { Link, DefaultLinkObject } from "d3-shape";
 import { HierarchyNode as D3HierarchyNode } from "d3-hierarchy";
 
-export type NodeId = string | number;
+export type NodeId = string;
 
 export interface Connection<Datum> {
   from: NodeId;

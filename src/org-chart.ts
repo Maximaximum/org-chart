@@ -551,7 +551,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .id((d) => attrs.nodeId(d) as any)
       .parentId((d) => attrs.parentNodeId(d) as any)(attrs.data!) as any;
 
-    const hiddenNodesMap: Record<any, any> = {};
+    const hiddenNodes = new Set<string>();
+
     this.root!.descendants()
       .filter((node) => node.children)
       .filter((node) => !node.data._pagingStep)
@@ -567,7 +568,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         node.children.forEach((child, j) => {
           child.data._pagingButton = false;
           if (j > node.data._pagingStep!) {
-            hiddenNodesMap[child.id!] = true;
+            hiddenNodes.add(child.id!);
           }
           if (
             j === node.data._pagingStep &&
@@ -575,8 +576,8 @@ export class OrgChart<Datum extends ConcreteDatum>
           ) {
             child.data._pagingButton = true;
           }
-          if (hiddenNodesMap[child.parent!.id!]) {
-            hiddenNodesMap[child.id!] = true;
+          if (hiddenNodes.has(child.parent!.id!)) {
+            hiddenNodes.add(child.id!);
           }
         });
       }
@@ -584,9 +585,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.root! = d3
       .stratify<Datum>()
-      .id((d) => attrs.nodeId(d) as any)
-      .parentId((d) => attrs.parentNodeId(d) as any)(
-      attrs.data!.filter((d) => hiddenNodesMap[(d as any).id] !== true)
+      .id((d) => attrs.nodeId(d))
+      .parentId((d) => attrs.parentNodeId(d))(
+      attrs.data!.filter((d) => !hiddenNodes.has(attrs.nodeId(d)))
     ) as any;
 
     this.root!.each((node, i, arr) => {
