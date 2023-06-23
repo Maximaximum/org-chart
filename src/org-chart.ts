@@ -563,7 +563,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const hiddenNodes = new Set<string>();
 
     this.root!.eachBefore((node, i) => {
-      this.pagination.directSubordinatesPaging.set(
+      this.pagination.totalChildrenNumber.set(
         node.data,
         node.children?.length ?? 0
       );
@@ -571,13 +571,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       if (node.children) {
         node.children.forEach((child, j) => {
           this.pagination.paginationButtonNodes.delete(child.data);
-          if (j > this.pagination.numberOfChildrenToShow.get(node.data)!) {
+          if (j > this.pagination.childrenToShowNumber.get(node.data)!) {
             hiddenNodes.add(child.id!);
           }
           if (
-            j === this.pagination.numberOfChildrenToShow.get(node.data) &&
+            j === this.pagination.childrenToShowNumber.get(node.data) &&
             node.children!.length - 1 >
-              this.pagination.numberOfChildrenToShow.get(node.data)!
+              this.pagination.childrenToShowNumber.get(node.data)!
           ) {
             this.pagination.paginationButtonNodes.add(child.data);
           }

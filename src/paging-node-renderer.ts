@@ -13,11 +13,12 @@ export const pagingNodeSelector = ".paging-node-foreign-object";
 
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   // TODO: Make private?
-  numberOfChildrenToShow = new Map<Datum, number>();
+  childrenToShowNumber = new Map<Datum, number>();
   // TODO: Make private?
   /** Set of nodes that should be replaced with a pagination button while rendering  */
   paginationButtonNodes = new Set<Datum>();
-  directSubordinatesPaging = new Map<Datum, number>();
+  /** Total number of node children (including hidden by pagination and collapsion) */
+  totalChildrenNumber = new Map<Datum, number>();
 
   constructor(private chart: OrgChart<Datum>) {}
 
@@ -27,9 +28,9 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   ) {
     nodes
       .filter((node) => node.children)
-      .filter((node) => !this.numberOfChildrenToShow.has(node.data))
+      .filter((node) => !this.childrenToShowNumber.has(node.data))
       .forEach((node) => {
-        this.numberOfChildrenToShow.set(node.data, minPagingVisibleNodes(node));
+        this.childrenToShowNumber.set(node.data, minPagingVisibleNodes(node));
       });
   }
 
@@ -86,9 +87,9 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
     this.paginationButtonNodes.delete(paginationButtonNode.data);
 
-    this.numberOfChildrenToShow.set(
+    this.childrenToShowNumber.set(
       paginationContainer.data,
-      this.numberOfChildrenToShow.get(paginationContainer.data)! + pageSize
+      this.childrenToShowNumber.get(paginationContainer.data)! + pageSize
     );
     this.chart.updateNodesState();
   }
@@ -100,8 +101,8 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     state: State<Datum>
   ) => {
     const diff =
-      this.directSubordinatesPaging.get(d.parent!.data)! -
-      this.numberOfChildrenToShow.get(d.parent!.data)!;
+      this.totalChildrenNumber.get(d.parent!.data)! -
+      this.childrenToShowNumber.get(d.parent!.data)!;
     return Math.min(diff, pageSize);
   };
 }

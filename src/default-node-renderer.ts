@@ -64,7 +64,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     containerSelection.call(
       this.drawNodeExpandCollapseButton,
       attrs,
-      (d) => this.chart.pagination.directSubordinatesPaging.get(d)!
+      (d) => this.chart.pagination.totalChildrenNumber.get(d)!
     );
 
     return containerSelection;
