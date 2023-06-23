@@ -1107,14 +1107,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawLinks = (
     linksWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     links: HierarchyNode<Datum>[],
-    {
-      x0,
-      y0,
-      x,
-      y,
-      width,
-      height,
-    }: {
+    animationSource: {
       x0: number;
       y0: number;
       x: number;
@@ -1139,16 +1132,16 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr("class", "link")
       .attr("d", (d) => {
         const xo = this.getLayoutBinding().linkJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
+          x: animationSource.x0,
+          y: animationSource.y0,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         const yo = this.getLayoutBinding().linkJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
+          x: animationSource.x0,
+          y: animationSource.y0,
+          width: animationSource.width,
+          height: animationSource.height,
         });
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, o);
@@ -1191,18 +1184,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x,
-          y,
-          width,
-          height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x,
-          y,
-          width,
-          height,
-        });
+        const xo = this.getLayoutBinding().linkJoinX(animationSource);
+        const yo = this.getLayoutBinding().linkJoinY(animationSource);
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
       })
