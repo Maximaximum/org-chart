@@ -372,6 +372,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
+    const layoutBinding = this.getLayoutBinding();
+
     let nodeCompactLayoutMetadata: NodeCompactLayoutMetadata<Datum>;
 
     if (attrs.compact) {
@@ -470,21 +472,31 @@ export class OrgChart<Datum extends ConcreteDatum>
       links,
       fullDimensions,
       (d) => {
-        return linkPointsCalc.getSourcePoint(
-          d,
-          attrs.compactMarginPair(d),
-          compactNodeRects.get(
-            nodeCompactLayoutMetadata.firstCompactNode.get(d)!
-          )
-        );
+        const firstCompactNode =
+          nodeCompactLayoutMetadata.firstCompactNode.get(d);
+
+        if (firstCompactNode) {
+          return linkPointsCalc.getCompactSourcePoint(
+            compactNodeRects.get(firstCompactNode!)!,
+            attrs.compactMarginPair(d)
+          );
+        } else {
+          return linkPointsCalc.getNormalSourcePoint(d);
+        }
       },
-      (d) => linkPointsCalc.getTargetPoint(d),
-      (d) =>
-        linkPointsCalc.getMiddlePoint(
-          d,
-          nodeCompactLayoutMetadata.flexCompactDim.has(d),
-          !!nodeCompactLayoutMetadata!.compactEven.get(d)
-        )
+      (d) => linkPointsCalc.getTargetPoint(d.parent!),
+      (d) => {
+        const isNodeCompact = nodeCompactLayoutMetadata.flexCompactDim.has(d);
+
+        if (!isNodeCompact) {
+          return undefined;
+        } else {
+          return linkPointsCalc.getCompactMiddlePoint(
+            d,
+            !!nodeCompactLayoutMetadata.compactEven.get(d)
+          );
+        }
+      }
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,

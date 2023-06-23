@@ -186,8 +186,8 @@ export interface LayoutBinding<Datum> {
   ) => number;
   compactLinkMidX: (firstCompactNode: Rect, margin: number) => number;
   compactLinkMidY: (firstCompactNode: Rect, margin: number) => number;
-  linkParentX: (node: HierarchyNode<Datum>) => number;
-  linkParentY: (node: HierarchyNode<Datum>) => number;
+  linkTargetX: (node: HierarchyNode<Datum>) => number;
+  linkTargetY: (node: HierarchyNode<Datum>) => number;
   buttonX: (node: { width: number; height: number }) => number;
   buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */
