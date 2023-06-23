@@ -372,6 +372,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     let compactEven: WeakMap<HierarchyNode<Datum>, boolean> | undefined;
     let row: WeakMap<HierarchyNode<Datum>, number> | undefined;
     let flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>;
+    let firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
 
     if (attrs.compact) {
       const res = calculateCompactFlexDimensions(
@@ -383,6 +384,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       compactEven = res.compactEven;
       row = res.row;
       flexCompactDim = res.flexCompactDim;
+      firstCompactNode = res.firstCompactNode;
     }
 
     const flexTreeLayout = flextree<Datum>({
@@ -459,7 +461,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       links,
       fullDimensions,
       compactEven!,
-      flexCompactDim!
+      flexCompactDim!,
+      firstCompactNode!
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
@@ -1108,7 +1111,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       height: number;
     },
     compactEven: WeakMap<HierarchyNode<Datum>, boolean>,
-    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>
+    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
+    firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>
   ) => {
     const attrs = this.getChartState();
     // Get links selection
@@ -1168,12 +1172,14 @@ export class OrgChart<Datum extends ConcreteDatum>
                 x: this.getLayoutBinding().compactLinkMidX(
                   d,
                   attrs,
-                  flexCompactDim.get(d.firstCompactNode!)!
+                  firstCompactNode.get(d)!,
+                  flexCompactDim.get(firstCompactNode.get(d)!)!
                 ),
                 y: this.getLayoutBinding().compactLinkMidY(
                   d,
                   attrs,
-                  flexCompactDim.get(d.firstCompactNode!)!
+                  firstCompactNode.get(d)!,
+                  flexCompactDim.get(firstCompactNode.get(d)!)!
                 ),
               }
             : {

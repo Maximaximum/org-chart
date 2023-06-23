@@ -10,11 +10,6 @@ const d3 = {
   cumsum,
 };
 
-/**
- * Sets the following propertiy values on nodes:
- * * firstCompactNode
- * * row
- */
 export function calculateCompactFlexDimensions<Datum>(
   root: HierarchyNode<Datum>,
   attrs: Pick<State<Datum>, "compactMarginBetween" | "compactMarginPair">,
@@ -27,10 +22,11 @@ export function calculateCompactFlexDimensions<Datum>(
   const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   const row = new WeakMap<HierarchyNode<Datum>, number>();
   const flexCompactDim = new WeakMap<HierarchyNode<Datum>, [number, number]>();
+  const firstCompactNode = new WeakMap<
+    HierarchyNode<Datum>,
+    HierarchyNode<Datum>
+  >();
 
-  root.eachBefore((node) => {
-    node.firstCompactNode = undefined;
-  });
   root.eachBefore((node) => {
     if (node.children && node.children.length > 1) {
       const leafChildren = node.children.filter((d) => !d.children);
@@ -67,7 +63,7 @@ export function calculateCompactFlexDimensions<Datum>(
       );
       const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
       leafChildren.forEach((leafChild) => {
-        leafChild.firstCompactNode = leafChildren[0];
+        firstCompactNode.set(leafChild, leafChildren[0]);
 
         flexCompactDim.set(
           leafChild,
@@ -83,7 +79,7 @@ export function calculateCompactFlexDimensions<Datum>(
     }
   });
 
-  return { compactEven, row, flexCompactDim };
+  return { compactEven, row, flexCompactDim, firstCompactNode };
 }
 
 /**

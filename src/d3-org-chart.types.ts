@@ -19,7 +19,6 @@ export interface Point {
 }
 
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
-  firstCompactNode: HierarchyNode<Datum> | undefined;
   _children: this[] | undefined;
   width: number;
   x: number;
@@ -181,11 +180,13 @@ export interface LayoutBinding<Datum> {
   compactLinkMidX: (
     node: HierarchyNode<Datum>,
     state: State<Datum>,
+    firstCompactNode: HierarchyNode<Datum>,
     firstCompactNodeFlexCompactDim: [number, number]
   ) => number;
   compactLinkMidY: (
     node: HierarchyNode<Datum>,
     state: State<Datum>,
+    firstCompactNode: HierarchyNode<Datum>,
     firstCompactNodeFlexCompactDim: [number, number]
   ) => number;
   linkParentX: (node: HierarchyNode<Datum>) => number;
