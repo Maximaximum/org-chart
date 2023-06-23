@@ -76,18 +76,7 @@ export interface State<Datum> {
     index: number,
     nodes: HierarchyNode<Datum>[]
   ) => void;
-  /** Function used to render a given node data inside a node wrapper svg g element.
-   *
-   * Remember that you can access some helper methods:
-   * * node=> node.data - to access node's original data
-   * * node=> node.leaves() - to access node's leaves
-   * * node=> node.descendants() - to access node's descendants
-   * * node=> node.children - to access node's children
-   * * node=> node.parent - to access node's parent
-   * * node=> node.depth - to access node's depth
-   * * node=> node.height - to access node's height
-   * * node=> node.width - to access node's width
-   */
+  /** Function used to render a given node data inside a node wrapper svg g element. */
   drawNode: (
     containers: Selection<
       SVGGElement,

@@ -20,7 +20,6 @@ import {
   NodeCompactLayoutMetadata,
   Rect,
 } from "./d3-org-chart.types";
-import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
 import { downloadImage } from "./download-image";
 import { defaultLayoutBindings } from "./default-layout-bindings";
@@ -718,12 +717,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     const node = this.allNodes!.filter(
       (d) => attrs.nodeId(d.data) === nodeId
     )[0];
-    if (!node) {
-      console.log(
-        `ORG CHART - HIGHLIGHT - Node with id (${nodeId})  not found in the tree`
-      );
-      return this;
-    }
     node.data._highlighted = true;
     attrs.nodeSetIsExpanded(node.data, true);
     this._attrs.centeredNode = node;
