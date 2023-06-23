@@ -12,7 +12,6 @@ const d3 = {
 
 /**
  * Sets the following propertiy values on nodes:
- * * compactEven
  * * flexCompactDim
  * * firstCompactNode
  * * row
@@ -26,9 +25,9 @@ export function calculateCompactFlexDimensions<Datum>(
   }
 ) {
   const firstCompact = new WeakSet<HierarchyNode<Datum>>();
+  const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
 
   root.eachBefore((node) => {
-    node.compactEven = null;
     node.flexCompactDim = null;
     node.firstCompactNode = undefined;
   });
@@ -44,15 +43,15 @@ export function calculateCompactFlexDimensions<Datum>(
           firstCompact.add(child);
         }
 
-        child.compactEven = i % 2 === 0;
+        compactEven.set(child, i % 2 === 0);
         child.row = Math.floor(i / 2);
       });
       const evenMaxColumnDimension = d3.max(
-        leafChildren.filter((d) => d.compactEven),
+        leafChildren.filter((d) => !!compactEven.get(d)),
         compactDimension.sizeColumn
       )!;
       const oddMaxColumnDimension = d3.max(
-        leafChildren.filter((d) => !d.compactEven),
+        leafChildren.filter((d) => !compactEven.get(d)),
         compactDimension.sizeColumn
       )!;
       const columnSize =
@@ -80,6 +79,8 @@ export function calculateCompactFlexDimensions<Datum>(
       node.flexCompactDim = null;
     }
   });
+
+  return compactEven;
 }
 
 /**

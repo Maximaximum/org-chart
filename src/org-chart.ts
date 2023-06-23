@@ -369,8 +369,10 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
+    let compactEven: WeakMap<HierarchyNode<Datum>, boolean> | undefined;
+
     if (attrs.compact) {
-      calculateCompactFlexDimensions(
+      compactEven = calculateCompactFlexDimensions(
         this.root!,
         this.getChartState(),
         this.getLayoutBinding().compactDimension
@@ -444,7 +446,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.elements.defsWrapper.html(
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
-    this.elements.linksWrapper.call(this.drawLinks, links, fullDimensions);
+    this.elements.linksWrapper.call(
+      this.drawLinks,
+      links,
+      fullDimensions,
+      compactEven!
+    );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
       visibleConnections,
@@ -1090,7 +1097,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       y: number;
       width: number;
       height: number;
-    }
+    },
+    compactEven: WeakMap<HierarchyNode<Datum>, boolean>
   ) => {
     const attrs = this.getChartState();
     // Get links selection
@@ -1163,8 +1171,14 @@ export class OrgChart<Datum extends ConcreteDatum>
         const m =
           attrs.compact && d.flexCompactDim
             ? {
-                x: this.getLayoutBinding().linkCompactXStart(d),
-                y: this.getLayoutBinding().linkCompactYStart(d),
+                x: this.getLayoutBinding().linkCompactXStart(
+                  d,
+                  !!compactEven.get(d)
+                ),
+                y: this.getLayoutBinding().linkCompactYStart(
+                  d,
+                  !!compactEven.get(d)
+                ),
               }
             : n;
         return this.getLayoutBinding().diagonal(n, p, m);

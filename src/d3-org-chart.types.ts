@@ -26,7 +26,6 @@ export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   y: number;
   x0: number;
   y0: number;
-  compactEven: boolean | null;
   flexCompactDim: [number, number] | null;
   row: number;
 }
@@ -173,8 +172,14 @@ export interface LayoutBinding<Datum> {
   linkJoinY: (node: Rect) => number;
   linkX: (node: Rect) => number;
   linkY: (node: Rect) => number;
-  linkCompactXStart: (node: HierarchyNode<Datum>) => number;
-  linkCompactYStart: (node: HierarchyNode<Datum>) => number;
+  linkCompactXStart: (
+    node: HierarchyNode<Datum>,
+    compactEven: boolean
+  ) => number;
+  linkCompactYStart: (
+    node: HierarchyNode<Datum>,
+    compactEven: boolean
+  ) => number;
   compactLinkMidX: (node: HierarchyNode<Datum>, state: State<Datum>) => number;
   compactLinkMidY: (node: HierarchyNode<Datum>, state: State<Datum>) => number;
   linkParentX: (node: HierarchyNode<Datum>) => number;
