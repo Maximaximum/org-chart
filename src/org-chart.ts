@@ -356,7 +356,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   // This function basically redraws visible graph, based on nodes state
-  update(dimensions: {
+  update(animationSourceAggr: {
     x0: number;
     y0: number;
     width: number;
@@ -364,10 +364,17 @@ export class OrgChart<Datum extends ConcreteDatum>
     x?: number;
     y?: number;
   }) {
-    const fullDimensions = {
-      x: 0,
-      y: 0,
-      ...dimensions,
+    const animationSource = {
+      x: animationSourceAggr.x || 0,
+      y: animationSourceAggr.y || 0,
+      height: animationSourceAggr.height,
+      width: animationSourceAggr.width,
+    };
+    const animationSource0 = {
+      x: animationSourceAggr.x0,
+      y: animationSourceAggr.y0,
+      height: animationSourceAggr.height,
+      width: animationSourceAggr.width,
     };
 
     const attrs = this.getChartState();
@@ -468,7 +475,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
-      fullDimensions,
+      animationSource,
+      animationSource0,
       (d) => {
         const firstCompactNode =
           nodeCompactLayoutMetadata.firstCompactNode.get(d);
@@ -499,13 +507,14 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.elements.connectionsWrapper.call(
       this.drawConnections,
       visibleConnections,
-      fullDimensions
+      animationSource0
     );
 
     const nodeWrapperGElements = this.drawNodeWrappers(
       this.elements.nodesWrapper,
       nodes,
-      fullDimensions,
+      animationSource,
+      animationSource0,
       {
         layoutBinding: this.getLayoutBinding(),
         duration: attrs.duration,
@@ -1031,17 +1040,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawConnections = (
     connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     visibleConnections: Connection<Datum>[],
-    {
-      x0,
-      y0,
-      width,
-      height,
-    }: {
-      x0: number;
-      y0: number;
-      width: number;
-      height: number;
-    }
+    animationSource: Rect
   ) => {
     const attrs = this.getChartState();
 
@@ -1055,18 +1054,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert("path", "g")
       .attr("class", "connection")
       .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x: x0,
-          y: y0,
-          width,
-          height,
-        });
+        const xo = this.getLayoutBinding().linkJoinX(animationSource);
+        const yo = this.getLayoutBinding().linkJoinY(animationSource);
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
       });
@@ -1107,14 +1096,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawLinks = (
     linksWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     links: HierarchyNode<Datum>[],
-    animationSource: {
-      x0: number;
-      y0: number;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    },
+    animationSource: Rect,
+    animationSource0: Rect,
     getSourcePointFn: (d: HierarchyNode<Datum>) => Point,
     getTargetPointFn: (d: HierarchyNode<Datum>) => Point,
     getMiddlePointFn: (d: HierarchyNode<Datum>) => Point | undefined
@@ -1131,18 +1114,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert("path", "g")
       .attr("class", "link")
       .attr("d", (d) => {
-        const xo = this.getLayoutBinding().linkJoinX({
-          x: animationSource.x0,
-          y: animationSource.y0,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
-        const yo = this.getLayoutBinding().linkJoinY({
-          x: animationSource.x0,
-          y: animationSource.y0,
-          width: animationSource.width,
-          height: animationSource.height,
-        });
+        const xo = this.getLayoutBinding().linkJoinX(animationSource0);
+        const yo = this.getLayoutBinding().linkJoinY(animationSource0);
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, o);
       });
@@ -1216,14 +1189,8 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawNodeWrappers(
     nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     nodes: HierarchyNode<Datum>[],
-    animationSource: {
-      x0: number;
-      y0: number;
-      width: number;
-      height: number;
-      x: number;
-      y: number;
-    },
+    animationSource: Rect,
+    animationSource0: Rect,
     attrs: {
       layoutBinding: LayoutBinding<Datum>;
       duration: number;
@@ -1241,21 +1208,11 @@ export class OrgChart<Datum extends ConcreteDatum>
             .attr("class", "node")
             .attr("transform", (d) => {
               if (d == this.root) {
-                return `translate(${animationSource.x0},${animationSource.y0})`;
+                return `translate(${animationSource0.x},${animationSource0.y})`;
               }
 
-              const xj = this.getLayoutBinding().nodeJoinX({
-                x: animationSource.x0,
-                y: animationSource.y0,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              const yj = this.getLayoutBinding().nodeJoinY({
-                x: animationSource.x0,
-                y: animationSource.y0,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
+              const xj = this.getLayoutBinding().nodeJoinX(animationSource0);
+              const yj = this.getLayoutBinding().nodeJoinY(animationSource0);
               return `translate(${xj},${yj})`;
             });
         },
@@ -1267,18 +1224,8 @@ export class OrgChart<Datum extends ConcreteDatum>
             .transition()
             .duration(attrs.duration)
             .attr("transform", (d) => {
-              const ex = this.getLayoutBinding().nodeJoinX({
-                x: animationSource.x,
-                y: animationSource.y,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
-              const ey = this.getLayoutBinding().nodeJoinY({
-                x: animationSource.x,
-                y: animationSource.y,
-                width: animationSource.width,
-                height: animationSource.height,
-              });
+              const ex = this.getLayoutBinding().nodeJoinX(animationSource);
+              const ey = this.getLayoutBinding().nodeJoinY(animationSource);
               return `translate(${ex},${ey})`;
             })
             .on("end", function (this) {
