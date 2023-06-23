@@ -370,13 +370,17 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     let compactEven: WeakMap<HierarchyNode<Datum>, boolean> | undefined;
+    let row: WeakMap<HierarchyNode<Datum>, number> | undefined;
 
     if (attrs.compact) {
-      compactEven = calculateCompactFlexDimensions(
+      const res = calculateCompactFlexDimensions(
         this.root!,
         this.getChartState(),
         this.getLayoutBinding().compactDimension
       );
+
+      compactEven = res.compactEven;
+      row = res.row;
     }
 
     const flexTreeLayout = flextree<Datum>({
@@ -411,7 +415,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       calculateCompactFlexPositions(
         this.root!,
         attrs,
-        this.getLayoutBinding().compactDimension
+        this.getLayoutBinding().compactDimension,
+        row!
       );
     }
 

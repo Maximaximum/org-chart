@@ -26,6 +26,7 @@ export function calculateCompactFlexDimensions<Datum>(
 ) {
   const firstCompact = new WeakSet<HierarchyNode<Datum>>();
   const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
+  const row = new WeakMap<HierarchyNode<Datum>, number>();
 
   root.eachBefore((node) => {
     node.flexCompactDim = null;
@@ -44,7 +45,7 @@ export function calculateCompactFlexDimensions<Datum>(
         }
 
         compactEven.set(child, i % 2 === 0);
-        child.row = Math.floor(i / 2);
+        row.set(child, Math.floor(i / 2));
       });
       const evenMaxColumnDimension = d3.max(
         leafChildren.filter((d) => !!compactEven.get(d)),
@@ -58,7 +59,7 @@ export function calculateCompactFlexDimensions<Datum>(
         Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
       const rowsMapNew = groupBy(
         leafChildren,
-        (d) => d.row + "",
+        (d) => row.get(d) + "",
         (reducedGroup) =>
           d3.max(
             reducedGroup,
@@ -80,7 +81,7 @@ export function calculateCompactFlexDimensions<Datum>(
     }
   });
 
-  return compactEven;
+  return { compactEven, row };
 }
 
 /**
@@ -91,7 +92,8 @@ export function calculateCompactFlexPositions<Datum>(
   attrs: Pick<State<Datum>, "compactMarginPair" | "compactMarginBetween">,
   compactDimension: {
     sizeRow: (node: HierarchyNode<Datum>) => number;
-  }
+  },
+  row: WeakMap<HierarchyNode<Datum>, number>
 ) {
   root.eachBefore((node) => {
     if (node.children) {
@@ -125,7 +127,7 @@ export function calculateCompactFlexPositions<Datum>(
 
       const rowsMapNew = groupBy(
         compactChildren,
-        (d) => d.row + "",
+        (d) => row.get(d) + "",
         (reducedGroup) =>
           d3.max(reducedGroup, (d) => compactDimension.sizeRow(d))!
       );
@@ -133,8 +135,8 @@ export function calculateCompactFlexPositions<Datum>(
         rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween())
       );
       compactChildren.forEach((node, i) => {
-        if (node.row) {
-          node.y = fch.y + cumSum[node.row - 1];
+        if (row.get(node)) {
+          node.y = fch.y + cumSum[row.get(node)! - 1];
         } else {
           node.y = fch.y;
         }
