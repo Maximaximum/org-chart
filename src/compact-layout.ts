@@ -25,10 +25,9 @@ export function calculateCompactFlexDimensions<Datum>(
     sizeRow: (node: HierarchyNode<Datum>) => number;
   }
 ) {
-  const firstCompact = new WeakMap<HierarchyNode<Datum>, boolean | null>();
+  const firstCompact = new WeakSet<HierarchyNode<Datum>>();
 
   root.eachBefore((node) => {
-    firstCompact.set(node, null);
     node.compactEven = null;
     node.flexCompactDim = null;
     node.firstCompactNode = undefined;
@@ -42,7 +41,7 @@ export function calculateCompactFlexDimensions<Datum>(
       }
       leafChildren.forEach((child, i) => {
         if (!i) {
-          firstCompact.set(child, true);
+          firstCompact.add(child);
         }
 
         child.compactEven = i % 2 === 0;
@@ -71,7 +70,7 @@ export function calculateCompactFlexDimensions<Datum>(
       leafChildren.forEach((leafChild) => {
         leafChild.firstCompactNode = leafChildren[0];
 
-        leafChild.flexCompactDim = firstCompact.get(leafChild)
+        leafChild.flexCompactDim = firstCompact.has(leafChild)
           ? [
               columnSize + attrs.compactMarginPair(leafChild),
               rowSize - attrs.compactMarginBetween(),
