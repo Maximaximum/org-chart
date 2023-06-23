@@ -16,11 +16,11 @@ const arrowPaths: Record<Layout, string> = {
 };
 
 function numChildrenSpan(
-  _directSubordinatesPaging: number | undefined,
+  totalChildrenNumber: number | undefined,
   addMargin: boolean
 ) {
   const margin = addMargin ? "margin-left:1px;" : "";
-  return `<span style="${margin}color:#716E7B">${_directSubordinatesPaging} </span>`;
+  return `<span style="${margin}color:#716E7B">${totalChildrenNumber} </span>`;
 }
 
 function getOppositeDirection(layout: Layout): Layout {
@@ -52,18 +52,13 @@ function isLayoutVertical(layout: Layout) {
   return layout === "bottom" || layout === "top";
 }
 
-export function defaultButtonContent<Datum extends ConcreteDatum>({
-  node,
-  state: { layout },
-}: {
-  node: HierarchyNode<Datum>;
-  state: State<Datum>;
-}) {
+export function defaultButtonContent(
+  isExpanded: boolean,
+  layout: Layout,
+  totalChildrenNumber: number
+) {
   return outerWrap(
-    wrapIconPath(arrowPaths[getArrowDirection(layout, !node.children)]) +
-      numChildrenSpan(
-        node.data._directSubordinatesPaging,
-        isLayoutVertical(layout)
-      )
+    wrapIconPath(arrowPaths[getArrowDirection(layout, isExpanded)]) +
+      numChildrenSpan(totalChildrenNumber, isLayoutVertical(layout))
   );
 }

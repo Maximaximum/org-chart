@@ -17,6 +17,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   // TODO: Make private?
   /** Set of nodes that should be replaced with a pagination button while rendering  */
   paginationButtonNodes = new Set<Datum>();
+  directSubordinatesPaging = new Map<Datum, number>();
 
   constructor(private chart: OrgChart<Datum>) {}
 
@@ -99,7 +100,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     state: State<Datum>
   ) => {
     const diff =
-      d.parent!.data._directSubordinatesPaging! -
+      this.directSubordinatesPaging.get(d.parent!.data)! -
       this.numberOfChildrenToShow.get(d.parent!.data)!;
     return Math.min(diff, pageSize);
   };

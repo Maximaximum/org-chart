@@ -76,7 +76,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
 
-  private pagination = new PagingNodeRenderer(this);
+  // TODO Should be private
+  pagination = new PagingNodeRenderer(this);
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
@@ -562,9 +563,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     const hiddenNodes = new Set<string>();
 
     this.root!.eachBefore((node, i) => {
-      node.data._directSubordinatesPaging = node.children
-        ? node.children.length
-        : 0;
+      this.pagination.directSubordinatesPaging.set(
+        node.data,
+        node.children?.length ?? 0
+      );
+
       if (node.children) {
         node.children.forEach((child, j) => {
           this.pagination.paginationButtonNodes.delete(child.data);

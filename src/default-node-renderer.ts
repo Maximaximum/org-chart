@@ -61,7 +61,11 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
            </div>`;
       });
 
-    containerSelection.call(this.drawNodeExpandCollapseButton, attrs);
+    containerSelection.call(
+      this.drawNodeExpandCollapseButton,
+      attrs,
+      (d) => this.chart.pagination.directSubordinatesPaging.get(d)!
+    );
 
     return containerSelection;
   };
@@ -73,7 +77,8 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       TParent,
       TPDatum
     >,
-    attrs: State<Datum>
+    attrs: State<Datum>,
+    getNodeTotalChildren: (node: Datum) => number
   ) => {
     const nodeButtonHeight = 40;
     const nodeButtonWidth = 40;
@@ -161,7 +166,11 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     nodeContainer
       .select(".node-button-foreign-object .node-button-div")
       .html((node) => {
-        return defaultButtonContent({ node, state: attrs });
+        return defaultButtonContent(
+          attrs.nodeGetIsExpanded(node.data),
+          attrs.layout,
+          getNodeTotalChildren(node.data)
+        );
       });
 
     // Restyle button texts

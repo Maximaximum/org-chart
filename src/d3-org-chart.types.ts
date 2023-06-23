@@ -224,8 +224,6 @@ export type StateGetSet<T, TSelf> = {
 export interface ConcreteDatum {
   /**subordinates count */
   _directSubordinates?: number;
-  /**subordinates count in paging mode */
-  _directSubordinatesPaging?: number;
   /** when node is highlighted up to the root */
   _upToTheRootHighlighted?: boolean;
   /** when node is highlighted */
