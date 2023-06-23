@@ -291,9 +291,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.elements.svg.attr("width", containerRect.width);
     });
 
-    if (this.firstDraw) {
-      this.firstDraw = false;
-    }
+    this.firstDraw = false;
 
     return this;
   }
