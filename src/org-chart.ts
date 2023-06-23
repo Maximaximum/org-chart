@@ -1075,17 +1075,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Styling links
     linkUpdate.attr("fill", "none");
 
-    const displayFn = (d: HierarchyNode<Datum>) => {
-      return this.pagination.paginationButtonNodes.has(d.data)
-        ? "none"
-        : "auto";
-    };
-
-    if (isEdge()) {
-      linkUpdate.style("display", displayFn);
-    } else {
-      linkUpdate.attr("display", displayFn);
-    }
+    linkUpdate.style("display", (d) =>
+      this.pagination.paginationButtonNodes.has(d.data) ? "none" : "auto"
+    );
 
     // Allow external modifications
     linkUpdate.each(attrs.linkUpdate as any);
