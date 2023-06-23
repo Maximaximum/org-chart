@@ -395,7 +395,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           return flexCompactDim.get(node)!;
         }
 
-        return this.getLayoutBinding().nodeFlexSize({
+        return this.getLayoutBinding().rectSizeWithMargins({
           width: attrs.nodeWidth(node),
           height: attrs.nodeHeight(node),
           siblingsMargin: attrs.siblingsMargin(node),

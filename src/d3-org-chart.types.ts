@@ -206,7 +206,7 @@ export interface LayoutBinding<Datum> {
     sizeColumn: (node: HierarchyNode<Datum>) => number;
     sizeRow: (node: HierarchyNode<Datum>) => number;
   };
-  nodeFlexSize: (params: {
+  rectSizeWithMargins: (params: {
     height: number;
     width: number;
     siblingsMargin: number;
