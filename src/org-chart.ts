@@ -18,6 +18,7 @@ import {
   Point,
   LayoutBinding,
   NodeCompactLayoutMetadata,
+  Rect,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -450,24 +451,39 @@ export class OrgChart<Datum extends ConcreteDatum>
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
 
+    const compactNodeRects = new Map<HierarchyNode<Datum>, Rect>();
+
+    for (let d of links) {
+      if (nodeCompactLayoutMetadata!.flexCompactDim.has(d)) {
+        compactNodeRects.set(d, {
+          x: d.x,
+          y: d.y,
+          width: nodeCompactLayoutMetadata!.flexCompactDim.get(d)![0],
+          height: nodeCompactLayoutMetadata!.flexCompactDim.get(d)![1],
+        });
+      }
+    }
+
     const linkPointsCalc = new LinkPointsCalculator(this.getLayoutBinding());
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
       fullDimensions,
-      (d) =>
-        linkPointsCalc.getSourcePoint(
+      (d) => {
+        return linkPointsCalc.getSourcePoint(
           d,
-          attrs.compactMarginPair,
-          nodeCompactLayoutMetadata!.flexCompactDim,
-          nodeCompactLayoutMetadata!.firstCompactNode
-        ),
+          attrs.compactMarginPair(d),
+          compactNodeRects.get(
+            nodeCompactLayoutMetadata.firstCompactNode.get(d)!
+          )
+        );
+      },
       (d) => linkPointsCalc.getTargetPoint(d),
       (d) =>
         linkPointsCalc.getMiddlePoint(
           d,
-          nodeCompactLayoutMetadata!.flexCompactDim,
-          nodeCompactLayoutMetadata!.compactEven
+          nodeCompactLayoutMetadata.flexCompactDim.has(d),
+          !!nodeCompactLayoutMetadata!.compactEven.get(d)
         )
     );
     this.elements.connectionsWrapper.call(

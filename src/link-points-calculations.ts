@@ -1,31 +1,17 @@
-import { HierarchyNode, LayoutBinding } from "./d3-org-chart.types";
+import { HierarchyNode, LayoutBinding, Rect } from "./d3-org-chart.types";
 
 export class LinkPointsCalculator<Datum> {
   constructor(public layoutBinding: LayoutBinding<Datum>) {}
 
   getSourcePoint(
     node: HierarchyNode<Datum>,
-    compactMarginPair: (node: HierarchyNode<Datum>) => number,
-    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
-    firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>
+    margin: number,
+    firstCompactNodeRect: Rect | undefined
   ) {
-    if (flexCompactDim.has(node)) {
-      const firstCompactNodeRect = {
-        x: firstCompactNode.get(node)!.x,
-        y: firstCompactNode.get(node)!.y,
-        width: flexCompactDim.get(firstCompactNode.get(node)!)![0],
-        height: flexCompactDim.get(firstCompactNode.get(node)!)![1],
-      };
-
+    if (firstCompactNodeRect) {
       return {
-        x: this.layoutBinding.compactLinkMidX(
-          firstCompactNodeRect,
-          compactMarginPair(node)
-        ),
-        y: this.layoutBinding.compactLinkMidY(
-          firstCompactNodeRect,
-          compactMarginPair(node)
-        ),
+        x: this.layoutBinding.compactLinkMidX(firstCompactNodeRect, margin),
+        y: this.layoutBinding.compactLinkMidY(firstCompactNodeRect, margin),
       };
     } else {
       return {
@@ -37,16 +23,17 @@ export class LinkPointsCalculator<Datum> {
 
   getMiddlePoint(
     d: HierarchyNode<Datum>,
-    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
-    compactEven: WeakMap<HierarchyNode<Datum>, boolean>
+    isNodeCompact: boolean,
+    compactEven: boolean
   ) {
-    return (
-      (flexCompactDim.has(d) && {
-        x: this.layoutBinding.linkCompactXStart(d, !!compactEven.get(d)),
-        y: this.layoutBinding.linkCompactYStart(d, !!compactEven.get(d)),
-      }) ||
-      undefined
-    );
+    if (isNodeCompact) {
+      return {
+        x: this.layoutBinding.linkCompactXStart(d, compactEven),
+        y: this.layoutBinding.linkCompactYStart(d, compactEven),
+      };
+    } else {
+      return undefined;
+    }
   }
 
   getTargetPoint(d: HierarchyNode<Datum>) {
