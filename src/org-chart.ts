@@ -574,14 +574,6 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.allNodes = this.root!.descendants();
 
-    // Store direct and total descendants count
-    this.allNodes.forEach((d) => {
-      Object.assign(d.data, {
-        _directSubordinates: d.children ? d.children.length : 0,
-        _totalSubordinates: d.descendants().length - 1,
-      });
-    });
-
     for (const node of this.root!.descendants()) {
       this.updateChildrenProperty(node);
     }

@@ -152,8 +152,10 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         });
         return `translate(${x},${y})`;
       })
-      .attr("display", ({ data }) => {
-        return data._directSubordinates! > 0 ? null : "none";
+      .attr("display", (node) => {
+        return (node.children?.length ?? 0) + (node._children?.length ?? 0)! > 0
+          ? null
+          : "none";
       })
       .attr("opacity", ({ data, children, _children }) => {
         if (children || _children) {
