@@ -1157,10 +1157,6 @@ export class OrgChart<Datum extends ConcreteDatum>
             .append("g")
             .attr("class", "node")
             .attr("transform", (d) => {
-              if (d == this.root) {
-                return `translate(${animationSource.x},${animationSource.y})`;
-              }
-
               const xj = this.getLayoutBinding().nodeJoinX(animationSource);
               const yj = this.getLayoutBinding().nodeJoinY(animationSource);
               return `translate(${xj},${yj})`;
@@ -1174,9 +1170,9 @@ export class OrgChart<Datum extends ConcreteDatum>
             .transition()
             .duration(attrs.duration)
             .attr("transform", (d) => {
-              const ex = this.getLayoutBinding().nodeJoinX(animationSource);
-              const ey = this.getLayoutBinding().nodeJoinY(animationSource);
-              return `translate(${ex},${ey})`;
+              const xj = this.getLayoutBinding().nodeJoinX(animationSource);
+              const yj = this.getLayoutBinding().nodeJoinY(animationSource);
+              return `translate(${xj},${yj})`;
             })
             .on("end", function (this) {
               d3.select(this).remove();
