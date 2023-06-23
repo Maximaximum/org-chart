@@ -97,11 +97,17 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
            </div>`;
       });
 
-    containerSelection.call(
-      this.drawNodeExpandCollapseButton,
-      attrs,
-      (d) => this.chart.pagination.totalChildrenNumber.get(d)!
-    );
+    containerSelection
+      .selectAll<SVGGElement, HierarchyNode<Datum>>(".node-button-g")
+      .data(
+        (d) => (d.children || d._children ? [d] : []),
+        (n) => attrs.nodeId(n.data)
+      )
+      .call(
+        this.drawNodeExpandCollapseButton,
+        attrs,
+        (d) => this.chart.pagination.totalChildrenNumber.get(d)!
+      );
 
     return containerSelection;
   };
@@ -122,11 +128,11 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     const nodeButtonY = -nodeButtonHeight / 2;
 
     nodeContainer
-      .patternify({
-        tag: "g",
-        className: "node-button-g",
-        data: (d) => [d],
-      })
+      .join(
+        (enter) => enter.append("g").attr("class", "node-button-g"),
+        (update) => update,
+        (exit) => exit.remove()
+      )
       .style("cursor", "pointer")
       .on("click", (event: PointerEvent, d) => {
         this.chart.toggleExpandNode(d);
@@ -142,9 +148,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         const x = this.chart.getLayoutBinding().buttonX(node);
         const y = this.chart.getLayoutBinding().buttonY(node);
         return `translate(${x},${y})`;
-      })
-      .attr("display", ({ children, _children }) => {
-        return children || _children ? null : "none";
       })
 
       .patternify({
