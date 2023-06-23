@@ -158,6 +158,13 @@ export interface Rect {
   height: number;
 }
 
+export interface NodeCompactLayoutMetadata<Datum> {
+  compactEven: WeakMap<HierarchyNode<Datum>, boolean>;
+  row: WeakMap<HierarchyNode<Datum>, number>;
+  flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>;
+  firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
+}
+
 export interface LayoutBinding<Datum> {
   nodeLeftX: (node: HierarchyNode<Datum>) => number;
   nodeRightX: (node: HierarchyNode<Datum>) => number;

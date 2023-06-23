@@ -17,6 +17,7 @@ import {
   Elements,
   Point,
   LayoutBinding,
+  NodeCompactLayoutMetadata,
 } from "./d3-org-chart.types";
 import { isEdge } from "./is-edge";
 import { toDataURL } from "./to-data-url";
@@ -369,38 +370,29 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    let compactEven: WeakMap<HierarchyNode<Datum>, boolean> | undefined;
-    let row: WeakMap<HierarchyNode<Datum>, number> | undefined;
-    let flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>;
-    let firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
+    let nodeCompactLayoutMetadata: NodeCompactLayoutMetadata<Datum>;
 
     if (attrs.compact) {
-      const res = calculateCompactFlexDimensions(
+      nodeCompactLayoutMetadata = calculateCompactFlexDimensions(
         this.root!,
         this.getChartState(),
         this.getLayoutBinding().compactDimension
       );
-
-      compactEven = res.compactEven;
-      row = res.row;
-      flexCompactDim = res.flexCompactDim;
-      firstCompactNode = res.firstCompactNode;
     }
 
     const flexTreeLayout = flextree<Datum>({
       nodeSize: (n) => {
         const node = n as HierarchyNode<Datum>;
 
-        if (attrs.compact && flexCompactDim.has(node)) {
-          return flexCompactDim.get(node)!;
-        }
-
-        return this.getLayoutBinding().rectSizeWithMargins({
-          width: attrs.nodeWidth(node),
-          height: attrs.nodeHeight(node),
-          siblingsMargin: attrs.siblingsMargin(node),
-          childrenMargin: attrs.childrenMargin(node),
-        });
+        return (
+          nodeCompactLayoutMetadata.flexCompactDim.get(node) ||
+          this.getLayoutBinding().rectSizeWithMargins({
+            width: attrs.nodeWidth(node),
+            height: attrs.nodeHeight(node),
+            siblingsMargin: attrs.siblingsMargin(node),
+            childrenMargin: attrs.childrenMargin(node),
+          })
+        );
       },
       spacing: (nodeA, nodeB) =>
         nodeA.parent == nodeB.parent
@@ -420,8 +412,8 @@ export class OrgChart<Datum extends ConcreteDatum>
         this.root!,
         attrs,
         this.getLayoutBinding().compactDimension,
-        row!,
-        flexCompactDim!
+        nodeCompactLayoutMetadata!.row,
+        nodeCompactLayoutMetadata!.flexCompactDim
       );
     }
 
@@ -460,9 +452,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.drawLinks,
       links,
       fullDimensions,
-      compactEven!,
-      flexCompactDim!,
-      firstCompactNode!
+      nodeCompactLayoutMetadata!.compactEven,
+      nodeCompactLayoutMetadata!.flexCompactDim,
+      nodeCompactLayoutMetadata!.firstCompactNode
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
