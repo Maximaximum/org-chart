@@ -102,6 +102,28 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
 
         // Redraw Graph
         this.chart.update(d);
+      })
+      .attr("transform", ({ data, width, height }) => {
+        const x = this.chart.getLayoutBinding().buttonX({
+          width,
+          height,
+        });
+        const y = this.chart.getLayoutBinding().buttonY({
+          width,
+          height,
+        });
+        return `translate(${x},${y})`;
+      })
+      .attr("display", (node) => {
+        return (node.children?.length ?? 0) + (node._children?.length ?? 0)! > 0
+          ? null
+          : "none";
+      })
+      .attr("opacity", ({ data, children, _children }) => {
+        if (children || _children) {
+          return 1;
+        }
+        return 0;
       });
 
     nodeButtonGroups
@@ -117,8 +139,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .attr("x", (d) => nodeButtonX)
       .attr("y", (d) => nodeButtonY);
 
-    // Add expand collapse button content
-    const nodeFo = nodeButtonGroups
+    nodeButtonGroups
       .patternify({
         tag: "foreignObject",
         className: "node-button-foreign-object",
@@ -145,31 +166,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
           attrs.layout,
           getNodeTotalChildren(node.data)
         );
-      });
-
-    nodeContainer
-      .select(".node-button-g")
-      .attr("transform", ({ data, width, height }) => {
-        const x = this.chart.getLayoutBinding().buttonX({
-          width,
-          height,
-        });
-        const y = this.chart.getLayoutBinding().buttonY({
-          width,
-          height,
-        });
-        return `translate(${x},${y})`;
-      })
-      .attr("display", (node) => {
-        return (node.children?.length ?? 0) + (node._children?.length ?? 0)! > 0
-          ? null
-          : "none";
-      })
-      .attr("opacity", ({ data, children, _children }) => {
-        if (children || _children) {
-          return 1;
-        }
-        return 0;
       });
   };
 }
