@@ -7,7 +7,7 @@ import { OrgChart } from "./org-chart";
 /**
  * Number of nodes to show within a node's children "page"
  */
-const pagingStep = 5;
+const pageSize = 5;
 
 export const pagingNodeSelector = ".paging-node-foreign-object";
 
@@ -62,29 +62,25 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       });
   };
 
-  // Load Paging Nodes
   loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
+    const paginationContainer = paginationButtonNode.parent!;
+
     paginationButtonNode.data._pagingButton = false;
-    const current = paginationButtonNode.parent!.data._pagingStep!;
-    const step = pagingStep;
-    const newPagingIndex = current + step;
-    paginationButtonNode.parent!.data._pagingStep = newPagingIndex;
-    console.log("loading paging nodes", paginationButtonNode);
+    paginationContainer.data._pagingStep =
+      paginationContainer.data._pagingStep! + pageSize;
     this.chart.updateNodesState();
   }
 }
 
-/** Node paging button content and styling. You can access same helper methods as above. */
 const getNextPageAmount = <Datum extends ConcreteDatum>(
   d: HierarchyNode<Datum>,
   i: number,
   arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
   state: State<Datum>
 ) => {
-  const step = pagingStep;
-  const currentIndex = d.parent!.data._pagingStep;
-  const diff = d.parent!.data._directSubordinatesPaging! - currentIndex!;
-  return Math.min(diff, step);
+  const diff =
+    d.parent!.data._directSubordinatesPaging! - d.parent!.data._pagingStep!;
+  return Math.min(diff, pageSize);
 };
 
 function pagingButton(nextPageAmount: number) {

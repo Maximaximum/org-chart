@@ -551,14 +551,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
 
-    const hiddenNodes = new Set<string>();
-
     this.root!.descendants()
       .filter((node) => node.children)
       .filter((node) => !node.data._pagingStep)
       .forEach((node) => {
         node.data._pagingStep = attrs.minPagingVisibleNodes(node);
       });
+
+    const hiddenNodes = new Set<string>();
 
     this.root!.eachBefore((node, i) => {
       node.data._directSubordinatesPaging = node.children
