@@ -1084,30 +1084,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr("d", (d) => {
-        const xs = this.getLayoutBinding().linkX({
-          x: d._source.x,
-          y: d._source.y,
-          width: d._source.width,
-          height: d._source.height,
-        });
-        const ys = this.getLayoutBinding().linkY({
-          x: d._source.x,
-          y: d._source.y,
-          width: d._source.width,
-          height: d._source.height,
-        });
-        const xt = this.getLayoutBinding().linkJoinX({
-          x: d._target.x,
-          y: d._target.y,
-          width: d._target.width,
-          height: d._target.height,
-        });
-        const yt = this.getLayoutBinding().linkJoinY({
-          x: d._target.x,
-          y: d._target.y,
-          width: d._target.width,
-          height: d._target.height,
-        });
+        const xs = this.getLayoutBinding().linkX(d._source);
+        const ys = this.getLayoutBinding().linkY(d._source);
+        const xt = this.getLayoutBinding().linkJoinX(d._target);
+        const yt = this.getLayoutBinding().linkJoinY(d._target);
         return attrs.linkGroupArc({
           source: { x: xs, y: ys },
           target: { x: xt, y: yt },
