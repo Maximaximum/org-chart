@@ -58,7 +58,7 @@ export function defaultButtonContent(
   totalChildrenNumber: number
 ) {
   return outerWrap(
-    wrapIconPath(arrowPaths[getArrowDirection(layout, isExpanded)]) +
+    wrapIconPath(arrowPaths[getArrowDirection(layout, !isExpanded)]) +
       numChildrenSpan(totalChildrenNumber, isLayoutVertical(layout))
   );
 }
