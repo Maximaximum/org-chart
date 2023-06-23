@@ -603,45 +603,47 @@ export class OrgChart<Datum extends ConcreteDatum>
     chart.attr("transform", transform.toString());
   }
 
-  zoomTreeBounds({
-    x0,
-    x1,
-    y0,
-    y1,
-    params = { animate: true, scale: true },
-  }: {
-    x0: number;
-    x1: number;
-    y0: number;
-    y1: number;
-    params?: { animate?: boolean; scale?: boolean };
-  }) {
+  zoomTreeBounds(
+    {
+      x0,
+      x1,
+      y0,
+      y1,
+    }: {
+      x0: number;
+      x1: number;
+      y0: number;
+      y1: number;
+    },
+    animate = true,
+    scale = true
+  ) {
     const { duration } = this.getChartState();
     const w = this.elements.svg.node()!.clientWidth;
     const h = this.elements.svg.node()!.clientWidth;
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
     let identity = d3.zoomIdentity.translate(w / 2, h / 2);
-    identity = identity.scale(params.scale ? scaleVal : this.lastTransform.k);
+    identity = identity.scale(scale ? scaleVal : this.lastTransform.k);
 
     identity = identity.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
     // Transition zoom wrapper component into specified bounds
     this.elements.svg
       .transition()
-      .duration(params.animate ? duration : 0)
+      .duration(animate ? duration : 0)
       .call(this.zoomBehavior!.transform as any, identity);
     this.elements.centerG
       .transition()
-      .duration(params.animate ? duration : 0)
+      .duration(animate ? duration : 0)
       .attr("transform", "translate(0,0)");
   }
 
   fit({
-    animate = true,
     nodes,
+    animate = true,
     scale = true,
   }: {
-    animate?: boolean;
     nodes?: Iterable<HierarchyNode<Datum>>;
+    animate?: boolean;
     scale?: boolean;
   } = {}) {
     const attrs = this.getChartState();
@@ -663,13 +665,16 @@ export class OrgChart<Datum extends ConcreteDatum>
       (d) => d.y + this.getLayoutBinding().nodeBottomY(d)
     );
 
-    this.zoomTreeBounds({
-      params: { animate, scale },
-      x0: minX! - 50,
-      x1: maxX! + 50,
-      y0: minY! - 50,
-      y1: maxY! + 50,
-    });
+    this.zoomTreeBounds(
+      {
+        x0: minX! - 50,
+        x1: maxX! + 50,
+        y0: minY! - 50,
+        y1: maxY! + 50,
+      },
+      animate,
+      scale
+    );
     return this;
   }
 
