@@ -548,8 +548,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Store new root by converting flat data to hierarchy
     this.root = d3
       .stratify<Datum>()
-      .id((d) => attrs.nodeId(d) as any)
-      .parentId((d) => attrs.parentNodeId(d) as any)(attrs.data!) as any;
+      .id((d) => attrs.nodeId(d))
+      .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
 
     const hiddenNodes = new Set<string>();
 
