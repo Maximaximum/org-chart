@@ -12,7 +12,22 @@ const pageSize = 5;
 export const pagingNodeSelector = ".paging-node-foreign-object";
 
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
+  // TODO: Make private?
+  numberOfChildrenToShow = new Map<Datum, number>();
+
   constructor(private chart: OrgChart<Datum>) {}
+
+  initNumberOfChildrenToShow(
+    nodes: HierarchyNode<Datum>[],
+    minPagingVisibleNodes: (node: HierarchyNode<Datum>) => number
+  ) {
+    nodes
+      .filter((node) => node.children)
+      .filter((node) => !this.numberOfChildrenToShow.has(node.data))
+      .forEach((node) => {
+        this.numberOfChildrenToShow.set(node.data, minPagingVisibleNodes(node));
+      });
+  }
 
   draw = (
     containerSelection: Selection<
@@ -58,7 +73,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
         that.loadNextPageOfNodes(d);
       })
       .html((d, i, arr) => {
-        return pagingButton(getNextPageAmount(d, i, arr, attrs));
+        return pagingButton(this.getNextPageAmount(d, i, arr, attrs));
       });
   };
 
@@ -66,22 +81,26 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     const paginationContainer = paginationButtonNode.parent!;
 
     paginationButtonNode.data._pagingButton = false;
-    paginationContainer.data._pagingStep =
-      paginationContainer.data._pagingStep! + pageSize;
+
+    this.numberOfChildrenToShow.set(
+      paginationContainer.data,
+      this.numberOfChildrenToShow.get(paginationContainer.data)! + pageSize
+    );
     this.chart.updateNodesState();
   }
-}
 
-const getNextPageAmount = <Datum extends ConcreteDatum>(
-  d: HierarchyNode<Datum>,
-  i: number,
-  arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
-  state: State<Datum>
-) => {
-  const diff =
-    d.parent!.data._directSubordinatesPaging! - d.parent!.data._pagingStep!;
-  return Math.min(diff, pageSize);
-};
+  getNextPageAmount = (
+    d: HierarchyNode<Datum>,
+    i: number,
+    arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
+    state: State<Datum>
+  ) => {
+    const diff =
+      d.parent!.data._directSubordinatesPaging! -
+      this.numberOfChildrenToShow.get(d.parent!.data)!;
+    return Math.min(diff, pageSize);
+  };
+}
 
 function pagingButton(nextPageAmount: number) {
   return `

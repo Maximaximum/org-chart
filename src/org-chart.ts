@@ -76,6 +76,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   allNodes: ReadonlyArray<HierarchyNode<Datum>> | undefined;
 
+  private pagination = new PagingNodeRenderer(this);
+
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
     container: "body",
@@ -131,7 +133,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           }
         );
 
-      new PagingNodeRenderer(this).draw(pagingNodes);
+      this.pagination.draw(pagingNodes);
       new DefaultNodeRenderer(this).draw(defaultNodes);
 
       containers
@@ -551,12 +553,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
 
-    this.root!.descendants()
-      .filter((node) => node.children)
-      .filter((node) => !node.data._pagingStep)
-      .forEach((node) => {
-        node.data._pagingStep = attrs.minPagingVisibleNodes(node);
-      });
+    this.pagination.initNumberOfChildrenToShow(
+      this.root!.descendants(),
+      attrs.minPagingVisibleNodes
+    );
 
     const hiddenNodes = new Set<string>();
 
@@ -567,12 +567,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       if (node.children) {
         node.children.forEach((child, j) => {
           child.data._pagingButton = false;
-          if (j > node.data._pagingStep!) {
+          if (j > this.pagination.numberOfChildrenToShow.get(node.data)!) {
             hiddenNodes.add(child.id!);
           }
           if (
-            j === node.data._pagingStep &&
-            node.children!.length - 1 > node.data._pagingStep
+            j === this.pagination.numberOfChildrenToShow.get(node.data) &&
+            node.children!.length - 1 >
+              this.pagination.numberOfChildrenToShow.get(node.data)!
           ) {
             child.data._pagingButton = true;
           }
