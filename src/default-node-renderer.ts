@@ -151,9 +151,6 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         return data._directSubordinates! > 0 ? null : "none";
       })
       .attr("opacity", ({ data, children, _children }) => {
-        if (data._pagingButton) {
-          return 0;
-        }
         if (children || _children) {
           return 1;
         }

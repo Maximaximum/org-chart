@@ -14,6 +14,9 @@ export const pagingNodeSelector = ".paging-node-foreign-object";
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   // TODO: Make private?
   numberOfChildrenToShow = new Map<Datum, number>();
+  // TODO: Make private?
+  /** Set of nodes that should be replaced with a pagination button while rendering  */
+  paginationButtonNodes = new Set<Datum>();
 
   constructor(private chart: OrgChart<Datum>) {}
 
@@ -80,7 +83,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
     const paginationContainer = paginationButtonNode.parent!;
 
-    paginationButtonNode.data._pagingButton = false;
+    this.paginationButtonNodes.delete(paginationButtonNode.data);
 
     this.numberOfChildrenToShow.set(
       paginationContainer.data,

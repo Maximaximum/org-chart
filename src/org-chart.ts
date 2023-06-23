@@ -118,7 +118,7 @@ export class OrgChart<Datum extends ConcreteDatum>
           pagingNodeSelector
         )
         .data(
-          (d) => (d.data._pagingButton ? [d] : []),
+          (d) => (this.pagination.paginationButtonNodes.has(d.data) ? [d] : []),
           function (d) {
             return attrs.nodeId(d.data);
           }
@@ -127,7 +127,8 @@ export class OrgChart<Datum extends ConcreteDatum>
       const defaultNodes = containers
         .selectAll<SVGGElement, HierarchyNode<Datum>>(defaultNodeSelector)
         .data(
-          (d) => (!d.data._pagingButton ? [d] : []),
+          (d) =>
+            !this.pagination.paginationButtonNodes.has(d.data) ? [d] : [],
           function (d) {
             return attrs.nodeId(d.data);
           }
@@ -420,7 +421,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Get all links
     const links = (treeData.descendants() as any as HierarchyNode<Datum>[])
       .slice(1)
-      .filter((l) => !l.data._pagingButton);
+      .filter((l) => !this.pagination.paginationButtonNodes.has(l.data));
     nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
@@ -566,7 +567,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         : 0;
       if (node.children) {
         node.children.forEach((child, j) => {
-          child.data._pagingButton = false;
+          this.pagination.paginationButtonNodes.delete(child.data);
           if (j > this.pagination.numberOfChildrenToShow.get(node.data)!) {
             hiddenNodes.add(child.id!);
           }
@@ -575,7 +576,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             node.children!.length - 1 >
               this.pagination.numberOfChildrenToShow.get(node.data)!
           ) {
-            child.data._pagingButton = true;
+            this.pagination.paginationButtonNodes.add(child.data);
           }
           if (hiddenNodes.has(child.parent!.id!)) {
             hiddenNodes.add(child.id!);
@@ -1104,7 +1105,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     linkUpdate.attr("fill", "none");
 
     const displayFn = (d: HierarchyNode<Datum>) => {
-      return d.data._pagingButton ? "none" : "auto";
+      return this.pagination.paginationButtonNodes.has(d.data)
+        ? "none"
+        : "auto";
     };
 
     if (isEdge()) {
