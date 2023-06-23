@@ -186,13 +186,13 @@ export interface LayoutBinding<Datum> {
   ) => number;
   compactLinkMidX: (
     node: HierarchyNode<Datum>,
-    state: State<Datum>,
+    compactMarginPair: (node: HierarchyNode<Datum>) => number,
     firstCompactNode: HierarchyNode<Datum>,
     firstCompactNodeFlexCompactDim: [number, number]
   ) => number;
   compactLinkMidY: (
     node: HierarchyNode<Datum>,
-    state: State<Datum>,
+    compactMarginPair: (node: HierarchyNode<Datum>) => number,
     firstCompactNode: HierarchyNode<Datum>,
     firstCompactNodeFlexCompactDim: [number, number]
   ) => number;

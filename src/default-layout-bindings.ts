@@ -29,19 +29,19 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node.y + (compactEven ? node.height / 2 : -node.height / 2),
     compactLinkMidX: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) => firstCompactNode.x,
     compactLinkMidY: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) =>
       firstCompactNode.y +
       firstCompactNodeFlexCompactDim[0] / 4 +
-      state.compactMarginPair(node) / 4,
+      compactMarginPair(node) / 4,
     linkParentX: (node) => node.parent!.x + node.parent!.width,
     linkParentY: (node) => node.parent!.y,
     buttonX: (node) => node.width,
@@ -85,16 +85,16 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactYStart: (node, compactEven) => node.y + node.height / 2,
     compactLinkMidX: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) =>
       firstCompactNode.x +
       firstCompactNodeFlexCompactDim[0] / 4 +
-      state.compactMarginPair(node) / 4,
+      compactMarginPair(node) / 4,
     compactLinkMidY: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) => firstCompactNode.y,
@@ -139,16 +139,16 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactYStart: (node, compactEven) => node.y - node.height / 2,
     compactLinkMidX: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) =>
       firstCompactNode.x +
       firstCompactNodeFlexCompactDim[0] / 4 +
-      state.compactMarginPair(node) / 4,
+      compactMarginPair(node) / 4,
     compactLinkMidY: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) => firstCompactNode.y,
@@ -201,19 +201,19 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       node.y + (compactEven ? node.height / 2 : -node.height / 2),
     compactLinkMidX: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) => firstCompactNode.x,
     compactLinkMidY: (
       node,
-      state,
+      compactMarginPair,
       firstCompactNode,
       firstCompactNodeFlexCompactDim
     ) =>
       firstCompactNode.y +
       firstCompactNodeFlexCompactDim[0] / 4 +
-      state.compactMarginPair(node) / 4,
+      compactMarginPair(node) / 4,
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartWidth }) =>
       `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
     rectSizeWithMargins: ({
