@@ -555,44 +555,15 @@ export class OrgChart<Datum extends ConcreteDatum>
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
 
-    this.pagination.initNumberOfChildrenToShow(
-      this.root!.descendants(),
-      attrs.minPagingVisibleNodes
-    );
-
-    const hiddenNodes = new Set<string>();
-
-    this.root!.eachBefore((node, i) => {
-      this.pagination.totalChildrenNumber.set(
-        node.data,
-        node.children?.length ?? 0
-      );
-
-      if (node.children) {
-        node.children.forEach((child, j) => {
-          this.pagination.paginationButtonNodes.delete(child.data);
-          if (j > this.pagination.childrenToShowNumber.get(node.data)!) {
-            hiddenNodes.add(child.id!);
-          }
-          if (
-            j === this.pagination.childrenToShowNumber.get(node.data) &&
-            node.children!.length - 1 >
-              this.pagination.childrenToShowNumber.get(node.data)!
-          ) {
-            this.pagination.paginationButtonNodes.add(child.data);
-          }
-          if (hiddenNodes.has(child.parent!.id!)) {
-            hiddenNodes.add(child.id!);
-          }
-        });
-      }
-    });
+    this.pagination.initPagination(this.root!, attrs.minPagingVisibleNodes);
 
     this.root! = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(
-      attrs.data!.filter((d) => !hiddenNodes.has(attrs.nodeId(d)))
+      attrs.data!.filter(
+        (d) => !this.pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
+      )
     ) as any;
 
     this.root!.each((node, i, arr) => {

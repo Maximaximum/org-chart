@@ -20,9 +20,11 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   /** Total number of node children (including hidden by pagination and collapsion) */
   totalChildrenNumber = new Map<Datum, number>();
 
+  nodesHiddenDueToPagination = new Set<string>();
+
   constructor(private chart: OrgChart<Datum>) {}
 
-  initNumberOfChildrenToShow(
+  private initNumberOfChildrenToShow(
     nodes: HierarchyNode<Datum>[],
     minPagingVisibleNodes: (node: HierarchyNode<Datum>) => number
   ) {
@@ -32,6 +34,38 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       .forEach((node) => {
         this.childrenToShowNumber.set(node.data, minPagingVisibleNodes(node));
       });
+  }
+
+  initPagination(
+    root: HierarchyNode<Datum>,
+    minPagingVisibleNodes: (node: HierarchyNode<Datum>) => number
+  ) {
+    this.initNumberOfChildrenToShow(root!.descendants(), minPagingVisibleNodes);
+
+    this.nodesHiddenDueToPagination.clear();
+
+    root!.eachBefore((node, i) => {
+      this.totalChildrenNumber.set(node.data, node.children?.length ?? 0);
+
+      if (node.children) {
+        node.children.forEach((child, j) => {
+          this.paginationButtonNodes.delete(child.data);
+          if (j > this.childrenToShowNumber.get(node.data)!) {
+            this.nodesHiddenDueToPagination.add(child.id!);
+          }
+          if (
+            j === this.childrenToShowNumber.get(node.data) &&
+            node.children!.length - 1 >
+              this.childrenToShowNumber.get(node.data)!
+          ) {
+            this.paginationButtonNodes.add(child.data);
+          }
+          if (this.nodesHiddenDueToPagination.has(child.parent!.id!)) {
+            this.nodesHiddenDueToPagination.add(child.id!);
+          }
+        });
+      }
+    });
   }
 
   draw = (
