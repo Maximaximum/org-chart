@@ -129,6 +129,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .attr("x", (d) => nodeButtonX)
       .attr("y", (d) => nodeButtonY)
       .style("overflow", "visible")
+
       .patternify({
         tag: "xhtml:div" as "div",
         className: "node-button-div",
@@ -137,7 +138,14 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .style("pointer-events", "none")
       .style("display", "flex")
       .style("width", "100%")
-      .style("height", "100%");
+      .style("height", "100%")
+      .html((node) => {
+        return defaultButtonContent(
+          attrs.nodeGetIsExpanded(node.data),
+          attrs.layout,
+          getNodeTotalChildren(node.data)
+        );
+      });
 
     nodeContainer
       .select(".node-button-g")
@@ -163,29 +171,5 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         }
         return 0;
       });
-
-    // Restyle node button circle
-    nodeContainer
-      .select(".node-button-foreign-object .node-button-div")
-      .html((node) => {
-        return defaultButtonContent(
-          attrs.nodeGetIsExpanded(node.data),
-          attrs.layout,
-          getNodeTotalChildren(node.data)
-        );
-      });
-
-    // Restyle button texts
-    nodeContainer
-      .select(".node-button-text")
-      .attr("text-anchor", "middle")
-      .attr("alignment-baseline", "middle")
-      .attr("font-size", ({ children }) => {
-        return children ? 40 : 26;
-      })
-      .text(({ children }) => {
-        return children ? "-" : "+";
-      })
-      .attr("y", isEdge() ? 10 : 0);
   };
 }
