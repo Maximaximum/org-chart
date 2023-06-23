@@ -620,7 +620,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   ) {
     const { duration } = this.getChartState();
     const w = this.elements.svg.node()!.clientWidth;
-    const h = this.elements.svg.node()!.clientWidth;
+    const h = this.elements.svg.node()!.clientHeight;
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
     let identity = d3.zoomIdentity.translate(w / 2, h / 2);
     identity = identity.scale(scale ? scaleVal : this.lastTransform.k);
