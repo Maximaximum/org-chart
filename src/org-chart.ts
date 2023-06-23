@@ -455,7 +455,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       (d) =>
         this.getSourcePoint(
           d,
-          attrs,
+          attrs.compactMarginPair,
           nodeCompactLayoutMetadata!.flexCompactDim,
           nodeCompactLayoutMetadata!.firstCompactNode
         ),
@@ -463,7 +463,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       (d) =>
         this.getMiddlePoint(
           d,
-          attrs,
           nodeCompactLayoutMetadata!.flexCompactDim,
           nodeCompactLayoutMetadata!.compactEven
         )
@@ -1203,23 +1202,23 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private getSourcePoint(
     d: HierarchyNode<Datum>,
-    attrs: State<Datum>,
+    compactMarginPair: (node: HierarchyNode<Datum>) => number,
     flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
     firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>
   ) {
     const layoutBinding = this.getLayoutBinding();
 
-    return attrs.compact && flexCompactDim.has(d)
+    return flexCompactDim.has(d)
       ? {
           x: layoutBinding.compactLinkMidX(
             d,
-            attrs.compactMarginPair,
+            compactMarginPair,
             firstCompactNode.get(d)!,
             flexCompactDim.get(firstCompactNode.get(d)!)!
           ),
           y: layoutBinding.compactLinkMidY(
             d,
-            attrs.compactMarginPair,
+            compactMarginPair,
             firstCompactNode.get(d)!,
             flexCompactDim.get(firstCompactNode.get(d)!)!
           ),
@@ -1232,18 +1231,16 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private getMiddlePoint(
     d: HierarchyNode<Datum>,
-    attrs: State<Datum>,
     flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
     compactEven: WeakMap<HierarchyNode<Datum>, boolean>
   ) {
     const layoutBinding = this.getLayoutBinding();
 
     return (
-      (attrs.compact &&
-        flexCompactDim.has(d) && {
-          x: layoutBinding.linkCompactXStart(d, !!compactEven.get(d)),
-          y: layoutBinding.linkCompactYStart(d, !!compactEven.get(d)),
-        }) ||
+      (flexCompactDim.has(d) && {
+        x: layoutBinding.linkCompactXStart(d, !!compactEven.get(d)),
+        y: layoutBinding.linkCompactYStart(d, !!compactEven.get(d)),
+      }) ||
       undefined
     );
   }
