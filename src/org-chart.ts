@@ -34,6 +34,7 @@ import {
   calculateCompactFlexDimensions,
   calculateCompactFlexPositions,
 } from "./compact-layout";
+import { LinkPointsCalculator } from "./link-points-calculations";
 
 const d3 = {
   select,
@@ -448,20 +449,22 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.elements.defsWrapper.html(
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
+
+    const linkPointsCalc = new LinkPointsCalculator(this.getLayoutBinding());
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
       fullDimensions,
       (d) =>
-        this.getSourcePoint(
+        linkPointsCalc.getSourcePoint(
           d,
           attrs.compactMarginPair,
           nodeCompactLayoutMetadata!.flexCompactDim,
           nodeCompactLayoutMetadata!.firstCompactNode
         ),
-      (d) => this.getTargetPoint(d),
+      (d) => linkPointsCalc.getTargetPoint(d),
       (d) =>
-        this.getMiddlePoint(
+        linkPointsCalc.getMiddlePoint(
           d,
           nodeCompactLayoutMetadata!.flexCompactDim,
           nodeCompactLayoutMetadata!.compactEven
@@ -1199,60 +1202,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       })
       .remove();
   };
-
-  private getSourcePoint(
-    d: HierarchyNode<Datum>,
-    compactMarginPair: (node: HierarchyNode<Datum>) => number,
-    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
-    firstCompactNode: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>
-  ) {
-    const layoutBinding = this.getLayoutBinding();
-
-    return flexCompactDim.has(d)
-      ? {
-          x: layoutBinding.compactLinkMidX(
-            d,
-            compactMarginPair,
-            firstCompactNode.get(d)!,
-            flexCompactDim.get(firstCompactNode.get(d)!)!
-          ),
-          y: layoutBinding.compactLinkMidY(
-            d,
-            compactMarginPair,
-            firstCompactNode.get(d)!,
-            flexCompactDim.get(firstCompactNode.get(d)!)!
-          ),
-        }
-      : {
-          x: layoutBinding.linkX(d),
-          y: layoutBinding.linkY(d),
-        };
-  }
-
-  private getMiddlePoint(
-    d: HierarchyNode<Datum>,
-    flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>,
-    compactEven: WeakMap<HierarchyNode<Datum>, boolean>
-  ) {
-    const layoutBinding = this.getLayoutBinding();
-
-    return (
-      (flexCompactDim.has(d) && {
-        x: layoutBinding.linkCompactXStart(d, !!compactEven.get(d)),
-        y: layoutBinding.linkCompactYStart(d, !!compactEven.get(d)),
-      }) ||
-      undefined
-    );
-  }
-
-  private getTargetPoint(d: HierarchyNode<Datum>) {
-    const layoutBinding = this.getLayoutBinding();
-
-    return {
-      x: layoutBinding.linkParentX(d),
-      y: layoutBinding.linkParentY(d),
-    };
-  }
 
   private translateChartGroupIfNeeded() {
     const attrs = this.getChartState();

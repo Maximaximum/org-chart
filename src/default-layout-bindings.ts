@@ -27,21 +27,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactXStart: (node, compactEven) => node.x + node.width / 2,
     linkCompactYStart: (node, compactEven) =>
       node.y + (compactEven ? node.height / 2 : -node.height / 2),
-    compactLinkMidX: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) => firstCompactNode.x,
-    compactLinkMidY: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) =>
-      firstCompactNode.y +
-      firstCompactNodeFlexCompactDim[0] / 4 +
-      compactMarginPair(node) / 4,
+    compactLinkMidX: (firstCompactNodeRect, margin) => firstCompactNodeRect.x,
+    compactLinkMidY: (firstCompactNodeRect, margin) =>
+      firstCompactNodeRect.y + firstCompactNodeRect.width / 4 + margin / 4,
     linkParentX: (node) => node.parent!.x + node.parent!.width,
     linkParentY: (node) => node.parent!.y,
     buttonX: (node) => node.width,
@@ -83,21 +71,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactXStart: (node, compactEven) =>
       node.x + (compactEven ? node.width / 2 : -node.width / 2),
     linkCompactYStart: (node, compactEven) => node.y + node.height / 2,
-    compactLinkMidX: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) =>
-      firstCompactNode.x +
-      firstCompactNodeFlexCompactDim[0] / 4 +
-      compactMarginPair(node) / 4,
-    compactLinkMidY: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) => firstCompactNode.y,
+    compactLinkMidX: (firstCompactNodeRect, margin) =>
+      firstCompactNodeRect.x + firstCompactNodeRect.width / 4 + margin / 4,
+    compactLinkMidY: (firstCompactNodeRect, margin) => firstCompactNodeRect.y,
     compactDimension: {
       sizeColumn: (node) => node.width,
       sizeRow: (node) => node.height,
@@ -137,21 +113,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactXStart: (node, compactEven) =>
       node.x + (compactEven ? node.width / 2 : -node.width / 2),
     linkCompactYStart: (node, compactEven) => node.y - node.height / 2,
-    compactLinkMidX: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) =>
-      firstCompactNode.x +
-      firstCompactNodeFlexCompactDim[0] / 4 +
-      compactMarginPair(node) / 4,
-    compactLinkMidY: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) => firstCompactNode.y,
+    compactLinkMidX: (firstCompactNodeRect, margin) =>
+      firstCompactNodeRect.x + firstCompactNodeRect.width / 4 + margin / 4,
+    compactLinkMidY: (firstCompactNodeRect, margin) => firstCompactNodeRect.y,
     linkX: (node) => node.x,
     linkY: (node) => node.y,
     compactDimension: {
@@ -199,21 +163,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     linkCompactXStart: (node, compactEven) => node.x - node.width / 2,
     linkCompactYStart: (node, compactEven) =>
       node.y + (compactEven ? node.height / 2 : -node.height / 2),
-    compactLinkMidX: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) => firstCompactNode.x,
-    compactLinkMidY: (
-      node,
-      compactMarginPair,
-      firstCompactNode,
-      firstCompactNodeFlexCompactDim
-    ) =>
-      firstCompactNode.y +
-      firstCompactNodeFlexCompactDim[0] / 4 +
-      compactMarginPair(node) / 4,
+    compactLinkMidX: (firstCompactNodeRect, margin) => firstCompactNodeRect.x,
+    compactLinkMidY: (firstCompactNodeRect, margin) =>
+      firstCompactNodeRect.y + firstCompactNodeRect.width / 4 + margin / 4,
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartWidth }) =>
       `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
     rectSizeWithMargins: ({

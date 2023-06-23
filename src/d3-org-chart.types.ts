@@ -184,18 +184,8 @@ export interface LayoutBinding<Datum> {
     node: HierarchyNode<Datum>,
     compactEven: boolean
   ) => number;
-  compactLinkMidX: (
-    node: HierarchyNode<Datum>,
-    compactMarginPair: (node: HierarchyNode<Datum>) => number,
-    firstCompactNode: HierarchyNode<Datum>,
-    firstCompactNodeFlexCompactDim: [number, number]
-  ) => number;
-  compactLinkMidY: (
-    node: HierarchyNode<Datum>,
-    compactMarginPair: (node: HierarchyNode<Datum>) => number,
-    firstCompactNode: HierarchyNode<Datum>,
-    firstCompactNodeFlexCompactDim: [number, number]
-  ) => number;
+  compactLinkMidX: (firstCompactNode: Rect, margin: number) => number;
+  compactLinkMidY: (firstCompactNode: Rect, margin: number) => number;
   linkParentX: (node: HierarchyNode<Datum>) => number;
   linkParentY: (node: HierarchyNode<Datum>) => number;
   buttonX: (node: { width: number; height: number }) => number;
