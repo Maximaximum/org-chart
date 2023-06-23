@@ -12,7 +12,6 @@ const d3 = {
 
 /**
  * Sets the following propertiy values on nodes:
- * * flexCompactDim
  * * firstCompactNode
  * * row
  */
@@ -27,9 +26,9 @@ export function calculateCompactFlexDimensions<Datum>(
   const firstCompact = new WeakSet<HierarchyNode<Datum>>();
   const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   const row = new WeakMap<HierarchyNode<Datum>, number>();
+  const flexCompactDim = new WeakMap<HierarchyNode<Datum>, [number, number]>();
 
   root.eachBefore((node) => {
-    node.flexCompactDim = null;
     node.firstCompactNode = undefined;
   });
   root.eachBefore((node) => {
@@ -70,18 +69,21 @@ export function calculateCompactFlexDimensions<Datum>(
       leafChildren.forEach((leafChild) => {
         leafChild.firstCompactNode = leafChildren[0];
 
-        leafChild.flexCompactDim = firstCompact.has(leafChild)
-          ? [
-              columnSize + attrs.compactMarginPair(leafChild),
-              rowSize - attrs.compactMarginBetween(),
-            ]
-          : [0, 0];
+        flexCompactDim.set(
+          leafChild,
+          firstCompact.has(leafChild)
+            ? [
+                columnSize + attrs.compactMarginPair(leafChild),
+                rowSize - attrs.compactMarginBetween(),
+              ]
+            : [0, 0]
+        );
       });
-      node.flexCompactDim = null;
+      flexCompactDim.delete(node);
     }
   });
 
-  return { compactEven, row };
+  return { compactEven, row, flexCompactDim };
 }
 
 /**
@@ -93,32 +95,35 @@ export function calculateCompactFlexPositions<Datum>(
   compactDimension: {
     sizeRow: (node: HierarchyNode<Datum>) => number;
   },
-  row: WeakMap<HierarchyNode<Datum>, number>
+  row: WeakMap<HierarchyNode<Datum>, number>,
+  flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>
 ) {
   root.eachBefore((node) => {
     if (node.children) {
-      const compactChildren = node.children.filter((d) => d.flexCompactDim);
+      const compactChildren = node.children.filter((d) =>
+        flexCompactDim.has(d)
+      );
       const fch = compactChildren[0];
       if (!fch) {
         return;
       }
       compactChildren.forEach((child, i, arr) => {
-        if (i == 0) fch.x -= fch.flexCompactDim![0] / 2;
+        if (i == 0) fch.x -= flexCompactDim.get(fch)![0] / 2;
         if (i & ((i % 2) - 1))
           child.x =
             fch.x +
-            fch.flexCompactDim![0] * 0.25 -
+            flexCompactDim.get(fch)![0] * 0.25 -
             attrs.compactMarginPair(child) / 4;
         else if (i)
           child.x =
             fch.x +
-            fch.flexCompactDim![0] * 0.75 +
+            flexCompactDim.get(fch)![0] * 0.75 +
             attrs.compactMarginPair(child) / 4;
       });
-      const centerX = fch.x + fch.flexCompactDim![0] * 0.5;
+      const centerX = fch.x + flexCompactDim.get(fch)![0] * 0.5;
       fch.x =
         fch.x +
-        fch.flexCompactDim![0] * 0.25 -
+        flexCompactDim.get(fch)![0] * 0.25 -
         attrs.compactMarginPair(fch) / 4;
       const offsetX = node.x - centerX;
       if (Math.abs(offsetX) < 10) {
