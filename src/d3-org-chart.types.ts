@@ -198,9 +198,7 @@ export interface LayoutBinding<Datum> {
   diagonal(source: Point, target: Point, m?: Point): string;
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
-  nodeUpdateTransform: (
-    params: { width: number; height: number } & Point
-  ) => string;
+  nodeUpdateTransform: (params: Rect) => string;
 }
 
 // Helper type to remove the need to explicitly declare get / set methods
