@@ -466,7 +466,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       animationSource,
       (d) => {
         const firstCompactNode =
-          nodeCompactLayoutMetadata.firstCompactNode.get(d);
+          nodeCompactLayoutMetadata.firstCompactSibling.get(d);
 
         if (firstCompactNode) {
           return linkPointsCalc.getCompactSourcePoint(
