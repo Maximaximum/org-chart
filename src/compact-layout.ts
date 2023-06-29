@@ -102,20 +102,23 @@ export function calculateCompactFlexPositions<Datum>(
       if (!fch) {
         return;
       }
-      compactChildren.forEach((child, i, arr) => {
-        if (i == 0) {
+      compactChildren.forEach((child, i) => {
+        if (i === 0) {
           fch.x -= leafCompactDim.get(fch)!.width / 2;
-        }
-        if (i & ((i % 2) - 1)) {
-          child.x =
-            fch.x +
-            leafCompactDim.get(fch)!.width * 0.25 -
-            attrs.compactMarginPair(child) / 4;
-        } else if (i) {
-          child.x =
-            fch.x +
-            leafCompactDim.get(fch)!.width * 0.75 +
-            attrs.compactMarginPair(child) / 4;
+        } else {
+          if (i % 2) {
+            // if odd
+            child.x =
+              fch.x +
+              leafCompactDim.get(fch)!.width * 0.75 +
+              attrs.compactMarginPair(child) / 4;
+          } else {
+            // if even
+            child.x =
+              fch.x +
+              leafCompactDim.get(fch)!.width * 0.25 -
+              attrs.compactMarginPair(child) / 4;
+          }
         }
       });
       const centerX = fch.x + leafCompactDim.get(fch)!.width * 0.5;
