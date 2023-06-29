@@ -1,4 +1,4 @@
-import { HierarchyNode, LayoutBinding, Rect } from "./d3-org-chart.types";
+import { HierarchyNode, LayoutBinding, Rect } from './d3-org-chart.types';
 
 export class LinkPointsCalculator<Datum> {
   constructor(public layoutBinding: LayoutBinding<Datum>) {}

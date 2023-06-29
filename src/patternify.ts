@@ -1,5 +1,5 @@
-import { ValueFn } from "d3";
-import { BaseType, selection, Selection } from "d3-selection";
+import { ValueFn } from 'd3';
+import { BaseType, selection, Selection } from 'd3-selection';
 
 function patternify<
   TTagName extends keyof ElementTagNameMap,
@@ -54,9 +54,9 @@ function patternify<
 
   // Pattern in action
   const selection = container
-    .selectAll<ElementTagNameMap[TTagName], Datum | string>("." + className)
+    .selectAll<ElementTagNameMap[TTagName], Datum | string>('.' + className)
     .data(data as (Datum | string)[], (d, i) => {
-      if (typeof d === "object") {
+      if (typeof d === 'object') {
         if ((d as any).id) {
           return (d as any).id;
         }
@@ -65,7 +65,7 @@ function patternify<
     });
 
   return selection.join<ElementTagNameMap[TTagName], string | Datum>(
-    (enter) => enter.append(elementTag).attr("class", className),
+    (enter) => enter.append(elementTag).attr('class', className),
     (update) => update,
     (exit) => exit.remove()
   );
@@ -73,7 +73,7 @@ function patternify<
 
 selection.prototype.patternify = patternify;
 
-declare module "d3-selection" {
+declare module 'd3-selection' {
   interface Selection<
     GElement extends BaseType,
     Datum,
