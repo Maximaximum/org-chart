@@ -20,8 +20,8 @@ export function calculateCompactFlexDimensions<Datum>(
 ) {
   const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   const row = new WeakMap<HierarchyNode<Datum>, number>();
-  const flexCompactDim = new WeakMap<HierarchyNode<Datum>, Size>();
-  const firstCompactSibling = new WeakMap<
+  const leafNodeSize = new WeakMap<HierarchyNode<Datum>, Size>();
+  const firstLeafSibling = new WeakMap<
     HierarchyNode<Datum>,
     HierarchyNode<Datum>
   >();
@@ -58,9 +58,9 @@ export function calculateCompactFlexDimensions<Datum>(
       );
       const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
       leafChildren.forEach((leafChild, i) => {
-        firstCompactSibling.set(leafChild, leafChildren[0]);
+        firstLeafSibling.set(leafChild, leafChildren[0]);
 
-        flexCompactDim.set(
+        leafNodeSize.set(
           leafChild,
           i === 0
             ? {
@@ -70,15 +70,14 @@ export function calculateCompactFlexDimensions<Datum>(
             : { width: 0, height: 0 }
         );
       });
-      flexCompactDim.delete(node);
     }
   });
 
   return {
     compactEven,
     row,
-    flexCompactDim,
-    firstCompactSibling,
+    leafNodeSize,
+    firstLeafSibling,
   };
 }
 

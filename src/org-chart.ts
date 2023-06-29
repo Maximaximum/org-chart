@@ -382,7 +382,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         const node = n as HierarchyNode<Datum>;
 
         const size =
-          nodeCompactLayoutMetadata.flexCompactDim.get(node) ||
+          nodeCompactLayoutMetadata.leafNodeSize.get(node) ||
           this.getLayoutBinding().rectSizeWithMargins({
             width: attrs.nodeWidth(node),
             height: attrs.nodeHeight(node),
@@ -411,7 +411,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         attrs,
         this.getLayoutBinding().compactDimension,
         nodeCompactLayoutMetadata!.row,
-        nodeCompactLayoutMetadata!.flexCompactDim
+        nodeCompactLayoutMetadata!.leafNodeSize
       );
     }
 
@@ -450,12 +450,12 @@ export class OrgChart<Datum extends ConcreteDatum>
     const compactNodeRects = new Map<HierarchyNode<Datum>, Rect>();
 
     for (let d of links) {
-      if (nodeCompactLayoutMetadata!.flexCompactDim.has(d)) {
+      if (nodeCompactLayoutMetadata!.leafNodeSize.has(d)) {
         compactNodeRects.set(d, {
           x: d.x,
           y: d.y,
-          width: nodeCompactLayoutMetadata!.flexCompactDim.get(d)!.width,
-          height: nodeCompactLayoutMetadata!.flexCompactDim.get(d)!.height,
+          width: nodeCompactLayoutMetadata!.leafNodeSize.get(d)!.width,
+          height: nodeCompactLayoutMetadata!.leafNodeSize.get(d)!.height,
         });
       }
     }
@@ -466,12 +466,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       links,
       animationSource,
       (d) => {
-        const firstCompactNode =
-          nodeCompactLayoutMetadata.firstCompactSibling.get(d);
+        const firstLeafSibling =
+          nodeCompactLayoutMetadata.firstLeafSibling.get(d);
 
-        if (firstCompactNode) {
+        if (firstLeafSibling) {
           return linkPointsCalc.getCompactSourcePoint(
-            compactNodeRects.get(firstCompactNode!)!,
+            compactNodeRects.get(firstLeafSibling!)!,
             attrs.compactMarginPair(d)
           );
         } else {
@@ -480,7 +480,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       },
       (d) => linkPointsCalc.getTargetPoint(d.parent!),
       (d) => {
-        const isNodeCompact = nodeCompactLayoutMetadata.flexCompactDim.has(d);
+        const isNodeCompact = nodeCompactLayoutMetadata.leafNodeSize.has(d);
 
         if (!isNodeCompact) {
           return undefined;

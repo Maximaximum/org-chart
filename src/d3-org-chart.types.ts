@@ -148,8 +148,8 @@ export type Layout = 'left' | 'bottom' | 'right' | 'top';
 export interface NodeCompactLayoutMetadata<Datum> {
   compactEven: WeakMap<HierarchyNode<Datum>, boolean>;
   row: WeakMap<HierarchyNode<Datum>, number>;
-  flexCompactDim: WeakMap<HierarchyNode<Datum>, Size>;
-  firstCompactSibling: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
+  leafNodeSize: WeakMap<HierarchyNode<Datum>, Size>;
+  firstLeafSibling: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
 }
 
 export interface LayoutBinding<Datum> {
