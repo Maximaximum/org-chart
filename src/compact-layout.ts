@@ -91,34 +91,37 @@ export function calculateCompactFlexPositions<Datum>(
     sizeRow: (node: HierarchyNode<Datum>) => number;
   },
   row: WeakMap<HierarchyNode<Datum>, number>,
-  flexCompactDim: WeakMap<HierarchyNode<Datum>, Size>
+  leafCompactDim: WeakMap<HierarchyNode<Datum>, Size>
 ) {
   root.eachBefore((node) => {
     if (node.children) {
       const compactChildren = node.children.filter((d) =>
-        flexCompactDim.has(d)
+        leafCompactDim.has(d)
       );
       const fch = compactChildren[0];
       if (!fch) {
         return;
       }
       compactChildren.forEach((child, i, arr) => {
-        if (i == 0) fch.x -= flexCompactDim.get(fch)!.width / 2;
-        if (i & ((i % 2) - 1))
+        if (i == 0) {
+          fch.x -= leafCompactDim.get(fch)!.width / 2;
+        }
+        if (i & ((i % 2) - 1)) {
           child.x =
             fch.x +
-            flexCompactDim.get(fch)!.width * 0.25 -
+            leafCompactDim.get(fch)!.width * 0.25 -
             attrs.compactMarginPair(child) / 4;
-        else if (i)
+        } else if (i) {
           child.x =
             fch.x +
-            flexCompactDim.get(fch)!.width * 0.75 +
+            leafCompactDim.get(fch)!.width * 0.75 +
             attrs.compactMarginPair(child) / 4;
+        }
       });
-      const centerX = fch.x + flexCompactDim.get(fch)!.width * 0.5;
+      const centerX = fch.x + leafCompactDim.get(fch)!.width * 0.5;
       fch.x =
         fch.x +
-        flexCompactDim.get(fch)!.width * 0.25 -
+        leafCompactDim.get(fch)!.width * 0.25 -
         attrs.compactMarginPair(fch) / 4;
       const offsetX = node.x - centerX;
       if (Math.abs(offsetX) < 10) {
