@@ -122,8 +122,7 @@ export function calculateCompactFlexPositions<Datum>(
         }
       });
       const centerX = fch.x + leafCompactDim.get(fch)!.width * 0.5;
-      fch.x =
-        fch.x +
+      fch.x +=
         leafCompactDim.get(fch)!.width * 0.25 -
         attrs.compactMarginPair(fch) / 4;
       const offsetX = node.x - centerX;
