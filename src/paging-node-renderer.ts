@@ -1,15 +1,15 @@
-import "./patternify";
+import './patternify';
 
-import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
-import { Selection } from "d3";
-import { OrgChart } from "./org-chart";
+import { HierarchyNode, State, ConcreteDatum } from './d3-org-chart.types';
+import { Selection } from 'd3';
+import { OrgChart } from './org-chart';
 
 /**
  * Number of nodes to show within a node's children "page"
  */
 const pageSize = 5;
 
-export const pagingNodeSelector = ".paging-node-foreign-object";
+export const pagingNodeSelector = '.paging-node-foreign-object';
 
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   // TODO: Make private?
@@ -83,32 +83,32 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       .join(
         (enter) =>
           enter
-            .append("foreignObject")
-            .attr("class", "paging-node-foreign-object"),
+            .append('foreignObject')
+            .attr('class', 'paging-node-foreign-object'),
         (update) => update,
         (exit) => exit.remove()
       )
-      .style("overflow", "visible")
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", 0)
-      .attr("y", 0)
+      .style('overflow', 'visible')
+      .attr('width', ({ width }) => width)
+      .attr('height', ({ height }) => height)
+      .attr('x', 0)
+      .attr('y', 0)
 
       .patternify({
-        tag: "xhtml:div" as "div",
-        className: "paging-node-foreign-object-div",
+        tag: 'xhtml:div' as 'div',
+        className: 'paging-node-foreign-object-div',
         data: (d) => [d],
       })
-      .style("width", ({ width }) => `${width}px`)
-      .style("height", ({ height }) => `${height}px`)
+      .style('width', ({ width }) => `${width}px`)
+      .style('height', ({ height }) => `${height}px`)
 
       .patternify({
-        tag: "div",
-        className: "paging-button-wrapper",
+        tag: 'div',
+        className: 'paging-button-wrapper',
         data: (d) => [d],
       })
-      .style("cursor", "pointer")
-      .on("click", (e, d) => {
+      .style('cursor', 'pointer')
+      .on('click', (e, d) => {
         that.loadNextPageOfNodes(d);
       })
       .html((d, i, arr) => {

@@ -1,4 +1,4 @@
-const ctx = document.createElement("canvas").getContext("2d")!;
+const ctx = document.createElement('canvas').getContext('2d')!;
 
 /** Calculate what size text will take */
 export function getTextWidth(
@@ -13,7 +13,7 @@ export function getTextWidth(
     font: string;
   }
 ) {
-  ctx.font = `${fontWeight || ""} ${fontSize}px ${font} `;
+  ctx.font = `${fontWeight || ''} ${fontSize}px ${font} `;
   const measurement = ctx.measureText(text);
   return measurement.width;
 }

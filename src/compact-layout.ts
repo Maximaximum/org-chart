@@ -1,7 +1,7 @@
-import { max, min, sum, cumsum } from "d3-array";
+import { max, min, sum, cumsum } from 'd3-array';
 
-import { groupBy } from "./group-by";
-import { HierarchyNode, State } from "./d3-org-chart.types";
+import { groupBy } from './group-by';
+import { HierarchyNode, State } from './d3-org-chart.types';
 
 const d3 = {
   max,
@@ -12,7 +12,7 @@ const d3 = {
 
 export function calculateCompactFlexDimensions<Datum>(
   root: HierarchyNode<Datum>,
-  attrs: Pick<State<Datum>, "compactMarginBetween" | "compactMarginPair">,
+  attrs: Pick<State<Datum>, 'compactMarginBetween' | 'compactMarginPair'>,
   compactDimension: {
     sizeColumn: (node: HierarchyNode<Datum>) => number;
     sizeRow: (node: HierarchyNode<Datum>) => number;
@@ -54,7 +54,7 @@ export function calculateCompactFlexDimensions<Datum>(
         Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
       const rowsMapNew = groupBy(
         leafChildren,
-        (d) => row.get(d) + "",
+        (d) => row.get(d) + '',
         (reducedGroup) =>
           d3.max(
             reducedGroup,
@@ -87,7 +87,7 @@ export function calculateCompactFlexDimensions<Datum>(
  */
 export function calculateCompactFlexPositions<Datum>(
   root: HierarchyNode<Datum>,
-  attrs: Pick<State<Datum>, "compactMarginPair" | "compactMarginBetween">,
+  attrs: Pick<State<Datum>, 'compactMarginPair' | 'compactMarginBetween'>,
   compactDimension: {
     sizeRow: (node: HierarchyNode<Datum>) => number;
   },
@@ -128,7 +128,7 @@ export function calculateCompactFlexPositions<Datum>(
 
       const rowsMapNew = groupBy(
         compactChildren,
-        (d) => row.get(d) + "",
+        (d) => row.get(d) + '',
         (reducedGroup) =>
           d3.max(reducedGroup, (d) => compactDimension.sizeRow(d))!
       );

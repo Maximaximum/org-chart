@@ -1,25 +1,25 @@
-import "./patternify";
+import './patternify';
 
-import { BaseType, Selection } from "d3-selection";
+import { BaseType, Selection } from 'd3-selection';
 
-import { HierarchyNode, State, ConcreteDatum } from "./d3-org-chart.types";
-import { nodeBackground } from "./default-colors";
-import { OrgChart } from "./org-chart";
-import { Layout } from "./d3-org-chart.types";
-import { linkColor } from "./default-colors";
+import { HierarchyNode, State, ConcreteDatum } from './d3-org-chart.types';
+import { nodeBackground } from './default-colors';
+import { OrgChart } from './org-chart';
+import { Layout } from './d3-org-chart.types';
+import { linkColor } from './default-colors';
 import {
   getOppositeDirection,
   isLayoutVertical,
-} from "./default-layout-bindings";
-import { arrowPaths } from "./arrow-paths";
+} from './default-layout-bindings';
+import { arrowPaths } from './arrow-paths';
 
-export const defaultNodeSelector = ".default-node-wrapper";
+export const defaultNodeSelector = '.default-node-wrapper';
 
 function numChildrenSpan(
   totalChildrenNumber: number | undefined,
   addMargin: boolean
 ) {
-  const margin = addMargin ? "margin-left:1px;" : "";
+  const margin = addMargin ? 'margin-left:1px;' : '';
   return `<span style="${margin}color:#716E7B">${totalChildrenNumber} </span>`;
 }
 
@@ -60,7 +60,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     const attrs = this.chart.getChartState();
 
     const containerSelection = containers.join(
-      (enter) => enter.append("g").attr("class", "default-node-wrapper"),
+      (enter) => enter.append('g').attr('class', 'default-node-wrapper'),
       (update) => update,
       (exit) => exit.remove()
     );
@@ -68,25 +68,25 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
     // Add foreignObject element inside rectangle
     containerSelection
       .patternify({
-        tag: "foreignObject",
-        className: "node-foreign-object",
+        tag: 'foreignObject',
+        className: 'node-foreign-object',
         data: (d) => [d],
       })
-      .style("overflow", "visible")
-      .style("background", nodeBackground)
-      .style("border-radius", "3px")
-      .attr("width", ({ width }) => width)
-      .attr("height", ({ height }) => height)
-      .attr("x", 0)
-      .attr("y", 0)
+      .style('overflow', 'visible')
+      .style('background', nodeBackground)
+      .style('border-radius', '3px')
+      .attr('width', ({ width }) => width)
+      .attr('height', ({ height }) => height)
+      .attr('x', 0)
+      .attr('y', 0)
 
       .patternify({
-        tag: "xhtml:div" as "div",
-        className: "node-foreign-object-div",
+        tag: 'xhtml:div' as 'div',
+        className: 'node-foreign-object-div',
         data: (d) => [d],
       })
-      .style("width", "100%")
-      .style("height", "100%")
+      .style('width', '100%')
+      .style('height', '100%')
       .html(function (d, i, arr) {
         return `<div style="padding:5px;font-size:10px;">Sample Node(id=${d.id}), override using <br/>
           <code>chart.nodeContent({data}=>{ <br/>
@@ -98,7 +98,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       });
 
     containerSelection
-      .selectAll<SVGGElement, HierarchyNode<Datum>>(".node-button-g")
+      .selectAll<SVGGElement, HierarchyNode<Datum>>('.node-button-g')
       .data(
         (d) => (d.children || d._children ? [d] : []),
         (n) => attrs.nodeId(n.data)
@@ -129,12 +129,12 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
 
     nodeContainer
       .join(
-        (enter) => enter.append("g").attr("class", "node-button-g"),
+        (enter) => enter.append('g').attr('class', 'node-button-g'),
         (update) => update,
         (exit) => exit.remove()
       )
-      .style("cursor", "pointer")
-      .on("click", (event: PointerEvent, d) => {
+      .style('cursor', 'pointer')
+      .on('click', (event: PointerEvent, d) => {
         this.chart.toggleExpandNode(d);
 
         if (attrs.setActiveNodeCentered) {
@@ -144,31 +144,31 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         // Redraw Graph
         this.chart.update(d);
       })
-      .attr("transform", (node) => {
+      .attr('transform', (node) => {
         const x = this.chart.getLayoutBinding().buttonX(node);
         const y = this.chart.getLayoutBinding().buttonY(node);
         return `translate(${x},${y})`;
       })
 
       .patternify({
-        tag: "foreignObject",
-        className: "node-button-foreign-object",
+        tag: 'foreignObject',
+        className: 'node-button-foreign-object',
         data: (d) => [d],
       })
-      .attr("width", (d) => nodeButtonWidth)
-      .attr("height", (d) => nodeButtonHeight)
-      .attr("x", (d) => nodeButtonX)
-      .attr("y", (d) => nodeButtonY)
-      .style("overflow", "visible")
+      .attr('width', (d) => nodeButtonWidth)
+      .attr('height', (d) => nodeButtonHeight)
+      .attr('x', (d) => nodeButtonX)
+      .attr('y', (d) => nodeButtonY)
+      .style('overflow', 'visible')
 
       .patternify({
-        tag: "xhtml:div" as "div",
-        className: "node-button-div",
+        tag: 'xhtml:div' as 'div',
+        className: 'node-button-div',
         data: (d) => [d],
       })
-      .style("display", "flex")
-      .style("width", "100%")
-      .style("height", "100%")
+      .style('display', 'flex')
+      .style('width', '100%')
+      .style('height', '100%')
       .html((node) => {
         return buttonContent(
           attrs.nodeGetIsExpanded(node.data),

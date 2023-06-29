@@ -1,4 +1,4 @@
-import { Point } from "./d3-org-chart.types";
+import { Point } from './d3-org-chart.types';
 
 /** Curve radius */
 const rdef = 35;

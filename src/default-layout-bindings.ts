@@ -1,22 +1,22 @@
-import { Layout, LayoutBinding, Point } from "./d3-org-chart.types";
-import { vdiagonal, hdiagonal } from "./diagonals";
+import { Layout, LayoutBinding, Point } from './d3-org-chart.types';
+import { vdiagonal, hdiagonal } from './diagonals';
 
 type Datum = any;
 
 export function isLayoutVertical(layout: Layout) {
-  return layout === "bottom" || layout === "top";
+  return layout === 'bottom' || layout === 'top';
 }
 
 export function getOppositeDirection(layout: Layout): Layout {
   switch (layout) {
-    case "top":
-      return "bottom";
-    case "bottom":
-      return "top";
-    case "left":
-      return "right";
-    case "right":
-      return "left";
+    case 'top':
+      return 'bottom';
+    case 'bottom':
+      return 'top';
+    case 'left':
+      return 'right';
+    case 'right':
+      return 'left';
   }
 }
 

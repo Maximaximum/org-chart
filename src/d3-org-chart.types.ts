@@ -1,7 +1,7 @@
-import { Selection, ValueFn } from "d3-selection";
-import { D3ZoomEvent } from "d3-zoom";
-import { Link, DefaultLinkObject } from "d3-shape";
-import { HierarchyNode as D3HierarchyNode } from "d3-hierarchy";
+import { Selection, ValueFn } from 'd3-selection';
+import { D3ZoomEvent } from 'd3-zoom';
+import { Link, DefaultLinkObject } from 'd3-shape';
+import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
 
 export type NodeId = string;
 
@@ -136,7 +136,7 @@ export interface State<Datum> {
   onZoomEnd: (event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) => void;
 }
 
-export type Layout = "left" | "bottom" | "right" | "top";
+export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
 export interface Rect {
   x: number;
