@@ -447,19 +447,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
 
-    const compactNodeRects = new Map<HierarchyNode<Datum>, Rect>();
-
-    for (let d of links) {
-      if (nodeCompactLayoutMetadata!.leafNodeSize.has(d)) {
-        compactNodeRects.set(d, {
-          x: d.x,
-          y: d.y,
-          width: nodeCompactLayoutMetadata!.leafNodeSize.get(d)!.width,
-          height: nodeCompactLayoutMetadata!.leafNodeSize.get(d)!.height,
-        });
-      }
-    }
-
     const linkPointsCalc = new LinkPointsCalculator(this.getLayoutBinding());
     this.elements.linksWrapper.call(
       this.drawLinks,
@@ -471,7 +458,16 @@ export class OrgChart<Datum extends ConcreteDatum>
 
         if (firstLeafSibling) {
           return linkPointsCalc.getCompactSourcePoint(
-            compactNodeRects.get(firstLeafSibling!)!,
+            {
+              x: firstLeafSibling.x,
+              y: firstLeafSibling.y,
+              width:
+                nodeCompactLayoutMetadata.leafNodeSize.get(firstLeafSibling)!
+                  .width,
+              height:
+                nodeCompactLayoutMetadata.leafNodeSize.get(firstLeafSibling)!
+                  .height,
+            },
             attrs.compactMarginPair(d)
           );
         } else {
