@@ -62,7 +62,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       siblingsMargin,
       childrenMargin,
     }) => {
-      return [height + siblingsMargin, width + childrenMargin];
+      return { width: height + siblingsMargin, height: width + childrenMargin };
     },
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
@@ -107,7 +107,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       siblingsMargin,
       childrenMargin,
     }) => {
-      return [width + siblingsMargin, height + childrenMargin];
+      return { width: width + siblingsMargin, height: height + childrenMargin };
     },
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
@@ -148,7 +148,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       siblingsMargin,
       childrenMargin,
     }) => {
-      return [width + siblingsMargin, height + childrenMargin];
+      return { width: width + siblingsMargin, height: height + childrenMargin };
     },
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
@@ -187,7 +187,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       siblingsMargin,
       childrenMargin,
     }) => {
-      return [height + siblingsMargin, width + childrenMargin];
+      return { width: height + siblingsMargin, height: width + childrenMargin };
     },
     compactDimension: {
       sizeColumn: (node) => node.height,

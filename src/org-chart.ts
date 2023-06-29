@@ -381,15 +381,16 @@ export class OrgChart<Datum extends ConcreteDatum>
       nodeSize: (n) => {
         const node = n as HierarchyNode<Datum>;
 
-        return (
+        const size =
           nodeCompactLayoutMetadata.flexCompactDim.get(node) ||
           this.getLayoutBinding().rectSizeWithMargins({
             width: attrs.nodeWidth(node),
             height: attrs.nodeHeight(node),
             siblingsMargin: attrs.siblingsMargin(node),
             childrenMargin: attrs.childrenMargin(node),
-          })
-        );
+          });
+
+        return [size.width, size.height];
       },
       spacing: (nodeA, nodeB) =>
         nodeA.parent == nodeB.parent
@@ -453,8 +454,8 @@ export class OrgChart<Datum extends ConcreteDatum>
         compactNodeRects.set(d, {
           x: d.x,
           y: d.y,
-          width: nodeCompactLayoutMetadata!.flexCompactDim.get(d)![0],
-          height: nodeCompactLayoutMetadata!.flexCompactDim.get(d)![1],
+          width: nodeCompactLayoutMetadata!.flexCompactDim.get(d)!.width,
+          height: nodeCompactLayoutMetadata!.flexCompactDim.get(d)!.height,
         });
       }
     }

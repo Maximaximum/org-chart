@@ -18,6 +18,13 @@ export interface Point {
   y: number;
 }
 
+export interface Size {
+  width: number;
+  height: number;
+}
+
+export type Rect = Point & Size;
+
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   _children: this[] | undefined;
   width: number;
@@ -138,17 +145,10 @@ export interface State<Datum> {
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
-export interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export interface NodeCompactLayoutMetadata<Datum> {
   compactEven: WeakMap<HierarchyNode<Datum>, boolean>;
   row: WeakMap<HierarchyNode<Datum>, number>;
-  flexCompactDim: WeakMap<HierarchyNode<Datum>, [number, number]>;
+  flexCompactDim: WeakMap<HierarchyNode<Datum>, Size>;
   firstCompactSibling: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
 }
 
@@ -189,7 +189,7 @@ export interface LayoutBinding<Datum> {
     width: number;
     siblingsMargin: number;
     childrenMargin: number;
-  }) => [number, number];
+  }) => Size;
   zoomTransform: (params: {
     centerY: number;
     centerX: number;
