@@ -18,7 +18,6 @@ export function calculateCompactFlexDimensions<Datum>(
     sizeRow: (node: HierarchyNode<Datum>) => number;
   }
 ) {
-  const firstCompact = new WeakSet<HierarchyNode<Datum>>();
   const compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   const row = new WeakMap<HierarchyNode<Datum>, number>();
   const flexCompactDim = new WeakMap<HierarchyNode<Datum>, Size>();
@@ -35,10 +34,6 @@ export function calculateCompactFlexDimensions<Datum>(
         return;
       }
       leafChildren.forEach((child, i) => {
-        if (!i) {
-          firstCompact.add(child);
-        }
-
         compactEven.set(child, i % 2 === 0);
         row.set(child, Math.floor(i / 2));
       });
@@ -62,12 +57,12 @@ export function calculateCompactFlexDimensions<Datum>(
           )
       );
       const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
-      leafChildren.forEach((leafChild) => {
+      leafChildren.forEach((leafChild, i) => {
         firstCompactSibling.set(leafChild, leafChildren[0]);
 
         flexCompactDim.set(
           leafChild,
-          firstCompact.has(leafChild)
+          i === 0
             ? {
                 width: columnSize + attrs.compactMarginPair(leafChild),
                 height: rowSize - attrs.compactMarginBetween(),
