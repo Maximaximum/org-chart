@@ -8,8 +8,7 @@ import {
   State,
 } from './d3-org-chart.types';
 import { CompactLinkPointsCalculator } from './compact-link-points-calculator';
-import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
-import { FlextreeNode, flextree } from 'd3-flextree';
+import { NormalLayout } from './normal-layout';
 
 const d3 = {
   max,
@@ -18,7 +17,7 @@ const d3 = {
   cumsum,
 };
 
-export class CompactLayout<Datum> {
+export class CompactLayout<Datum> extends NormalLayout<Datum> {
   private compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   private row = new WeakMap<HierarchyNode<Datum>, number>();
   private leafNodeSize = new WeakMap<HierarchyNode<Datum>, Size>();
@@ -27,13 +26,10 @@ export class CompactLayout<Datum> {
     HierarchyNode<Datum>
   >();
 
-  private normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
   private compactLinks = new CompactLinkPointsCalculator(this.layoutBinding);
 
-  treeData: FlextreeNode<Datum>;
-
   constructor(
-    private layoutBinding: Pick<
+    protected override layoutBinding: Pick<
       LayoutBinding<Datum>,
       | 'rectSizeWithMargins'
       | 'compactDimension'
@@ -46,7 +42,7 @@ export class CompactLayout<Datum> {
       | 'linkTargetX'
       | 'linkTargetY'
     >,
-    private attrs: Pick<
+    protected override attrs: Pick<
       State<Datum>,
       | 'compactMarginBetween'
       | 'compactMarginPair'
@@ -56,20 +52,20 @@ export class CompactLayout<Datum> {
       | 'childrenMargin'
       | 'neighbourMargin'
     >,
-    private root: HierarchyNode<Datum>
+    root: HierarchyNode<Datum>
   ) {
+    super(layoutBinding, attrs, root);
     this.performInitialCalculations();
+  }
 
-    const flexTreeLayout = this.createFlexTreeLayout();
-
-    //  Assigns the x and y position for the nodes
-    this.treeData = flexTreeLayout(this.root!);
+  override init() {
+    super.init();
 
     // Reassigns the x and y position for the based on the compact layout
     this.calculateCompactFlexPositions();
   }
 
-  getNodeSize(node: HierarchyNode<Datum>) {
+  override getNodeSize(node: HierarchyNode<Datum>) {
     return (
       this.leafNodeSize.get(node) ||
       this.layoutBinding.rectSizeWithMargins({
@@ -195,7 +191,7 @@ export class CompactLayout<Datum> {
     });
   }
 
-  getLinkSourcePoint(d: HierarchyNode<Datum>) {
+  override getLinkSourcePoint(d: HierarchyNode<Datum>) {
     const firstLeafSibling = this.firstLeafSibling.get(d);
 
     if (firstLeafSibling) {
@@ -213,11 +209,7 @@ export class CompactLayout<Datum> {
     }
   }
 
-  getLinkTargetPoint(d: HierarchyNode<Datum>) {
-    return this.normalLinks.getTargetPoint(d);
-  }
-
-  getLinkMiddlePoint(d: HierarchyNode<Datum>) {
+  override getLinkMiddlePoint(d: HierarchyNode<Datum>) {
     const isNodeCompact = this.leafNodeSize.has(d);
 
     if (!isNodeCompact) {
@@ -228,22 +220,5 @@ export class CompactLayout<Datum> {
         !!this.compactEven.get(d)
       );
     }
-  }
-
-  protected createFlexTreeLayout() {
-    return flextree<Datum>({
-      nodeSize: (n) => {
-        const node = n as HierarchyNode<Datum>;
-        const { width, height } = this.getNodeSize(node);
-        return [width, height];
-      },
-      spacing: (nodeA, nodeB) =>
-        nodeA.parent == nodeB.parent
-          ? 0
-          : this.attrs.neighbourMargin(
-              nodeA as HierarchyNode<Datum>,
-              nodeB as HierarchyNode<Datum>
-            ),
-    });
   }
 }

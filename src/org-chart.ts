@@ -380,6 +380,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     const layout = this.layoutFactory();
+    layout.init();
 
     const treeData = layout.treeData;
 

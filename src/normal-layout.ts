@@ -1,18 +1,23 @@
 import { FlextreeNode, flextree } from 'd3-flextree';
-import { HierarchyNode, LayoutBinding, State } from './d3-org-chart.types';
+import {
+  HierarchyNode,
+  LayoutBinding,
+  Point,
+  State,
+} from './d3-org-chart.types';
 import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 
 export class NormalLayout<Datum> {
-  private normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
+  protected normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
 
-  treeData: FlextreeNode<Datum>;
+  treeData!: FlextreeNode<Datum>;
 
   constructor(
-    private layoutBinding: Pick<
+    protected layoutBinding: Pick<
       LayoutBinding<Datum>,
       'rectSizeWithMargins' | 'linkX' | 'linkY' | 'linkTargetX' | 'linkTargetY'
     >,
-    private attrs: Pick<
+    protected attrs: Pick<
       State<Datum>,
       | 'nodeWidth'
       | 'nodeHeight'
@@ -20,8 +25,10 @@ export class NormalLayout<Datum> {
       | 'childrenMargin'
       | 'neighbourMargin'
     >,
-    private root: HierarchyNode<Datum>
-  ) {
+    protected root: HierarchyNode<Datum>
+  ) {}
+
+  init() {
     const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
@@ -45,7 +52,7 @@ export class NormalLayout<Datum> {
     return this.normalLinks.getTargetPoint(d);
   }
 
-  getLinkMiddlePoint(d: HierarchyNode<Datum>) {
+  getLinkMiddlePoint(d: HierarchyNode<Datum>): Point | undefined {
     return undefined;
   }
 
