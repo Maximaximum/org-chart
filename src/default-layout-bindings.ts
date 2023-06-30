@@ -72,8 +72,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       d.x = d.y;
       d.y = x;
     }) as any,
-    nodeUpdateTransform: ({ x, y, width, height }) =>
-      `translate(${x},${y - height / 2})`,
+    nodePosition: ({ x, y, width, height }) => ({
+      x,
+      y: y - height / 2,
+    }),
   },
   top: {
     nodeLeftX: (node) => -node.width / 2,
@@ -113,8 +115,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       `translate(${centerX},0}) scale(${scale})`,
     diagonal: vdiagonal,
     swap: ((d: Point) => {}) as any,
-    nodeUpdateTransform: ({ x, y, width, height }) =>
-      `translate(${x - width / 2},${y})`,
+    nodePosition: ({ x, y, width, height }) => ({ x: x - width / 2, y }),
   },
   bottom: {
     nodeLeftX: (node) => -node.width / 2,
@@ -156,8 +157,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
     swap: ((d: Point) => {
       d.y = -d.y;
     }) as any,
-    nodeUpdateTransform: ({ x, y, width, height }) =>
-      `translate(${x - width / 2},${y - height})`,
+    nodePosition: ({ x, y, width, height }) => ({
+      x: x - width / 2,
+      y: y - height,
+    }),
   },
   right: {
     nodeLeftX: (node) => -node.width,
@@ -201,7 +204,9 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
       d.x = -d.y;
       d.y = x;
     }) as any,
-    nodeUpdateTransform: ({ x, y, width, height }) =>
-      `translate(${x - width},${y - height / 2})`,
+    nodePosition: ({ x, y, width, height }) => ({
+      x: x - width,
+      y: y - height / 2,
+    }),
   },
 };
