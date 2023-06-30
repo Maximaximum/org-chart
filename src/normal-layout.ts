@@ -3,13 +3,11 @@ import {
   HierarchyNode,
   LayoutBinding,
   Point,
+  Rect,
   State,
 } from './d3-org-chart.types';
-import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 
 export class NormalLayout<Datum> {
-  protected normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
-
   constructor(
     protected layoutBinding: Pick<
       LayoutBinding<Datum>,
@@ -43,11 +41,17 @@ export class NormalLayout<Datum> {
   }
 
   getLinkSourcePoint(d: HierarchyNode<Datum>) {
-    return this.normalLinks.getNormalSourcePoint(d);
+    return {
+      x: this.layoutBinding.linkX(this.getNodeRect(d)),
+      y: this.layoutBinding.linkY(this.getNodeRect(d)),
+    };
   }
 
   getLinkTargetPoint(d: HierarchyNode<Datum>) {
-    return this.normalLinks.getTargetPoint(d);
+    return {
+      x: this.layoutBinding.linkTargetX(this.getNodeRect(d)),
+      y: this.layoutBinding.linkTargetY(this.getNodeRect(d)),
+    };
   }
 
   getLinkMiddlePoint(d: HierarchyNode<Datum>): Point | undefined {
@@ -69,5 +73,15 @@ export class NormalLayout<Datum> {
               nodeB as HierarchyNode<Datum>
             ),
     });
+  }
+
+  // TODO Should be merged with OrgChart.getNodeRect()
+  protected getNodeRect(d: HierarchyNode<Datum>) {
+    return {
+      x: d.x,
+      y: d.y,
+      height: this.attrs.nodeHeight(d),
+      width: this.attrs.nodeWidth(d),
+    } as Rect;
   }
 }

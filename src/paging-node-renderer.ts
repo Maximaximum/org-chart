@@ -89,8 +89,8 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
         (exit) => exit.remove()
       )
       .style('overflow', 'visible')
-      .attr('width', ({ width }) => width)
-      .attr('height', ({ height }) => height)
+      .attr('width', (d) => attrs.nodeWidth(d))
+      .attr('height', (d) => attrs.nodeHeight(d))
       .attr('x', 0)
       .attr('y', 0)
 
@@ -99,8 +99,8 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
         className: 'paging-node-foreign-object-div',
         data: (d) => [d],
       })
-      .style('width', ({ width }) => `${width}px`)
-      .style('height', ({ height }) => `${height}px`)
+      .style('width', (d) => `${attrs.nodeWidth(d)}px`)
+      .style('height', (d) => `${attrs.nodeHeight(d)}px`)
 
       .patternify({
         tag: 'div',
@@ -127,7 +127,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     );
 
     this.chart.setLayouts();
-    this.chart.update(this.chart.root!);
+    this.chart.update(this.chart.getNodeRect(this.chart.root!));
   }
 
   getNextPageAmount = (

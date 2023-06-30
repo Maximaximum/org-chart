@@ -27,7 +27,6 @@ export type Rect = Point & Size;
 
 export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
   _children: this[] | undefined;
-  width: number;
   x: number;
   y: number;
 }
@@ -174,8 +173,8 @@ export interface LayoutBinding<Datum> {
     chartHeight: number;
   }) => string;
   compactDimension: {
-    sizeColumn: (node: HierarchyNode<Datum>) => number;
-    sizeRow: (node: HierarchyNode<Datum>) => number;
+    sizeColumn: (node: Rect) => number;
+    sizeRow: (node: Rect) => number;
   };
   rectSizeWithMargins: (params: {
     height: number;

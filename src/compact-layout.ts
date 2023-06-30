@@ -7,7 +7,6 @@ import {
   Size,
   State,
 } from './d3-org-chart.types';
-import { CompactLinkPointsCalculator } from './compact-link-points-calculator';
 import { NormalLayout } from './normal-layout';
 
 const d3 = {
@@ -25,8 +24,6 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     HierarchyNode<Datum>,
     HierarchyNode<Datum>
   >();
-
-  private compactLinks = new CompactLinkPointsCalculator(this.layoutBinding);
 
   constructor(
     protected override layoutBinding: Pick<
@@ -92,11 +89,15 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           this.row.set(child, Math.floor(i / 2));
         });
         const evenMaxColumnDimension = d3.max(
-          leafChildren.filter((d) => !!this.compactEven.get(d)),
+          leafChildren
+            .filter((d) => !!this.compactEven.get(d))
+            .map((d) => this.getNodeRect(d)),
           this.layoutBinding.compactDimension.sizeColumn
         )!;
         const oddMaxColumnDimension = d3.max(
-          leafChildren.filter((d) => !this.compactEven.get(d)),
+          leafChildren
+            .filter((d) => !this.compactEven.get(d))
+            .map((d) => this.getNodeRect(d)),
           this.layoutBinding.compactDimension.sizeColumn
         )!;
         const columnSize =
@@ -108,8 +109,9 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
             d3.max(
               reducedGroup,
               (d) =>
-                this.layoutBinding.compactDimension.sizeRow(d) +
-                this.attrs.compactMarginBetween()
+                this.layoutBinding.compactDimension.sizeRow(
+                  this.getNodeRect(d)
+                ) + this.attrs.compactMarginBetween()
             )
         );
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
@@ -176,7 +178,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           (d) => this.row.get(d) + '',
           (reducedGroup) =>
             d3.max(reducedGroup, (d) =>
-              this.layoutBinding.compactDimension.sizeRow(d)
+              this.layoutBinding.compactDimension.sizeRow(this.getNodeRect(d))
             )!
         );
         const cumSum = d3.cumsum(
@@ -197,17 +199,20 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     const firstLeafSibling = this.firstLeafSibling.get(d);
 
     if (firstLeafSibling) {
-      return this.compactLinks.getCompactSourcePoint(
-        {
-          x: firstLeafSibling.x,
-          y: firstLeafSibling.y,
-          width: this.leafNodeSize.get(firstLeafSibling)!.width,
-          height: this.leafNodeSize.get(firstLeafSibling)!.height,
-        },
-        this.attrs.compactMarginPair(d)
-      );
+      const rect = {
+        x: firstLeafSibling.x,
+        y: firstLeafSibling.y,
+        width: this.leafNodeSize.get(firstLeafSibling)!.width,
+        height: this.leafNodeSize.get(firstLeafSibling)!.height,
+      };
+      const margin = this.attrs.compactMarginPair(d);
+
+      return {
+        x: this.layoutBinding.compactLinkMidX(rect, margin),
+        y: this.layoutBinding.compactLinkMidY(rect, margin),
+      };
     } else {
-      return this.normalLinks.getNormalSourcePoint(d);
+      return super.getLinkSourcePoint(d);
     }
   }
 
@@ -217,10 +222,18 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     if (!isNodeCompact) {
       return undefined;
     } else {
-      return this.compactLinks.getCompactMiddlePoint(
-        d,
-        !!this.compactEven.get(d)
-      );
+      const compactEven = !!this.compactEven.get(d);
+
+      return {
+        x: this.layoutBinding.linkCompactXStart(
+          this.getNodeRect(d),
+          compactEven
+        ),
+        y: this.layoutBinding.linkCompactYStart(
+          this.getNodeRect(d),
+          compactEven
+        ),
+      };
     }
   }
 }

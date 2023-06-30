@@ -216,7 +216,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
 
       // Redraw Graph
-      this.update(d);
+      this.update(this.getNodeRect(d));
     });
   }
 
@@ -287,7 +287,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Display tree contents
-    this.update(this.root!);
+    this.update(this.getNodeRect(this.root!));
 
     //#########################################  UTIL FUNCS ##################################
     // This function restyles foreign object elements ()
@@ -334,7 +334,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data!.push(obj);
 
     this.setLayouts();
-    this.update(this.root!);
+    this.update(this.getNodeRect(this.root!));
 
     return this;
   }
@@ -360,7 +360,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
     this.setLayouts();
-    this.update(this.root!);
+    this.update(this.getNodeRect(this.root!));
 
     return this;
   }
@@ -485,12 +485,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       )
     ) as any;
 
-    this.root!.each((node, i, arr) => {
-      let width = attrs.nodeWidth(node);
-      let height = attrs.nodeHeight(node);
-      Object.assign(node, { width, height });
-    });
-
     this.allNodes = this.root!.descendants();
 
     for (const node of this.root!.descendants()) {
@@ -569,19 +563,19 @@ export class OrgChart<Datum extends ConcreteDatum>
     let descendants = nodes || this.root!.descendants();
     const minX = d3.min(
       descendants,
-      (d) => d.x + this.getLayoutBinding().nodeLeftX(d)
+      (d) => d.x + this.getLayoutBinding().nodeLeftX(this.getNodeRect(d))
     );
     const maxX = d3.max(
       descendants,
-      (d) => d.x + this.getLayoutBinding().nodeRightX(d)
+      (d) => d.x + this.getLayoutBinding().nodeRightX(this.getNodeRect(d))
     );
     const minY = d3.min(
       descendants,
-      (d) => d.y + this.getLayoutBinding().nodeTopY(d)
+      (d) => d.y + this.getLayoutBinding().nodeTopY(this.getNodeRect(d))
     );
     const maxY = d3.max(
       descendants,
-      (d) => d.y + this.getLayoutBinding().nodeBottomY(d)
+      (d) => d.y + this.getLayoutBinding().nodeBottomY(this.getNodeRect(d))
     );
 
     this.zoomTreeBounds(
@@ -668,7 +662,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
-    this.update(this.root!);
+    this.update(this.getNodeRect(this.root!));
   }
 
   // Zoom in exposed method
@@ -715,7 +709,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             scale,
             isSvg: false,
             onAlreadySerialized: () => {
-              that.update(this.root!);
+              that.update(this.getNodeRect(this.root!));
             },
             imageName: attrs.imageName,
             onLoad: onLoad,
@@ -888,7 +882,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('opacity', 0)
       .duration(attrs.duration)
       .attr('transform', (rect) => {
-        const { x, y } = this.getLayoutBinding().nodePosition(rect);
+        const { x, y } = this.getLayoutBinding().nodePosition(
+          this.getNodeRect(rect)
+        );
         return `translate(${x},${y})`;
       })
       .attr('opacity', 1);
@@ -930,10 +926,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xs = this.getLayoutBinding().linkX(d._source);
-        const ys = this.getLayoutBinding().linkY(d._source);
-        const xt = this.getLayoutBinding().linkJoinX(d._target);
-        const yt = this.getLayoutBinding().linkJoinY(d._target);
+        const xs = this.getLayoutBinding().linkX(this.getNodeRect(d._source));
+        const ys = this.getLayoutBinding().linkY(this.getNodeRect(d._source));
+        const xt = this.getLayoutBinding().linkJoinX(
+          this.getNodeRect(d._target)
+        );
+        const yt = this.getLayoutBinding().linkJoinY(
+          this.getNodeRect(d._target)
+        );
         return attrs.linkGroupArc({
           source: { x: xs, y: ys },
           target: { x: xt, y: yt },
@@ -1097,6 +1097,15 @@ export class OrgChart<Datum extends ConcreteDatum>
           this.getChartState(),
           this.root!
         );
+  }
+
+  getNodeRect(d: HierarchyNode<Datum>) {
+    return {
+      x: d.x,
+      y: d.y,
+      height: this._attrs.nodeHeight(d),
+      width: this._attrs.nodeWidth(d),
+    };
   }
 }
 

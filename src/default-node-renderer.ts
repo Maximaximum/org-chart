@@ -78,8 +78,8 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       .style('overflow', 'visible')
       .style('background', nodeBackground)
       .style('border-radius', '3px')
-      .attr('width', ({ width }) => width)
-      .attr('height', ({ height }) => height)
+      .attr('width', (d) => this.chart.getNodeRect(d).width)
+      .attr('height', (d) => this.chart.getNodeRect(d).height)
       .attr('x', 0)
       .attr('y', 0)
 
@@ -141,8 +141,12 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         this.expandToggleClick.next(d);
       })
       .attr('transform', (node) => {
-        const x = this.chart.getLayoutBinding().buttonX(node);
-        const y = this.chart.getLayoutBinding().buttonY(node);
+        const x = this.chart
+          .getLayoutBinding()
+          .buttonX(this.chart.getNodeRect(node));
+        const y = this.chart
+          .getLayoutBinding()
+          .buttonY(this.chart.getNodeRect(node));
         return `translate(${x},${y})`;
       })
 
