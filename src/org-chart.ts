@@ -390,24 +390,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
-    const connections = attrs.connections;
-
-    const allNodesMap = new Map(
-      this.allNodes!.map((d) => [attrs.nodeId(d.data), d])
-    );
-    const visibleNodesMap = new Map(
-      nodes.map((d) => [attrs.nodeId(d.data), d])
-    );
-
-    connections.forEach((connection) => {
-      const source = allNodesMap.get(connection.from)!;
-      const target = allNodesMap.get(connection.to)!;
-      connection._source = source;
-      connection._target = target;
-    });
-    const visibleConnections = connections.filter(
-      (d) => visibleNodesMap.get(d.from) && visibleNodesMap.get(d.to)
-    );
+    const visibleConnections = this.getVisibleConnections(nodes);
 
     this.elements.defsWrapper.html(
       attrs.defs.bind(this)(attrs, visibleConnections)
@@ -441,6 +424,26 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeWrapperGElements.call(this.drawNodes);
 
     this.translateChartGroupIfNeeded();
+  }
+
+  private getVisibleConnections(nodes: HierarchyNode<Datum>[]) {
+    const attrs = this.getChartState();
+    const allNodesMap = new Map(
+      this.allNodes!.map((d) => [attrs.nodeId(d.data), d])
+    );
+    const visibleNodesMap = new Map(
+      nodes.map((d) => [attrs.nodeId(d.data), d])
+    );
+
+    attrs.connections.forEach((connection) => {
+      const source = allNodesMap.get(connection.from)!;
+      const target = allNodesMap.get(connection.to)!;
+      connection._source = source;
+      connection._target = target;
+    });
+    return attrs.connections.filter(
+      (d) => visibleNodesMap.get(d.from) && visibleNodesMap.get(d.to)
+    );
   }
 
   toggleExpandNode(node: HierarchyNode<Datum>) {
