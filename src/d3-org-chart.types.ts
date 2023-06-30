@@ -26,6 +26,9 @@ export interface Size {
 export type Rect = Point & Size;
 
 export interface HierarchyNode<Datum> extends FlextreeNode<Datum> {
+  /**
+   * The children that are currently hidden due to node being collapsed
+   */
   _children: this[] | undefined;
   x: number;
   y: number;
