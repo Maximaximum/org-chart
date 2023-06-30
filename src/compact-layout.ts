@@ -7,6 +7,8 @@ import {
   Size,
   State,
 } from './d3-org-chart.types';
+import { CompactLinkPointsCalculator } from './compact-link-points-calculator';
+import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 
 const d3 = {
   max,
@@ -16,15 +18,30 @@ const d3 = {
 };
 
 export class CompactLayout<Datum> {
-  compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
-  row = new WeakMap<HierarchyNode<Datum>, number>();
-  leafNodeSize = new WeakMap<HierarchyNode<Datum>, Size>();
-  firstLeafSibling = new WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>();
+  private compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
+  private row = new WeakMap<HierarchyNode<Datum>, number>();
+  private leafNodeSize = new WeakMap<HierarchyNode<Datum>, Size>();
+  private firstLeafSibling = new WeakMap<
+    HierarchyNode<Datum>,
+    HierarchyNode<Datum>
+  >();
+
+  private normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
+  private compactLinks = new CompactLinkPointsCalculator(this.layoutBinding);
 
   constructor(
     private layoutBinding: Pick<
       LayoutBinding<Datum>,
-      'rectSizeWithMargins' | 'compactDimension'
+      | 'rectSizeWithMargins'
+      | 'compactDimension'
+      | 'compactLinkMidX'
+      | 'compactLinkMidY'
+      | 'linkCompactXStart'
+      | 'linkCompactYStart'
+      | 'linkX'
+      | 'linkY'
+      | 'linkTargetX'
+      | 'linkTargetY'
     >,
     private attrs: Pick<
       State<Datum>,
@@ -160,5 +177,36 @@ export class CompactLayout<Datum> {
         });
       }
     });
+  }
+
+  getLinkSourcePoint(d: HierarchyNode<Datum>) {
+    const firstLeafSibling = this.firstLeafSibling.get(d);
+
+    if (firstLeafSibling) {
+      return this.compactLinks.getCompactSourcePoint(
+        {
+          x: firstLeafSibling.x,
+          y: firstLeafSibling.y,
+          width: this.leafNodeSize.get(firstLeafSibling)!.width,
+          height: this.leafNodeSize.get(firstLeafSibling)!.height,
+        },
+        this.attrs.compactMarginPair(d)
+      );
+    } else {
+      return this.normalLinks.getNormalSourcePoint(d);
+    }
+  }
+
+  getLinkMiddlePoint(d: HierarchyNode<Datum>) {
+    const isNodeCompact = this.leafNodeSize.has(d);
+
+    if (!isNodeCompact) {
+      return undefined;
+    } else {
+      return this.compactLinks.getCompactMiddlePoint(
+        d,
+        !!this.compactEven.get(d)
+      );
+    }
   }
 }

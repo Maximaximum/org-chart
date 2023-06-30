@@ -31,7 +31,7 @@ import {
 } from './default-node-renderer';
 import { PagingNodeRenderer, pagingNodeSelector } from './paging-node-renderer';
 import { CompactLayout } from './compact-layout';
-import { LinkPointsCalculator } from './link-points-calculations';
+import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 
 const d3 = {
   select,
@@ -455,40 +455,24 @@ export class OrgChart<Datum extends ConcreteDatum>
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
 
-    const linkPointsCalc = new LinkPointsCalculator(this.getLayoutBinding());
+    const linkPointsCalc = new NormalLinkPointsCalculator<Datum>(
+      this.getLayoutBinding()
+    );
+
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
       animationSource,
       (d) => {
-        const firstLeafSibling = compactLayout.firstLeafSibling.get(d);
-
-        if (firstLeafSibling) {
-          return linkPointsCalc.getCompactSourcePoint(
-            {
-              x: firstLeafSibling.x,
-              y: firstLeafSibling.y,
-              width: compactLayout.leafNodeSize.get(firstLeafSibling)!.width,
-              height: compactLayout.leafNodeSize.get(firstLeafSibling)!.height,
-            },
-            attrs.compactMarginPair(d)
-          );
+        if (attrs.compact) {
+          return compactLayout.getLinkSourcePoint(d);
         } else {
           return linkPointsCalc.getNormalSourcePoint(d);
         }
       },
       (d) => linkPointsCalc.getTargetPoint(d.parent!),
       (d) => {
-        const isNodeCompact = compactLayout.leafNodeSize.has(d);
-
-        if (!isNodeCompact) {
-          return undefined;
-        } else {
-          return linkPointsCalc.getCompactMiddlePoint(
-            d,
-            !!compactLayout.compactEven.get(d)
-          );
-        }
+        return attrs.compact ? compactLayout.getLinkMiddlePoint(d) : undefined;
       }
     );
     this.elements.connectionsWrapper.call(
