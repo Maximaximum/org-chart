@@ -58,8 +58,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     this.performInitialCalculations();
   }
 
-  override createFlexLayout() {
-    const res = super.createFlexLayout();
+  override createFlextreeNodes() {
+    const res = super.createFlextreeNodes();
 
     // Reassigns the x and y position for the based on the compact layout
     this.calculateCompactFlexPositions();

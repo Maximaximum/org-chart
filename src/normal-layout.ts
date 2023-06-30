@@ -26,7 +26,7 @@ export class NormalLayout<Datum> {
     protected root: HierarchyNode<Datum>
   ) {}
 
-  createFlexLayout() {
+  createFlextreeNodes() {
     const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
