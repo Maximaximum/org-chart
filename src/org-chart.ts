@@ -32,6 +32,7 @@ import {
 import { PagingNodeRenderer, pagingNodeSelector } from './paging-node-renderer';
 import { CompactLayout } from './compact-layout';
 import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
+import { NormalLayout } from './normal-layout';
 
 const d3 = {
   select,
@@ -378,50 +379,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    let compactLayout: CompactLayout<Datum>;
+    const layout = this.layoutFactory();
 
-    if (attrs.compact) {
-      compactLayout = new CompactLayout(
-        this.getLayoutBinding(),
-        this.getChartState(),
-        this.root!
-      );
-    }
-
-    const flexTreeLayout = flextree<Datum>({
-      nodeSize: (n) => {
-        const node = n as HierarchyNode<Datum>;
-        let size: Size;
-
-        if (attrs.compact) {
-          size = compactLayout.getNodeSize(node);
-        } else {
-          size = this.getLayoutBinding().rectSizeWithMargins({
-            width: attrs.nodeWidth(node),
-            height: attrs.nodeHeight(node),
-            siblingsMargin: attrs.siblingsMargin(node),
-            childrenMargin: attrs.childrenMargin(node),
-          });
-        }
-
-        return [size.width, size.height];
-      },
-      spacing: (nodeA, nodeB) =>
-        nodeA.parent == nodeB.parent
-          ? 0
-          : attrs.neighbourMargin(
-              nodeA as HierarchyNode<Datum>,
-              nodeB as HierarchyNode<Datum>
-            ),
-    });
-
-    //  Assigns the x and y position for the nodes
-    const treeData = flexTreeLayout!(this.root!);
-
-    // Reassigns the x and y position for the based on the compact layout
-    if (attrs.compact) {
-      compactLayout!.calculateCompactFlexPositions();
-    }
+    const treeData = layout.treeData;
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
 
@@ -455,25 +415,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       attrs.defs.bind(this)(attrs, visibleConnections)
     );
 
-    const linkPointsCalc = new NormalLinkPointsCalculator<Datum>(
-      this.getLayoutBinding()
-    );
-
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
       animationSource,
-      (d) => {
-        if (attrs.compact) {
-          return compactLayout.getLinkSourcePoint(d);
-        } else {
-          return linkPointsCalc.getNormalSourcePoint(d);
-        }
-      },
-      (d) => linkPointsCalc.getTargetPoint(d.parent!),
-      (d) => {
-        return attrs.compact ? compactLayout.getLinkMiddlePoint(d) : undefined;
-      }
+      (d) => layout.getLinkSourcePoint(d),
+      (d) => layout.getLinkTargetPoint(d.parent!),
+      (d) => layout.getLinkMiddlePoint(d)
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
@@ -1145,6 +1093,20 @@ export class OrgChart<Datum extends ConcreteDatum>
       )
       .attr('cursor', 'default')
       .style('font', '12px sans-serif');
+  }
+
+  private layoutFactory() {
+    return this._attrs.compact
+      ? new CompactLayout(
+          this.getLayoutBinding(),
+          this.getChartState(),
+          this.root!
+        )
+      : new NormalLayout(
+          this.getLayoutBinding(),
+          this.getChartState(),
+          this.root!
+        );
   }
 }
 

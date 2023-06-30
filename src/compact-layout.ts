@@ -9,6 +9,7 @@ import {
 } from './d3-org-chart.types';
 import { CompactLinkPointsCalculator } from './compact-link-points-calculator';
 import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
+import { FlextreeLayout, FlextreeNode, flextree } from 'd3-flextree';
 
 const d3 = {
   max,
@@ -28,6 +29,8 @@ export class CompactLayout<Datum> {
 
   private normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
   private compactLinks = new CompactLinkPointsCalculator(this.layoutBinding);
+
+  treeData: FlextreeNode<Datum>;
 
   constructor(
     private layoutBinding: Pick<
@@ -51,6 +54,7 @@ export class CompactLayout<Datum> {
       | 'nodeHeight'
       | 'siblingsMargin'
       | 'childrenMargin'
+      | 'neighbourMargin'
     >,
     private root: HierarchyNode<Datum>
   ) {
@@ -102,6 +106,27 @@ export class CompactLayout<Datum> {
         });
       }
     });
+
+    const flexTreeLayout = flextree<Datum>({
+      nodeSize: (n) => {
+        const node = n as HierarchyNode<Datum>;
+        const { width, height } = this.getNodeSize(node);
+        return [width, height];
+      },
+      spacing: (nodeA, nodeB) =>
+        nodeA.parent == nodeB.parent
+          ? 0
+          : attrs.neighbourMargin(
+              nodeA as HierarchyNode<Datum>,
+              nodeB as HierarchyNode<Datum>
+            ),
+    });
+
+    //  Assigns the x and y position for the nodes
+    this.treeData = flexTreeLayout!(this.root!);
+
+    // Reassigns the x and y position for the based on the compact layout
+    this.calculateCompactFlexPositions();
   }
 
   getNodeSize(node: HierarchyNode<Datum>) {
@@ -119,7 +144,7 @@ export class CompactLayout<Datum> {
   /**
    * Sets x and y property values on nodes
    */
-  calculateCompactFlexPositions() {
+  private calculateCompactFlexPositions() {
     this.root.eachBefore((node) => {
       if (node.children) {
         const compactChildren = node.children.filter((d) =>
@@ -195,6 +220,10 @@ export class CompactLayout<Datum> {
     } else {
       return this.normalLinks.getNormalSourcePoint(d);
     }
+  }
+
+  getLinkTargetPoint(d: HierarchyNode<Datum>) {
+    return this.normalLinks.getTargetPoint(d);
   }
 
   getLinkMiddlePoint(d: HierarchyNode<Datum>) {
