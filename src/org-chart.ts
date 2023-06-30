@@ -276,15 +276,13 @@ export class OrgChart<Datum extends ConcreteDatum>
         .scaleExtent(attrs.scaleExtent);
     }
 
-    //****************** ROOT node work ************************
-    this.setLayouts();
-
     // *************************  DRAWING **************************
     container.call(this.drawContainers, {
       rootMargin: attrs.rootMargin,
     });
 
     // Display tree contents
+    this.createHierarchyFromData();
     this.update(this.getNodeRect(this.root!));
 
     //#########################################  UTIL FUNCS ##################################
@@ -331,7 +329,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     attrs.data!.push(obj);
 
-    this.setLayouts();
+    this.createHierarchyFromData();
     this.update(this.getNodeRect(this.root!));
 
     return this;
@@ -357,7 +355,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Filter out retrieved nodes and reassign data
     attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
-    this.setLayouts();
+    this.createHierarchyFromData();
     this.update(this.getNodeRect(this.root!));
 
     return this;
@@ -464,7 +462,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  setLayouts() {
+  createHierarchyFromData() {
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
     const root = d3
