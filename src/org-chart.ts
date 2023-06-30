@@ -472,9 +472,9 @@ export class OrgChart<Datum extends ConcreteDatum>
     const root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
-      .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
+      .parentId((d) => attrs.parentNodeId(d))(attrs.data!);
 
-    this.pagination.initPagination(root!, attrs.minPagingVisibleNodes);
+    this.pagination.initPagination(root, attrs.minPagingVisibleNodes);
 
     this.root! = d3
       .stratify<Datum>()

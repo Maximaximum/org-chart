@@ -3,6 +3,7 @@ import './patternify';
 import { HierarchyNode, State, ConcreteDatum } from './d3-org-chart.types';
 import { Selection } from 'd3';
 import { OrgChart } from './org-chart';
+import { HierarchyNode as D3HierarchyNode } from 'd3';
 
 /**
  * Number of nodes to show within a node's children "page"
@@ -25,8 +26,8 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
 
   private initNumberOfChildrenToShow(
-    nodes: HierarchyNode<Datum>[],
-    minPagingVisibleNodes: (node: HierarchyNode<Datum>) => number
+    nodes: D3HierarchyNode<Datum>[],
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number
   ) {
     nodes
       .filter((node) => node.children)
@@ -37,8 +38,8 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
   }
 
   initPagination(
-    root: HierarchyNode<Datum>,
-    minPagingVisibleNodes: (node: HierarchyNode<Datum>) => number
+    root: D3HierarchyNode<Datum>,
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number
   ) {
     this.initNumberOfChildrenToShow(root!.descendants(), minPagingVisibleNodes);
 

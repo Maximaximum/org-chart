@@ -2,6 +2,7 @@ import { Selection, ValueFn } from 'd3-selection';
 import { D3ZoomEvent } from 'd3-zoom';
 import { Link, DefaultLinkObject } from 'd3-shape';
 import { FlextreeNode } from 'd3-flextree';
+import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
 
 export type NodeId = string;
 
@@ -133,7 +134,7 @@ export interface State<Datum> {
   // The properties underneath were meant to be non-public
 
   /** Configure minimum number of visible nodes, after which paging button appears */
-  minPagingVisibleNodes: (d: HierarchyNode<Datum>) => number;
+  minPagingVisibleNodes: (d: D3HierarchyNode<Datum>) => number;
   /** Configure exported PNG and SVG image name */
   imageName: string;
 
