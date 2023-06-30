@@ -58,11 +58,13 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     this.performInitialCalculations();
   }
 
-  override init() {
-    super.init();
+  override createFlexLayout() {
+    const res = super.createFlexLayout();
 
     // Reassigns the x and y position for the based on the compact layout
     this.calculateCompactFlexPositions();
+
+    return res;
   }
 
   override getNodeSize(node: HierarchyNode<Datum>) {

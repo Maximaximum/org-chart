@@ -1,4 +1,4 @@
-import { FlextreeNode, flextree } from 'd3-flextree';
+import { flextree } from 'd3-flextree';
 import {
   HierarchyNode,
   LayoutBinding,
@@ -9,8 +9,6 @@ import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 
 export class NormalLayout<Datum> {
   protected normalLinks = new NormalLinkPointsCalculator(this.layoutBinding);
-
-  treeData!: FlextreeNode<Datum>;
 
   constructor(
     protected layoutBinding: Pick<
@@ -28,11 +26,11 @@ export class NormalLayout<Datum> {
     protected root: HierarchyNode<Datum>
   ) {}
 
-  init() {
+  createFlexLayout() {
     const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
-    this.treeData = flexTreeLayout(this.root!);
+    return flexTreeLayout(this.root!);
   }
 
   getNodeSize(node: HierarchyNode<Datum>) {

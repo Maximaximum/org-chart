@@ -18,7 +18,6 @@ import {
   Point,
   LayoutBinding,
   Rect,
-  Size,
 } from './d3-org-chart.types';
 import { toDataURL } from './to-data-url';
 import { downloadImage } from './download-image';
@@ -31,7 +30,6 @@ import {
 } from './default-node-renderer';
 import { PagingNodeRenderer, pagingNodeSelector } from './paging-node-renderer';
 import { CompactLayout } from './compact-layout';
-import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
 import { NormalLayout } from './normal-layout';
 
 const d3 = {
@@ -380,9 +378,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
 
     const layout = this.layoutFactory();
-    layout.init();
 
-    const treeData = layout.treeData;
+    const treeData = layout.createFlexLayout();
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
 
