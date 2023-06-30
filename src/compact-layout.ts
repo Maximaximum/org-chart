@@ -21,17 +21,23 @@ export class CompactLayout<Datum> {
   leafNodeSize = new WeakMap<HierarchyNode<Datum>, Size>();
   firstLeafSibling = new WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>();
 
-  constructor(private layoutBinding: LayoutBinding<Datum>) {}
-
-  calculateCompactFlexDimensions(
-    root: HierarchyNode<Datum>,
-    attrs: Pick<State<Datum>, 'compactMarginBetween' | 'compactMarginPair'>,
-    compactDimension: {
-      sizeColumn: (node: HierarchyNode<Datum>) => number;
-      sizeRow: (node: HierarchyNode<Datum>) => number;
-    }
+  constructor(
+    private layoutBinding: Pick<
+      LayoutBinding<Datum>,
+      'rectSizeWithMargins' | 'compactDimension'
+    >,
+    private attrs: Pick<
+      State<Datum>,
+      | 'compactMarginBetween'
+      | 'compactMarginPair'
+      | 'nodeWidth'
+      | 'nodeHeight'
+      | 'siblingsMargin'
+      | 'childrenMargin'
+    >,
+    private root: HierarchyNode<Datum>
   ) {
-    root.eachBefore((node) => {
+    this.root.eachBefore((node) => {
       if (node.children && node.children.length > 1) {
         const leafChildren = node.children.filter((d) => !d.children);
 
@@ -44,11 +50,11 @@ export class CompactLayout<Datum> {
         });
         const evenMaxColumnDimension = d3.max(
           leafChildren.filter((d) => !!this.compactEven.get(d)),
-          compactDimension.sizeColumn
+          this.layoutBinding.compactDimension.sizeColumn
         )!;
         const oddMaxColumnDimension = d3.max(
           leafChildren.filter((d) => !this.compactEven.get(d)),
-          compactDimension.sizeColumn
+          this.layoutBinding.compactDimension.sizeColumn
         )!;
         const columnSize =
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
@@ -58,7 +64,9 @@ export class CompactLayout<Datum> {
           (reducedGroup) =>
             d3.max(
               reducedGroup,
-              (d) => compactDimension.sizeRow(d) + attrs.compactMarginBetween()
+              (d) =>
+                this.layoutBinding.compactDimension.sizeRow(d) +
+                this.attrs.compactMarginBetween()
             )
         );
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
@@ -69,8 +77,8 @@ export class CompactLayout<Datum> {
             leafChild,
             i === 0
               ? {
-                  width: columnSize + attrs.compactMarginPair(leafChild),
-                  height: rowSize - attrs.compactMarginBetween(),
+                  width: columnSize + this.attrs.compactMarginPair(leafChild),
+                  height: rowSize - this.attrs.compactMarginBetween(),
                 }
               : { width: 0, height: 0 }
           );
@@ -79,14 +87,14 @@ export class CompactLayout<Datum> {
     });
   }
 
-  getNodeSize(node: HierarchyNode<Datum>, attrs: State<Datum>) {
+  getNodeSize(node: HierarchyNode<Datum>) {
     return (
       this.leafNodeSize.get(node) ||
       this.layoutBinding.rectSizeWithMargins({
-        width: attrs.nodeWidth(node),
-        height: attrs.nodeHeight(node),
-        siblingsMargin: attrs.siblingsMargin(node),
-        childrenMargin: attrs.childrenMargin(node),
+        width: this.attrs.nodeWidth(node),
+        height: this.attrs.nodeHeight(node),
+        siblingsMargin: this.attrs.siblingsMargin(node),
+        childrenMargin: this.attrs.childrenMargin(node),
       })
     );
   }
@@ -94,11 +102,8 @@ export class CompactLayout<Datum> {
   /**
    * Sets x and y property values on nodes
    */
-  calculateCompactFlexPositions(
-    root: HierarchyNode<Datum>,
-    attrs: Pick<State<Datum>, 'compactMarginPair' | 'compactMarginBetween'>
-  ) {
-    root.eachBefore((node) => {
+  calculateCompactFlexPositions() {
+    this.root.eachBefore((node) => {
       if (node.children) {
         const compactChildren = node.children.filter((d) =>
           this.leafNodeSize.has(d)
@@ -116,20 +121,20 @@ export class CompactLayout<Datum> {
               child.x =
                 fch.x +
                 this.leafNodeSize.get(fch)!.width * 0.75 +
-                attrs.compactMarginPair(child) / 4;
+                this.attrs.compactMarginPair(child) / 4;
             } else {
               // if even
               child.x =
                 fch.x +
                 this.leafNodeSize.get(fch)!.width * 0.25 -
-                attrs.compactMarginPair(child) / 4;
+                this.attrs.compactMarginPair(child) / 4;
             }
           }
         });
         const centerX = fch.x + this.leafNodeSize.get(fch)!.width * 0.5;
         fch.x +=
           this.leafNodeSize.get(fch)!.width * 0.25 -
-          attrs.compactMarginPair(fch) / 4;
+          this.attrs.compactMarginPair(fch) / 4;
         const offsetX = node.x - centerX;
         if (Math.abs(offsetX) < 10) {
           compactChildren.forEach((d) => (d.x += offsetX));
@@ -144,7 +149,7 @@ export class CompactLayout<Datum> {
             )!
         );
         const cumSum = d3.cumsum(
-          rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween())
+          rowsMapNew.map((d) => d[1] + this.attrs.compactMarginBetween())
         );
         compactChildren.forEach((node, i) => {
           if (this.row.get(node)) {

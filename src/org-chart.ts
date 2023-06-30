@@ -378,13 +378,13 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    const compactLayout = new CompactLayout(this.getLayoutBinding());
+    let compactLayout: CompactLayout<Datum>;
 
     if (attrs.compact) {
-      compactLayout.calculateCompactFlexDimensions(
-        this.root!,
+      compactLayout = new CompactLayout(
+        this.getLayoutBinding(),
         this.getChartState(),
-        this.getLayoutBinding().compactDimension
+        this.root!
       );
     }
 
@@ -394,7 +394,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         let size: Size;
 
         if (attrs.compact) {
-          size = compactLayout.getNodeSize(node, attrs);
+          size = compactLayout.getNodeSize(node);
         } else {
           size = this.getLayoutBinding().rectSizeWithMargins({
             width: attrs.nodeWidth(node),
@@ -420,7 +420,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
-      compactLayout.calculateCompactFlexPositions(this.root!, attrs);
+      compactLayout!.calculateCompactFlexPositions();
     }
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
