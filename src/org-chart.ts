@@ -333,8 +333,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     attrs.data!.push(obj);
 
-    // Update state of nodes and redraw graph
-    this.updateNodesState();
+    this.setLayouts();
+    this.update(this.root!);
 
     return this;
   }
@@ -359,9 +359,8 @@ export class OrgChart<Datum extends ConcreteDatum>
     // Filter out retrieved nodes and reassign data
     attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
-    const updateNodesState = this.updateNodesState.bind(this);
-    // Update state of nodes and redraw graph
-    updateNodesState();
+    this.setLayouts();
+    this.update(this.root!);
 
     return this;
   }
@@ -467,25 +466,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  // This function updates nodes state and redraws graph, usually after data change
-  updateNodesState() {
-    const attrs = this.getChartState();
-
-    this.setLayouts();
-
-    // Redraw Graphs
-    this.update(this.root!);
-  }
-
   setLayouts() {
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
-    this.root = d3
+    const root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(attrs.data!) as any;
 
-    this.pagination.initPagination(this.root!, attrs.minPagingVisibleNodes);
+    this.pagination.initPagination(root!, attrs.minPagingVisibleNodes);
 
     this.root! = d3
       .stratify<Datum>()
