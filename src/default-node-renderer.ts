@@ -12,6 +12,7 @@ import {
   isLayoutVertical,
 } from './default-layout-bindings';
 import { arrowPaths } from './arrow-paths';
+import { Subject } from 'rxjs';
 
 export const defaultNodeSelector = '.default-node-wrapper';
 
@@ -48,6 +49,8 @@ function buttonContent(
 
 export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
+
+  expandToggleClick = new Subject<HierarchyNode<Datum>>();
 
   draw = (
     containers: Selection<
@@ -135,14 +138,7 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
       )
       .style('cursor', 'pointer')
       .on('click', (event: PointerEvent, d) => {
-        this.chart.toggleExpandNode(d);
-
-        if (attrs.setActiveNodeCentered) {
-          attrs.centeredNode = d;
-        }
-
-        // Redraw Graph
-        this.chart.update(d);
+        this.expandToggleClick.next(d);
       })
       .attr('transform', (node) => {
         const x = this.chart.getLayoutBinding().buttonX(node);

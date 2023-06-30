@@ -77,6 +77,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   // TODO Should be private
   pagination = new PagingNodeRenderer(this);
+  defaultNodeRenderer = new DefaultNodeRenderer(this);
 
   private _attrs = {
     /*  INTENDED FOR PUBLIC OVERRIDE */
@@ -135,7 +136,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         );
 
       this.pagination.draw(pagingNodes);
-      new DefaultNodeRenderer(this).draw(defaultNodes);
+      this.defaultNodeRenderer.draw(defaultNodes);
 
       containers
         .style('border-color', (d) =>
@@ -207,6 +208,19 @@ export class OrgChart<Datum extends ConcreteDatum>
         }
         return this;
       };
+    });
+
+    const attrs = this.getChartState();
+
+    this.defaultNodeRenderer.expandToggleClick.subscribe((d) => {
+      this.toggleExpandNode(d);
+
+      if (attrs.setActiveNodeCentered) {
+        attrs.centeredNode = d;
+      }
+
+      // Redraw Graph
+      this.update(d);
     });
   }
 
