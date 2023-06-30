@@ -476,7 +476,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     this.pagination.initPagination(root, attrs.minPagingVisibleNodes);
 
-    this.root! = d3
+    this.root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(
