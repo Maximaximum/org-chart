@@ -145,13 +145,6 @@ export interface State<Datum> {
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
-export interface NodeCompactLayoutMetadata<Datum> {
-  compactEven: WeakMap<HierarchyNode<Datum>, boolean>;
-  row: WeakMap<HierarchyNode<Datum>, number>;
-  leafNodeSize: WeakMap<HierarchyNode<Datum>, Size>;
-  firstLeafSibling: WeakMap<HierarchyNode<Datum>, HierarchyNode<Datum>>;
-}
-
 export interface LayoutBinding<Datum> {
   nodeLeftX: (node: Rect) => number;
   nodeRightX: (node: Rect) => number;

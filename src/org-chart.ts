@@ -17,8 +17,8 @@ import {
   Elements,
   Point,
   LayoutBinding,
-  NodeCompactLayoutMetadata,
   Rect,
+  Size,
 } from './d3-org-chart.types';
 import { toDataURL } from './to-data-url';
 import { downloadImage } from './download-image';
@@ -391,15 +391,18 @@ export class OrgChart<Datum extends ConcreteDatum>
     const flexTreeLayout = flextree<Datum>({
       nodeSize: (n) => {
         const node = n as HierarchyNode<Datum>;
+        let size: Size;
 
-        const size =
-          compactLayout.leafNodeSize.get(node) ||
-          this.getLayoutBinding().rectSizeWithMargins({
+        if (attrs.compact) {
+          size = compactLayout.getNodeSize(node, attrs);
+        } else {
+          size = this.getLayoutBinding().rectSizeWithMargins({
             width: attrs.nodeWidth(node),
             height: attrs.nodeHeight(node),
             siblingsMargin: attrs.siblingsMargin(node),
             childrenMargin: attrs.childrenMargin(node),
           });
+        }
 
         return [size.width, size.height];
       },
@@ -417,13 +420,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
-      compactLayout.calculateCompactFlexPositions(
-        this.root!,
-        attrs,
-        this.getLayoutBinding().compactDimension,
-        compactLayout!.row,
-        compactLayout!.leafNodeSize
-      );
+      compactLayout.calculateCompactFlexPositions(this.root!, attrs);
     }
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];

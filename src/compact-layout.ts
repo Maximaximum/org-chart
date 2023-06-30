@@ -4,7 +4,6 @@ import { groupBy } from './group-by';
 import {
   HierarchyNode,
   LayoutBinding,
-  NodeCompactLayoutMetadata,
   Size,
   State,
 } from './d3-org-chart.types';
@@ -80,13 +79,9 @@ export class CompactLayout<Datum> {
     });
   }
 
-  getNodeSize(
-    nodeCompactLayoutMetadata: NodeCompactLayoutMetadata<Datum>,
-    node: HierarchyNode<Datum>,
-    attrs: State<Datum>
-  ) {
+  getNodeSize(node: HierarchyNode<Datum>, attrs: State<Datum>) {
     return (
-      nodeCompactLayoutMetadata.leafNodeSize.get(node) ||
+      this.leafNodeSize.get(node) ||
       this.layoutBinding.rectSizeWithMargins({
         width: attrs.nodeWidth(node),
         height: attrs.nodeHeight(node),
@@ -99,19 +94,14 @@ export class CompactLayout<Datum> {
   /**
    * Sets x and y property values on nodes
    */
-  calculateCompactFlexPositions<Datum>(
+  calculateCompactFlexPositions(
     root: HierarchyNode<Datum>,
-    attrs: Pick<State<Datum>, 'compactMarginPair' | 'compactMarginBetween'>,
-    compactDimension: {
-      sizeRow: (node: HierarchyNode<Datum>) => number;
-    },
-    row: WeakMap<HierarchyNode<Datum>, number>,
-    leafCompactDim: WeakMap<HierarchyNode<Datum>, Size>
+    attrs: Pick<State<Datum>, 'compactMarginPair' | 'compactMarginBetween'>
   ) {
     root.eachBefore((node) => {
       if (node.children) {
         const compactChildren = node.children.filter((d) =>
-          leafCompactDim.has(d)
+          this.leafNodeSize.has(d)
         );
         const fch = compactChildren[0];
         if (!fch) {
@@ -119,26 +109,26 @@ export class CompactLayout<Datum> {
         }
         compactChildren.forEach((child, i) => {
           if (i === 0) {
-            fch.x -= leafCompactDim.get(fch)!.width / 2;
+            fch.x -= this.leafNodeSize.get(fch)!.width / 2;
           } else {
             if (i % 2) {
               // if odd
               child.x =
                 fch.x +
-                leafCompactDim.get(fch)!.width * 0.75 +
+                this.leafNodeSize.get(fch)!.width * 0.75 +
                 attrs.compactMarginPair(child) / 4;
             } else {
               // if even
               child.x =
                 fch.x +
-                leafCompactDim.get(fch)!.width * 0.25 -
+                this.leafNodeSize.get(fch)!.width * 0.25 -
                 attrs.compactMarginPair(child) / 4;
             }
           }
         });
-        const centerX = fch.x + leafCompactDim.get(fch)!.width * 0.5;
+        const centerX = fch.x + this.leafNodeSize.get(fch)!.width * 0.5;
         fch.x +=
-          leafCompactDim.get(fch)!.width * 0.25 -
+          this.leafNodeSize.get(fch)!.width * 0.25 -
           attrs.compactMarginPair(fch) / 4;
         const offsetX = node.x - centerX;
         if (Math.abs(offsetX) < 10) {
@@ -147,16 +137,18 @@ export class CompactLayout<Datum> {
 
         const rowsMapNew = groupBy(
           compactChildren,
-          (d) => row.get(d) + '',
+          (d) => this.row.get(d) + '',
           (reducedGroup) =>
-            d3.max(reducedGroup, (d) => compactDimension.sizeRow(d))!
+            d3.max(reducedGroup, (d) =>
+              this.layoutBinding.compactDimension.sizeRow(d)
+            )!
         );
         const cumSum = d3.cumsum(
           rowsMapNew.map((d) => d[1] + attrs.compactMarginBetween())
         );
         compactChildren.forEach((node, i) => {
-          if (row.get(node)) {
-            node.y = fch.y + cumSum[row.get(node)! - 1];
+          if (this.row.get(node)) {
+            node.y = fch.y + cumSum[this.row.get(node)! - 1];
           } else {
             node.y = fch.y;
           }
