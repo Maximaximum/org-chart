@@ -9,7 +9,7 @@ import {
 } from './d3-org-chart.types';
 import { CompactLinkPointsCalculator } from './compact-link-points-calculator';
 import { NormalLinkPointsCalculator } from './normal-link-points-calculator';
-import { FlextreeLayout, FlextreeNode, flextree } from 'd3-flextree';
+import { FlextreeNode, flextree } from 'd3-flextree';
 
 const d3 = {
   max,
@@ -58,6 +58,43 @@ export class CompactLayout<Datum> {
     >,
     private root: HierarchyNode<Datum>
   ) {
+    this.performInitialCalculations();
+
+    const flexTreeLayout = flextree<Datum>({
+      nodeSize: (n) => {
+        const node = n as HierarchyNode<Datum>;
+        const { width, height } = this.getNodeSize(node);
+        return [width, height];
+      },
+      spacing: (nodeA, nodeB) =>
+        nodeA.parent == nodeB.parent
+          ? 0
+          : attrs.neighbourMargin(
+              nodeA as HierarchyNode<Datum>,
+              nodeB as HierarchyNode<Datum>
+            ),
+    });
+
+    //  Assigns the x and y position for the nodes
+    this.treeData = flexTreeLayout(this.root!);
+
+    // Reassigns the x and y position for the based on the compact layout
+    this.calculateCompactFlexPositions();
+  }
+
+  getNodeSize(node: HierarchyNode<Datum>) {
+    return (
+      this.leafNodeSize.get(node) ||
+      this.layoutBinding.rectSizeWithMargins({
+        width: this.attrs.nodeWidth(node),
+        height: this.attrs.nodeHeight(node),
+        siblingsMargin: this.attrs.siblingsMargin(node),
+        childrenMargin: this.attrs.childrenMargin(node),
+      })
+    );
+  }
+
+  private performInitialCalculations() {
     this.root.eachBefore((node) => {
       if (node.children && node.children.length > 1) {
         const leafChildren = node.children.filter((d) => !d.children);
@@ -106,39 +143,6 @@ export class CompactLayout<Datum> {
         });
       }
     });
-
-    const flexTreeLayout = flextree<Datum>({
-      nodeSize: (n) => {
-        const node = n as HierarchyNode<Datum>;
-        const { width, height } = this.getNodeSize(node);
-        return [width, height];
-      },
-      spacing: (nodeA, nodeB) =>
-        nodeA.parent == nodeB.parent
-          ? 0
-          : attrs.neighbourMargin(
-              nodeA as HierarchyNode<Datum>,
-              nodeB as HierarchyNode<Datum>
-            ),
-    });
-
-    //  Assigns the x and y position for the nodes
-    this.treeData = flexTreeLayout!(this.root!);
-
-    // Reassigns the x and y position for the based on the compact layout
-    this.calculateCompactFlexPositions();
-  }
-
-  getNodeSize(node: HierarchyNode<Datum>) {
-    return (
-      this.leafNodeSize.get(node) ||
-      this.layoutBinding.rectSizeWithMargins({
-        width: this.attrs.nodeWidth(node),
-        height: this.attrs.nodeHeight(node),
-        siblingsMargin: this.attrs.siblingsMargin(node),
-        childrenMargin: this.attrs.childrenMargin(node),
-      })
-    );
   }
 
   /**

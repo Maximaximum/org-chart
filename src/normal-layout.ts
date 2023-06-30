@@ -38,7 +38,7 @@ export class NormalLayout<Datum> {
     });
 
     //  Assigns the x and y position for the nodes
-    this.treeData = flexTreeLayout!(this.root!);
+    this.treeData = flexTreeLayout(this.root!);
   }
 
   getNodeSize(node: HierarchyNode<Datum>) {
