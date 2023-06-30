@@ -30,10 +30,7 @@ import {
   defaultNodeSelector,
 } from './default-node-renderer';
 import { PagingNodeRenderer, pagingNodeSelector } from './paging-node-renderer';
-import {
-  calculateCompactFlexDimensions,
-  calculateCompactFlexPositions,
-} from './compact-layout';
+import { CompactLayout } from './compact-layout';
 import { LinkPointsCalculator } from './link-points-calculations';
 
 const d3 = {
@@ -381,10 +378,10 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const attrs = this.getChartState();
 
-    let nodeCompactLayoutMetadata: NodeCompactLayoutMetadata<Datum>;
+    const compactLayout = new CompactLayout(this.getLayoutBinding());
 
     if (attrs.compact) {
-      nodeCompactLayoutMetadata = calculateCompactFlexDimensions(
+      compactLayout.calculateCompactFlexDimensions(
         this.root!,
         this.getChartState(),
         this.getLayoutBinding().compactDimension
@@ -396,7 +393,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         const node = n as HierarchyNode<Datum>;
 
         const size =
-          nodeCompactLayoutMetadata.leafNodeSize.get(node) ||
+          compactLayout.leafNodeSize.get(node) ||
           this.getLayoutBinding().rectSizeWithMargins({
             width: attrs.nodeWidth(node),
             height: attrs.nodeHeight(node),
@@ -420,12 +417,12 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Reassigns the x and y position for the based on the compact layout
     if (attrs.compact) {
-      calculateCompactFlexPositions(
+      compactLayout.calculateCompactFlexPositions(
         this.root!,
         attrs,
         this.getLayoutBinding().compactDimension,
-        nodeCompactLayoutMetadata!.row,
-        nodeCompactLayoutMetadata!.leafNodeSize
+        compactLayout!.row,
+        compactLayout!.leafNodeSize
       );
     }
 
@@ -467,20 +464,15 @@ export class OrgChart<Datum extends ConcreteDatum>
       links,
       animationSource,
       (d) => {
-        const firstLeafSibling =
-          nodeCompactLayoutMetadata.firstLeafSibling.get(d);
+        const firstLeafSibling = compactLayout.firstLeafSibling.get(d);
 
         if (firstLeafSibling) {
           return linkPointsCalc.getCompactSourcePoint(
             {
               x: firstLeafSibling.x,
               y: firstLeafSibling.y,
-              width:
-                nodeCompactLayoutMetadata.leafNodeSize.get(firstLeafSibling)!
-                  .width,
-              height:
-                nodeCompactLayoutMetadata.leafNodeSize.get(firstLeafSibling)!
-                  .height,
+              width: compactLayout.leafNodeSize.get(firstLeafSibling)!.width,
+              height: compactLayout.leafNodeSize.get(firstLeafSibling)!.height,
             },
             attrs.compactMarginPair(d)
           );
@@ -490,14 +482,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       },
       (d) => linkPointsCalc.getTargetPoint(d.parent!),
       (d) => {
-        const isNodeCompact = nodeCompactLayoutMetadata.leafNodeSize.has(d);
+        const isNodeCompact = compactLayout.leafNodeSize.has(d);
 
         if (!isNodeCompact) {
           return undefined;
         } else {
           return linkPointsCalc.getCompactMiddlePoint(
             d,
-            !!nodeCompactLayoutMetadata.compactEven.get(d)
+            !!compactLayout.compactEven.get(d)
           );
         }
       }
