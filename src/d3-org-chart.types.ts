@@ -1,7 +1,7 @@
 import { Selection, ValueFn } from 'd3-selection';
 import { D3ZoomEvent } from 'd3-zoom';
 import { Link, DefaultLinkObject } from 'd3-shape';
-import { HierarchyNode as D3HierarchyNode } from 'd3-hierarchy';
+import { FlextreeNode } from 'd3-flextree';
 
 export type NodeId = string;
 
@@ -25,7 +25,7 @@ export interface Size {
 
 export type Rect = Point & Size;
 
-export interface HierarchyNode<Datum> extends D3HierarchyNode<Datum> {
+export interface HierarchyNode<Datum> extends FlextreeNode<Datum> {
   _children: this[] | undefined;
   x: number;
   y: number;
