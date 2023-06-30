@@ -60,20 +60,7 @@ export class CompactLayout<Datum> {
   ) {
     this.performInitialCalculations();
 
-    const flexTreeLayout = flextree<Datum>({
-      nodeSize: (n) => {
-        const node = n as HierarchyNode<Datum>;
-        const { width, height } = this.getNodeSize(node);
-        return [width, height];
-      },
-      spacing: (nodeA, nodeB) =>
-        nodeA.parent == nodeB.parent
-          ? 0
-          : attrs.neighbourMargin(
-              nodeA as HierarchyNode<Datum>,
-              nodeB as HierarchyNode<Datum>
-            ),
-    });
+    const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
     this.treeData = flexTreeLayout(this.root!);
@@ -241,5 +228,22 @@ export class CompactLayout<Datum> {
         !!this.compactEven.get(d)
       );
     }
+  }
+
+  protected createFlexTreeLayout() {
+    return flextree<Datum>({
+      nodeSize: (n) => {
+        const node = n as HierarchyNode<Datum>;
+        const { width, height } = this.getNodeSize(node);
+        return [width, height];
+      },
+      spacing: (nodeA, nodeB) =>
+        nodeA.parent == nodeB.parent
+          ? 0
+          : this.attrs.neighbourMargin(
+              nodeA as HierarchyNode<Datum>,
+              nodeB as HierarchyNode<Datum>
+            ),
+    });
   }
 }
