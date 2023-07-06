@@ -282,7 +282,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Display tree contents
-    this.createHierarchyFromData();
+    this.root = this.createHierarchyFromData(attrs.data);
     this.rerender();
 
     //#########################################  UTIL FUNCS ##################################
@@ -297,66 +297,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     this.firstDraw = false;
-
-    return this;
-  }
-
-  // This function can be invoked via chart.addNode API, and it adds node in tree at runtime
-  addNode(obj: Datum) {
-    const attrs = this.getChartState();
-    const nodeFound = this.root!.descendants().filter(
-      ({ data }) => attrs.nodeId(data) === attrs.nodeId(obj)
-    )[0];
-    const parentFound = this.root!.descendants().filter(
-      ({ data }) => attrs.nodeId(data) === attrs.parentNodeId(obj)
-    )[0];
-    if (nodeFound) {
-      console.log(
-        `ORG CHART - ADD - Node with id "${attrs.nodeId(
-          obj
-        )}" already exists in tree`
-      );
-      return this;
-    }
-    if (!parentFound) {
-      console.log(
-        `ORG CHART - ADD - Parent node with id "${attrs.parentNodeId(
-          obj
-        )}" not found in the tree`
-      );
-      return this;
-    }
-
-    attrs.data!.push(obj);
-
-    this.createHierarchyFromData();
-    this.rerender();
-
-    return this;
-  }
-
-  // This function can be invoked via chart.removeNode API, and it removes node from tree at runtime
-  removeNode(nodeId: NodeId) {
-    const attrs = this.getChartState();
-    const node = this.root!.descendants().filter(
-      ({ data }) => attrs.nodeId(data) == nodeId
-    )[0];
-    if (!node) {
-      console.log(
-        `ORG CHART - REMOVE - Node with id "${nodeId}" not found in the tree`
-      );
-      return this;
-    }
-
-    const descendants = Array.from(this.getAllNodeDescendants(node)).map(
-      (desc) => desc.data
-    );
-
-    // Filter out retrieved nodes and reassign data
-    attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
-
-    this.createHierarchyFromData();
-    this.rerender();
 
     return this;
   }
@@ -454,28 +394,30 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  createHierarchyFromData() {
+  createHierarchyFromData(data: Datum[]) {
     const attrs = this.getChartState();
     // Store new root by converting flat data to hierarchy
     const root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
-      .parentId((d) => attrs.parentNodeId(d))(attrs.data!);
+      .parentId((d) => attrs.parentNodeId(d))(data);
 
     this.pagination.initPagination(root, attrs.minPagingVisibleNodes);
 
-    this.root = d3
+    const root2 = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(
-      attrs.data!.filter(
+      data.filter(
         (d) => !this.pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
       )
     ) as any;
 
-    for (const node of this.root!.descendants()) {
+    for (const node of root2.descendants()) {
       this.updateChildrenProperty(node);
     }
+
+    return root2;
   }
 
   collapse(d: HierarchyNode<Datum>) {
