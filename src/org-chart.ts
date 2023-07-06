@@ -214,7 +214,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
 
       // Redraw Graph
-      this.update();
+      this.rerender();
     });
   }
 
@@ -283,7 +283,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Display tree contents
     this.createHierarchyFromData();
-    this.update();
+    this.rerender();
 
     //#########################################  UTIL FUNCS ##################################
     // This function restyles foreign object elements ()
@@ -330,7 +330,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data!.push(obj);
 
     this.createHierarchyFromData();
-    this.update();
+    this.rerender();
 
     return this;
   }
@@ -356,13 +356,15 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
     this.createHierarchyFromData();
-    this.update();
+    this.rerender();
 
     return this;
   }
 
-  // This function basically redraws visible graph, based on nodes state
-  update() {
+  /**
+   * This function basically redraws visible graph, based on nodes state
+   */
+  rerender() {
     const attrs = this.getChartState();
 
     const layout = this.layoutFactory();
@@ -646,7 +648,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
-    this.update();
+    this.rerender();
   }
 
   // Zoom in exposed method
@@ -693,7 +695,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             scale,
             isSvg: false,
             onAlreadySerialized: () => {
-              that.update();
+              that.rerender();
             },
             imageName: attrs.imageName,
             onLoad: onLoad,
