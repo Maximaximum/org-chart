@@ -57,6 +57,7 @@ export interface State<Datum> {
   container: string | HTMLElement;
   /** Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable) */
   data: Datum[] | null;
+  root: HierarchyNode<Datum> | undefined;
   /** Configure duration of transitions */
   duration: number;
   /** Configure if active node should be centered when expanded and collapsed */

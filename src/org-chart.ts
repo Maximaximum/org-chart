@@ -77,6 +77,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     /*  INTENDED FOR PUBLIC OVERRIDE */
     container: 'body',
     data: null,
+    root: undefined,
     connections: [],
     nodeId: (d) => (d as any).nodeId || (d as any).id,
     parentNodeId: (d) => (d as any).parentNodeId || (d as any).parentId,
@@ -189,7 +190,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   } as State<Datum>;
 
   private elements!: Elements;
-  root: HierarchyNode<Datum> | undefined;
 
   constructor() {
     // Dynamically set getter and setter functions for OrgChart class instance
@@ -356,7 +356,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   private getVisibleConnections(nodes: HierarchyNode<Datum>[]) {
     const attrs = this.getChartState();
     const allNodesMap = new Map(
-      this.root!.descendants().map((d) => [attrs.nodeId(d.data), d])
+      attrs.root!.descendants().map((d) => [attrs.nodeId(d.data), d])
     );
     const visibleNodesMap = new Map(
       nodes.map((d) => [attrs.nodeId(d.data), d])
@@ -462,7 +462,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     scale?: boolean;
   } = {}) {
     const attrs = this.getChartState();
-    let descendants = nodes || this.root!.descendants();
+    let descendants = nodes || attrs.root!.descendants();
     const minX = d3.min(
       descendants,
       (d) => d.x + this.getLayoutBinding().nodeLeftX(this.getNodeRect(d))
@@ -497,9 +497,9 @@ export class OrgChart<Datum extends ConcreteDatum>
   setExpanded(id: NodeId, expandedFlag = true) {
     const attrs = this.getChartState();
     // Retrieve node by node Id
-    const node = this.root!.descendants().filter(
-      ({ data }) => attrs.nodeId(data) == id
-    )[0];
+    const node = attrs
+      .root!.descendants()
+      .filter(({ data }) => attrs.nodeId(data) == id)[0];
 
     if (!node) {
       console.log(
@@ -516,9 +516,9 @@ export class OrgChart<Datum extends ConcreteDatum>
   setCentered(nodeId: NodeId) {
     const attrs = this.getChartState();
     // this.setExpanded(nodeId)
-    const node = this.root!.descendants().filter(
-      (d) => attrs.nodeId(d.data) === nodeId
-    )[0];
+    const node = attrs
+      .root!.descendants()
+      .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
     if (!node) {
       console.log(
         `ORG CHART - CENTER - Node with id (${nodeId}) not found in the tree`
@@ -532,9 +532,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   setHighlighted(nodeId: NodeId) {
     const attrs = this.getChartState();
-    const node = this.root!.descendants().filter(
-      (d) => attrs.nodeId(d.data) === nodeId
-    )[0];
+    const node = attrs
+      .root!.descendants()
+      .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
     node.data._highlighted = true;
     attrs.nodeSetIsExpanded(node.data, true);
     this._attrs.centeredNode = node;
@@ -543,9 +543,9 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   setUpToTheRootHighlighted(nodeId: NodeId) {
     const attrs = this.getChartState();
-    const node = this.root!.descendants().filter(
-      (d) => attrs.nodeId(d.data) === nodeId
-    )[0];
+    const node = attrs
+      .root!.descendants()
+      .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
     if (!node) {
       console.log(
         `ORG CHART - HIGHLIGHTROOT - Node with id (${nodeId}) not found in the tree`
@@ -560,7 +560,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   clearHighlighting() {
     const attrs = this.getChartState();
-    this.root!.descendants().forEach((d) => {
+    attrs.root!.descendants().forEach((d) => {
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
@@ -648,7 +648,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   expandAll() {
-    this.root!.descendants().forEach((d) => {
+    this._attrs.root!.descendants().forEach((d) => {
       this._attrs.nodeSetIsExpanded(d.data, true);
     });
     this.render();
@@ -656,7 +656,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 
   collapseAll() {
-    this.root!.descendants().forEach((d) => {
+    this._attrs.root!.descendants().forEach((d) => {
       this._attrs.nodeSetIsExpanded(d.data, false);
     });
     this.render();
@@ -1007,12 +1007,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       ? new CompactLayout(
           this.getLayoutBinding(),
           this.getChartState(),
-          this.root!
+          this._attrs.root!
         )
       : new NormalLayout(
           this.getLayoutBinding(),
           this.getChartState(),
-          this.root!
+          this._attrs.root!
         );
   }
 
