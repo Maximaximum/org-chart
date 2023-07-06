@@ -382,7 +382,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       node.data,
       !this._attrs.nodeGetIsExpanded(node.data)
     );
-    this.updateChildrenProperty(node);
+    updateChildrenProperty(node, this._attrs.nodeGetIsExpanded);
   }
 
   /**
@@ -391,7 +391,7 @@ export class OrgChart<Datum extends ConcreteDatum>
    */
   ensureAncestorsAreExpanded(node: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(node.data, true);
-    this.updateChildrenProperty(node);
+    updateChildrenProperty(node, this._attrs.nodeGetIsExpanded);
 
     if (node.parent) {
       this.ensureAncestorsAreExpanded(node.parent);
@@ -403,7 +403,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     pagination: PagingNodeRenderer<Datum>,
     attrs: Pick<
       State<Datum>,
-      'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes'
+      'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes' | 'nodeGetIsExpanded'
     >
   ) {
     // Store new root by converting flat data to hierarchy
@@ -424,7 +424,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     ) as any;
 
     for (const node of root2.descendants()) {
-      this.updateChildrenProperty(node);
+      updateChildrenProperty(node, attrs.nodeGetIsExpanded);
     }
 
     return root2;
@@ -432,12 +432,12 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   collapse(d: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(d.data, false);
-    this.updateChildrenProperty(d);
+    updateChildrenProperty(d, this._attrs.nodeGetIsExpanded);
   }
 
   expand(d: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(d.data, true);
-    this.updateChildrenProperty(d);
+    updateChildrenProperty(d, this._attrs.nodeGetIsExpanded);
   }
 
   /* Zoom handler function */
@@ -697,18 +697,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
     this.render();
     return this;
-  }
-
-  updateChildrenProperty(node: HierarchyNode<Datum>) {
-    if (this._attrs.nodeGetIsExpanded(node.data)) {
-      // Expand children
-      node.children = node.children || node._children;
-      node._children = undefined;
-    } else {
-      // Collapse them
-      node._children = node._children || node.children;
-      node.children = undefined;
-    }
   }
 
   getLayoutBinding() {
@@ -1098,4 +1086,19 @@ function getNodesToFit(
     }
   }
   return centeredNodes;
+}
+
+export function updateChildrenProperty<Datum>(
+  node: HierarchyNode<Datum>,
+  nodeGetIsExpanded: (d: Datum) => boolean
+) {
+  if (nodeGetIsExpanded(node.data)) {
+    // Expand children
+    node.children = node.children || node._children;
+    node._children = undefined;
+  } else {
+    // Collapse them
+    node._children = node._children || node.children;
+    node.children = undefined;
+  }
 }
