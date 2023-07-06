@@ -2,7 +2,7 @@ import './patternify';
 
 import { HierarchyNode, State, ConcreteDatum } from './d3-org-chart.types';
 import { Selection } from 'd3';
-import { OrgChart } from './org-chart';
+import { OrgChart, createHierarchyFromData } from './org-chart';
 import { HierarchyNode as D3HierarchyNode } from 'd3';
 
 /**
@@ -127,7 +127,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       this.childrenToShowNumber.get(paginationContainer.data)! + pageSize
     );
 
-    this.chart.root = this.chart.createHierarchyFromData(
+    this.chart.root = createHierarchyFromData(
       this.chart.getChartState().data!,
       this.chart.pagination,
       this.chart.getChartState()

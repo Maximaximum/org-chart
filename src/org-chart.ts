@@ -282,11 +282,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Display tree contents
-    this.root = this.createHierarchyFromData(
-      attrs.data,
-      this.pagination,
-      attrs
-    );
+    this.root = createHierarchyFromData(attrs.data, this.pagination, attrs);
     this.rerender();
 
     //#########################################  UTIL FUNCS ##################################
@@ -396,38 +392,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     if (node.parent) {
       this.ensureAncestorsAreExpanded(node.parent);
     }
-  }
-
-  createHierarchyFromData(
-    data: Datum[],
-    pagination: PagingNodeRenderer<Datum>,
-    attrs: Pick<
-      State<Datum>,
-      'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes' | 'nodeGetIsExpanded'
-    >
-  ) {
-    // Store new root by converting flat data to hierarchy
-    const root = d3
-      .stratify<Datum>()
-      .id((d) => attrs.nodeId(d))
-      .parentId((d) => attrs.parentNodeId(d))(data);
-
-    pagination.initPagination(root, attrs.minPagingVisibleNodes);
-
-    const root2 = d3
-      .stratify<Datum>()
-      .id((d) => attrs.nodeId(d))
-      .parentId((d) => attrs.parentNodeId(d))(
-      data.filter(
-        (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
-      )
-    ) as any;
-
-    for (const node of root2.descendants()) {
-      updateChildrenProperty(node, attrs.nodeGetIsExpanded);
-    }
-
-    return root2;
   }
 
   collapse(d: HierarchyNode<Datum>) {
@@ -1101,4 +1065,36 @@ export function updateChildrenProperty<Datum>(
     node._children = node._children || node.children;
     node.children = undefined;
   }
+}
+
+export function createHierarchyFromData<Datum extends ConcreteDatum>(
+  data: Datum[],
+  pagination: PagingNodeRenderer<Datum>,
+  attrs: Pick<
+    State<Datum>,
+    'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes' | 'nodeGetIsExpanded'
+  >
+) {
+  // Store new root by converting flat data to hierarchy
+  const root = d3
+    .stratify<Datum>()
+    .id((d) => attrs.nodeId(d))
+    .parentId((d) => attrs.parentNodeId(d))(data);
+
+  pagination.initPagination(root, attrs.minPagingVisibleNodes);
+
+  const root2 = d3
+    .stratify<Datum>()
+    .id((d) => attrs.nodeId(d))
+    .parentId((d) => attrs.parentNodeId(d))(
+    data.filter(
+      (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
+    )
+  ) as any;
+
+  for (const node of root2.descendants()) {
+    updateChildrenProperty(node, attrs.nodeGetIsExpanded);
+  }
+
+  return root2;
 }
