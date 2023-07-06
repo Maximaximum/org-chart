@@ -408,7 +408,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     const nodeWrapperGElements = this.drawNodeWrappers(
       this.elements.nodesWrapper,
       nodes,
-      animationSource,
       {
         layoutBinding: this.getLayoutBinding(),
         duration: attrs.duration,
@@ -1035,7 +1034,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawNodeWrappers(
     nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     nodes: HierarchyNode<Datum>[],
-    animationSource: Rect,
     attrs: {
       layoutBinding: LayoutBinding<Datum>;
       duration: number;
@@ -1052,8 +1050,16 @@ export class OrgChart<Datum extends ConcreteDatum>
             .append('g')
             .attr('class', 'node')
             .attr('transform', (d) => {
-              const xj = this.getLayoutBinding().nodeJoinX(animationSource);
-              const yj = this.getLayoutBinding().nodeJoinY(animationSource);
+              const parentRect = d.parent
+                ? this.getNodeRect(d.parent)
+                : {
+                    x: 0,
+                    y: 0,
+                    height: 0,
+                    width: 0,
+                  };
+              const xj = this.getLayoutBinding().nodeJoinX(parentRect);
+              const yj = this.getLayoutBinding().nodeJoinY(parentRect);
               return `translate(${xj},${yj})`;
             });
         },
@@ -1065,8 +1071,17 @@ export class OrgChart<Datum extends ConcreteDatum>
             .transition()
             .duration(attrs.duration)
             .attr('transform', (d) => {
-              const xj = this.getLayoutBinding().nodeJoinX(animationSource);
-              const yj = this.getLayoutBinding().nodeJoinY(animationSource);
+              const parentRect = d.parent
+                ? this.getNodeRect(d.parent)
+                : {
+                    x: 0,
+                    y: 0,
+                    height: 0,
+                    width: 0,
+                  };
+
+              const xj = this.getLayoutBinding().nodeJoinX(parentRect);
+              const yj = this.getLayoutBinding().nodeJoinY(parentRect);
               return `translate(${xj},${yj})`;
             })
             .on('end', function (this) {
