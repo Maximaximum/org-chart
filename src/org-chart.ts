@@ -282,7 +282,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Display tree contents
-    this.root = createHierarchyFromData(attrs.data, this.pagination, attrs);
+    this._attrs.root = createHierarchyFromData(
+      attrs.data,
+      this.pagination,
+      attrs
+    );
     this.rerender();
 
     //#########################################  UTIL FUNCS ##################################

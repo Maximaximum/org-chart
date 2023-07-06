@@ -55,7 +55,7 @@ export interface State<Datum> {
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */
   container: string | HTMLElement;
-  /** Set data, it must be an array of objects, where hierarchy is clearly defined via id and parent ID (property names are configurable) */
+  /** Data should be removed from attrs, instead root should be accpeted directly */
   data: Datum[] | null;
   root: HierarchyNode<Datum> | undefined;
   /** Configure duration of transitions */
