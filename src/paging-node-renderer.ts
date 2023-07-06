@@ -128,7 +128,9 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     );
 
     this.chart.root = this.chart.createHierarchyFromData(
-      this.chart.getChartState().data!
+      this.chart.getChartState().data!,
+      this.chart.pagination,
+      this.chart.getChartState()
     );
     this.chart.rerender();
   }

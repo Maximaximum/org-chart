@@ -282,7 +282,11 @@ export class OrgChart<Datum extends ConcreteDatum>
     });
 
     // Display tree contents
-    this.root = this.createHierarchyFromData(attrs.data);
+    this.root = this.createHierarchyFromData(
+      attrs.data,
+      this.pagination,
+      attrs
+    );
     this.rerender();
 
     //#########################################  UTIL FUNCS ##################################
@@ -394,22 +398,28 @@ export class OrgChart<Datum extends ConcreteDatum>
     }
   }
 
-  createHierarchyFromData(data: Datum[]) {
-    const attrs = this.getChartState();
+  createHierarchyFromData(
+    data: Datum[],
+    pagination: PagingNodeRenderer<Datum>,
+    attrs: Pick<
+      State<Datum>,
+      'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes'
+    >
+  ) {
     // Store new root by converting flat data to hierarchy
     const root = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(data);
 
-    this.pagination.initPagination(root, attrs.minPagingVisibleNodes);
+    pagination.initPagination(root, attrs.minPagingVisibleNodes);
 
     const root2 = d3
       .stratify<Datum>()
       .id((d) => attrs.nodeId(d))
       .parentId((d) => attrs.parentNodeId(d))(
       data.filter(
-        (d) => !this.pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
+        (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
       )
     ) as any;
 
