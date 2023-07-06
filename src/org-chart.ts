@@ -214,7 +214,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       }
 
       // Redraw Graph
-      this.update(this.getNodeRect(d));
+      this.update();
     });
   }
 
@@ -283,7 +283,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     // Display tree contents
     this.createHierarchyFromData();
-    this.update(this.getNodeRect(this.root!));
+    this.update();
 
     //#########################################  UTIL FUNCS ##################################
     // This function restyles foreign object elements ()
@@ -330,7 +330,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data!.push(obj);
 
     this.createHierarchyFromData();
-    this.update(this.getNodeRect(this.root!));
+    this.update();
 
     return this;
   }
@@ -356,20 +356,13 @@ export class OrgChart<Datum extends ConcreteDatum>
     attrs.data = attrs.data!.filter((d) => !descendants.includes(d));
 
     this.createHierarchyFromData();
-    this.update(this.getNodeRect(this.root!));
+    this.update();
 
     return this;
   }
 
   // This function basically redraws visible graph, based on nodes state
-  update(animationSource: Rect) {
-    if (animationSource.x === undefined) {
-      animationSource.x = 0;
-    }
-    if (animationSource.y === undefined) {
-      animationSource.y = 0;
-    }
-
+  update() {
     const attrs = this.getChartState();
 
     const layout = this.layoutFactory();
@@ -400,8 +393,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
-      visibleConnections,
-      animationSource
+      visibleConnections
     );
 
     const nodeWrapperGElements = this.drawNodeWrappers(
@@ -654,7 +646,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       d.data._highlighted = false;
       d.data._upToTheRootHighlighted = false;
     });
-    this.update(this.getNodeRect(this.root!));
+    this.update();
   }
 
   // Zoom in exposed method
@@ -701,7 +693,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             scale,
             isSvg: false,
             onAlreadySerialized: () => {
-              that.update(this.getNodeRect(this.root!));
+              that.update();
             },
             imageName: attrs.imageName,
             onLoad: onLoad,
@@ -886,8 +878,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private drawConnections = (
     connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>,
-    visibleConnections: Connection<Datum>[],
-    animationSource: Rect
+    visibleConnections: Connection<Datum>[]
   ) => {
     const attrs = this.getChartState();
 
@@ -901,6 +892,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert('path', 'g')
       .attr('class', 'connection')
       .attr('d', (d) => {
+        const animationSource = this.getAnimationSourceRect(d._source);
         const xo = this.getLayoutBinding().linkJoinX(animationSource);
         const yo = this.getLayoutBinding().linkJoinY(animationSource);
         const o = { x: xo, y: yo };
