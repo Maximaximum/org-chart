@@ -394,7 +394,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     this.elements.linksWrapper.call(
       this.drawLinks,
       links,
-      animationSource,
       (d) => layout.getLinkSourcePoint(d),
       (d) => layout.getLinkTargetPoint(d.parent!),
       (d) => layout.getLinkMiddlePoint(d)
@@ -948,7 +947,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   private drawLinks = (
     linksWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     links: HierarchyNode<Datum>[],
-    animationSource: Rect,
     getSourcePointFn: (d: HierarchyNode<Datum>) => Point,
     getTargetPointFn: (d: HierarchyNode<Datum>) => Point,
     getMiddlePointFn: (d: HierarchyNode<Datum>) => Point | undefined
@@ -965,8 +963,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().linkJoinX(animationSource);
-        const yo = this.getLayoutBinding().linkJoinY(animationSource);
+        const xo = this.getLayoutBinding().linkJoinX(
+          this.getAnimationSourceRect(d)
+        );
+        const yo = this.getLayoutBinding().linkJoinY(
+          this.getAnimationSourceRect(d)
+        );
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, o);
       });
@@ -1002,8 +1004,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().linkJoinX(animationSource);
-        const yo = this.getLayoutBinding().linkJoinY(animationSource);
+        const xo = this.getLayoutBinding().linkJoinX(
+          this.getAnimationSourceRect(d as HierarchyNode<Datum>)
+        );
+        const yo = this.getLayoutBinding().linkJoinY(
+          this.getAnimationSourceRect(d as HierarchyNode<Datum>)
+        );
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
       })
@@ -1050,14 +1056,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             .append('g')
             .attr('class', 'node')
             .attr('transform', (d) => {
-              const parentRect = d.parent
-                ? this.getNodeRect(d.parent)
-                : {
-                    x: 0,
-                    y: 0,
-                    height: 0,
-                    width: 0,
-                  };
+              const parentRect = this.getAnimationSourceRect(d);
               const xj = this.getLayoutBinding().nodeJoinX(parentRect);
               const yj = this.getLayoutBinding().nodeJoinY(parentRect);
               return `translate(${xj},${yj})`;
@@ -1092,6 +1091,17 @@ export class OrgChart<Datum extends ConcreteDatum>
       )
       .attr('cursor', 'default')
       .style('font', '12px sans-serif');
+  }
+
+  private getAnimationSourceRect(d: HierarchyNode<Datum>) {
+    return d.parent
+      ? this.getNodeRect(d.parent)
+      : {
+          x: 0,
+          y: 0,
+          height: 0,
+          width: 0,
+        };
   }
 
   private layoutFactory() {
