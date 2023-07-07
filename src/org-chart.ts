@@ -306,11 +306,22 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
 
+    const nodeWrapperGElements = this.drawNodeWrappers(
+      this.elements.nodesWrapper,
+      nodes,
+      {
+        layoutBinding: this.getLayoutBinding(),
+        duration: attrs.duration,
+        nodeId: attrs.nodeId,
+      }
+    );
+
+    nodeWrapperGElements.call(this.drawNodes);
+
     // Get all links
-    const links = (treeData.descendants() as any as HierarchyNode<Datum>[])
+    const links = nodes
       .slice(1)
       .filter((l) => !this.pagination.paginationButtonNodes.has(l.data));
-    nodes.forEach(this.getLayoutBinding().swap);
 
     // Connections
     const visibleConnections = this.getVisibleConnections(nodes);
@@ -330,18 +341,6 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.drawConnections,
       visibleConnections
     );
-
-    const nodeWrapperGElements = this.drawNodeWrappers(
-      this.elements.nodesWrapper,
-      nodes,
-      {
-        layoutBinding: this.getLayoutBinding(),
-        duration: attrs.duration,
-        nodeId: attrs.nodeId,
-      }
-    );
-
-    nodeWrapperGElements.call(this.drawNodes);
 
     this.translateChartGroupIfNeeded();
   }

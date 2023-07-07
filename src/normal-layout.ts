@@ -11,7 +11,12 @@ export class NormalLayout<Datum> {
   constructor(
     protected layoutBinding: Pick<
       LayoutBinding<Datum>,
-      'rectSizeWithMargins' | 'linkX' | 'linkY' | 'linkTargetX' | 'linkTargetY'
+      | 'rectSizeWithMargins'
+      | 'linkX'
+      | 'linkY'
+      | 'linkTargetX'
+      | 'linkTargetY'
+      | 'swap'
     >,
     protected attrs: Pick<
       State<Datum>,
@@ -28,7 +33,9 @@ export class NormalLayout<Datum> {
     const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
-    return flexTreeLayout(this.root!);
+    const res = flexTreeLayout(this.root!);
+    res.descendants().forEach(this.layoutBinding.swap);
+    return res;
   }
 
   getNodeSize(node: HierarchyNode<Datum>) {

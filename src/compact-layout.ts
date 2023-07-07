@@ -38,6 +38,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       | 'linkY'
       | 'linkTargetX'
       | 'linkTargetY'
+      | 'swap'
     >,
     protected override attrs: Pick<
       State<Datum>,
@@ -58,7 +59,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
   override createFlextreeNodes() {
     const res = super.createFlextreeNodes();
 
-    // Reassigns the x and y position for the based on the compact layout
+    // Reassigns the x and y position for the nodes based on the compact layout
     this.calculateCompactFlexPositions();
 
     return res;
