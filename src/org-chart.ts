@@ -289,17 +289,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     );
     this.rerender();
 
-    //#########################################  UTIL FUNCS ##################################
-    // This function restyles foreign object elements ()
-
-    d3.select(window).on(`resize.${this.id}`, () => {
-      const containerRect = d3
-        .select(attrs.container as Element)
-        .node()!
-        .getBoundingClientRect();
-      this.elements.svg.attr('width', containerRect.width);
-    });
-
     this.firstDraw = false;
 
     return this;
