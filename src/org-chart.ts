@@ -81,11 +81,18 @@ export class OrgChart<Datum extends ConcreteDatum>
     rootMargin: 40,
     nodeWidth: (d3Node) => 250,
     nodeHeight: (d) => 150,
+
+    // #region NormalLayout properties
     neighbourMargin: (n1, n2) => 80,
     siblingsMargin: (d3Node) => 20,
     childrenMargin: (d) => 60,
+    // #endregion
+
+    // #region CompactLayout properties
     compactMarginPair: (d) => 100,
     compactMarginBetween: () => 20,
+    // #endregion
+
     minPagingVisibleNodes: (d) => 2000,
     scaleExtent: [0.001, 20],
     duration: 400,
