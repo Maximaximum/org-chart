@@ -65,11 +65,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
     diagonal: hdiagonal,
-    swap: ((d: Point) => {
-      const x = d.x;
-      d.x = d.y;
-      d.y = x;
-    }) as any,
+    swap: (d: Point) => ({
+      x: d.y,
+      y: d.x,
+    }),
     nodePosition: ({ x, y, width, height }) => ({
       x,
       y: y - height / 2,
@@ -112,7 +111,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
     diagonal: vdiagonal,
-    swap: ((d: Point) => {}) as any,
+    swap: (d: Point) => ({ ...d }),
     nodePosition: ({ x, y, width, height }) => ({ x: x - width / 2, y }),
   },
   bottom: {
@@ -152,9 +151,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
     diagonal: vdiagonal,
-    swap: ((d: Point) => {
-      d.y = -d.y;
-    }) as any,
+    swap: (d: Point) => ({
+      x: d.x,
+      y: -d.y,
+    }),
     nodePosition: ({ x, y, width, height }) => ({
       x: x - width / 2,
       y: y - height,
@@ -197,11 +197,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
     diagonal: hdiagonal,
-    swap: ((d: Point) => {
-      const x = d.x;
-      d.x = -d.y;
-      d.y = x;
-    }) as any,
+    swap: (d: Point) => ({
+      x: -d.y,
+      y: d.x,
+    }),
     nodePosition: ({ x, y, width, height }) => ({
       x: x - width,
       y: y - height / 2,

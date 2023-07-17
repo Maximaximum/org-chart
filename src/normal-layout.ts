@@ -19,7 +19,11 @@ export class NormalLayout<Datum> {
 
     //  Assigns the x and y position for the nodes
     const res = flexTreeLayout(this.root!);
-    res.descendants().forEach(this.layoutBinding.swap);
+    res.descendants().forEach((d) => {
+      const swapped = this.layoutBinding.swap(d);
+      (d as any).x = swapped.x;
+      (d as any).y = swapped.y;
+    });
     return res;
   }
 
