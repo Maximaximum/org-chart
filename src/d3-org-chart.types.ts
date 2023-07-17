@@ -46,15 +46,15 @@ export interface Elements {
 }
 
 export interface NormalLayoutAttrs<Datum> {
-  /** Configure each node width, use with caution, it is better to have the same value set for all nodes */
+  /** Configure each node width */
   nodeWidth: (node: HierarchyNode<Datum>) => number;
-  /** Configure each node height, use with caution, it is better to have the same value set for all nodes */
+  /** Configure each node height */
   nodeHeight: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two siblings, use with caution, it is better to have the same value set for all nodes */
+  /** Configure margin between two siblings */
   siblingsMargin: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between parent and children, use with caution, it is better to have the same value set for all nodes */
+  /** Configure margin between parent and children */
   childrenMargin: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two nodes, use with caution, it is better to have the same value set for all nodes */
+  /** Configure margin between two nodes */
   neighbourMargin: (
     node1: HierarchyNode<Datum>,
     node2: HierarchyNode<Datum>
@@ -62,9 +62,9 @@ export interface NormalLayoutAttrs<Datum> {
 }
 
 export interface CompactLayoutAttrs<Datum> {
-  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
+  /** Configure margin between two nodes in compact mode */
   compactMarginPair: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
+  /** Configure margin between two nodes in compact mode */
   compactMarginBetween: () => number;
 }
 
