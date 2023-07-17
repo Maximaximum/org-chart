@@ -48,15 +48,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
   }
 
   override getNodeSize(node: HierarchyNode<Datum>) {
-    return (
-      this.leafNodeSize.get(node) ||
-      this.layoutBinding.rectSizeWithMargins({
-        width: this.attrs.nodeWidth(node),
-        height: this.attrs.nodeHeight(node),
-        siblingsMargin: this.attrs.siblingsMargin(node),
-        childrenMargin: this.attrs.childrenMargin(node),
-      })
-    );
+    return this.leafNodeSize.get(node) || super.getNodeSize(node);
   }
 
   private performInitialCalculations() {
