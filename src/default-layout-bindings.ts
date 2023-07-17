@@ -62,10 +62,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
         node.y + (compactEven ? node.height / 2 : -node.height / 2),
     },
     nodeEdgePositionRelativeToNodePosition: {
-      nodeLeftX: (node) => 0,
-      nodeRightX: (node) => node.width,
-      nodeTopY: (node) => -node.height / 2,
-      nodeBottomY: (node) => node.height / 2,
+      left: (node) => 0,
+      right: (node) => node.width,
+      top: (node) => -node.height / 2,
+      bottom: (node) => node.height / 2,
     },
     actualAbsoluteNodePosition: {
       x: (node) => node.x + node.width,
@@ -111,10 +111,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
       linkCompactYStart: (node, compactEven) => node.y + node.height / 2,
     },
     nodeEdgePositionRelativeToNodePosition: {
-      nodeLeftX: (node) => -node.width / 2,
-      nodeRightX: (node) => node.width / 2,
-      nodeTopY: (node) => 0,
-      nodeBottomY: (node) => node.height,
+      left: (node) => -node.width / 2,
+      right: (node) => node.width / 2,
+      top: (node) => 0,
+      bottom: (node) => node.height,
     },
     actualAbsoluteNodePosition: {
       x: (node) => node.x - node.width / 2,
@@ -164,10 +164,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
       linkCompactYStart: (node, compactEven) => node.y - node.height / 2,
     },
     nodeEdgePositionRelativeToNodePosition: {
-      nodeLeftX: (node) => -node.width / 2,
-      nodeRightX: (node) => node.width / 2,
-      nodeTopY: (node) => -node.height,
-      nodeBottomY: (node) => 0,
+      left: (node) => -node.width / 2,
+      right: (node) => node.width / 2,
+      top: (node) => -node.height,
+      bottom: (node) => 0,
     },
     actualAbsoluteNodePosition: {
       x: (node) => node.x - node.width / 2,
@@ -216,10 +216,10 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
       compactLinkMidY: (node, margin) => node.y + node.width / 4 + margin / 4,
     },
     nodeEdgePositionRelativeToNodePosition: {
-      nodeLeftX: (node) => -node.width,
-      nodeRightX: (node) => 0,
-      nodeTopY: (node) => -node.height / 2,
-      nodeBottomY: (node) => node.height / 2,
+      left: (node) => -node.width,
+      right: (node) => 0,
+      top: (node) => -node.height / 2,
+      bottom: (node) => node.height / 2,
     },
     actualAbsoluteNodePosition: {
       x: (node) => node.x - node.width - node.width,

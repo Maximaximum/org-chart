@@ -184,10 +184,10 @@ export interface State<Datum>
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
 export interface NodePositionBinding {
-  nodeLeftX: (node: Rect) => number;
-  nodeRightX: (node: Rect) => number;
-  nodeTopY: (node: Rect) => number;
-  nodeBottomY: (node: Rect) => number;
+  left: (node: Rect) => number;
+  right: (node: Rect) => number;
+  top: (node: Rect) => number;
+  bottom: (node: Rect) => number;
 }
 
 export interface LayoutBinding {
