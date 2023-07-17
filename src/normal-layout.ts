@@ -1,31 +1,16 @@
 import { flextree } from 'd3-flextree';
 import {
   HierarchyNode,
-  LayoutBinding,
+  NormalLayoutAttrs,
+  NormalLayoutBinding,
   Point,
   Rect,
-  State,
 } from './d3-org-chart.types';
 
 export class NormalLayout<Datum> {
   constructor(
-    protected layoutBinding: Pick<
-      LayoutBinding<Datum>,
-      | 'rectSizeWithMargins'
-      | 'linkX'
-      | 'linkY'
-      | 'linkTargetX'
-      | 'linkTargetY'
-      | 'swap'
-    >,
-    protected attrs: Pick<
-      State<Datum>,
-      | 'nodeWidth'
-      | 'nodeHeight'
-      | 'siblingsMargin'
-      | 'childrenMargin'
-      | 'neighbourMargin'
-    >,
+    protected layoutBinding: NormalLayoutBinding,
+    protected attrs: NormalLayoutAttrs<Datum>,
     protected root: HierarchyNode<Datum>
   ) {}
 

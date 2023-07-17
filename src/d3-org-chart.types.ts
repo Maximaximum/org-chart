@@ -45,12 +45,43 @@ export interface Elements {
   chart: Selection<SVGGElement, string, SVGSVGElement, string>;
 }
 
+export interface NormalLayoutAttrs<Datum> {
+  /** Configure each node width, use with caution, it is better to have the same value set for all nodes */
+  nodeWidth: (node: HierarchyNode<Datum>) => number;
+  /** Configure each node height, use with caution, it is better to have the same value set for all nodes */
+  nodeHeight: (node: HierarchyNode<Datum>) => number;
+  /** Configure margin between two siblings, use with caution, it is better to have the same value set for all nodes */
+  siblingsMargin: (node: HierarchyNode<Datum>) => number;
+  /** Configure margin between parent and children, use with caution, it is better to have the same value set for all nodes */
+  childrenMargin: (node: HierarchyNode<Datum>) => number;
+  /** Configure margin between two nodes, use with caution, it is better to have the same value set for all nodes */
+  neighbourMargin: (
+    node1: HierarchyNode<Datum>,
+    node2: HierarchyNode<Datum>
+  ) => number;
+}
+
+export interface NormalLayoutBinding {
+  rectSizeWithMargins: (params: {
+    height: number;
+    width: number;
+    siblingsMargin: number;
+    childrenMargin: number;
+  }) => Size;
+  linkX: (node: Rect) => number;
+  linkY: (node: Rect) => number;
+  linkTargetX: (node: Rect) => number;
+  linkTargetY: (node: Rect) => number;
+  /** Swaps x and y coordinates */
+  swap: (d: Point) => Point;
+}
+
 /**
  * The configuration attributes of an organization charts.
  * All of these properties are available as get / set pairs
  * of the organization chart object, per D3 standard.
  */
-export interface State<Datum> {
+export interface State<Datum> extends NormalLayoutAttrs<Datum> {
   /** Configure zoom scale extent , if you don't want any kind of zooming, set it to [1,1] */
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */
@@ -96,19 +127,6 @@ export interface State<Datum> {
       string
     >
   ) => void;
-  /** Configure each node width, use with caution, it is better to have the same value set for all nodes */
-  nodeWidth: (node: HierarchyNode<Datum>) => number;
-  /** Configure each node height, use with caution, it is better to have the same value set for all nodes */
-  nodeHeight: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two siblings, use with caution, it is better to have the same value set for all nodes */
-  siblingsMargin: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between parent and children, use with caution, it is better to have the same value set for all nodes */
-  childrenMargin: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two nodes, use with caution, it is better to have the same value set for all nodes */
-  neighbourMargin: (
-    node1: HierarchyNode<Datum>,
-    node2: HierarchyNode<Datum>
-  ) => number;
   /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
   compactMarginPair: (node: HierarchyNode<Datum>) => number;
   /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
@@ -126,7 +144,7 @@ export interface State<Datum> {
    *   chart.layoutBindings(layout);
    *   ```
    */
-  layoutBindings: Record<Layout, LayoutBinding<Datum>>;
+  layoutBindings: Record<Layout, LayoutBinding>;
   nodeGetIsExpanded: (d: Datum) => boolean;
   nodeSetIsExpanded: (d: Datum, value: boolean) => void;
   centeredNode: HierarchyNode<Datum> | undefined;
@@ -149,7 +167,7 @@ export interface State<Datum> {
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
-export interface LayoutBinding<Datum> {
+export interface LayoutBinding extends NormalLayoutBinding {
   nodeLeftX: (node: Rect) => number;
   nodeRightX: (node: Rect) => number;
   nodeTopY: (node: Rect) => number;
@@ -158,14 +176,10 @@ export interface LayoutBinding<Datum> {
   nodeJoinY: (node: Rect) => number;
   linkJoinX: (node: Rect) => number;
   linkJoinY: (node: Rect) => number;
-  linkX: (node: Rect) => number;
-  linkY: (node: Rect) => number;
   linkCompactXStart: (node: Rect, compactEven: boolean) => number;
   linkCompactYStart: (node: Rect, compactEven: boolean) => number;
   compactLinkMidX: (node: Rect, margin: number) => number;
   compactLinkMidY: (node: Rect, margin: number) => number;
-  linkTargetX: (node: Rect) => number;
-  linkTargetY: (node: Rect) => number;
   buttonX: (node: { width: number; height: number }) => number;
   buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */
@@ -181,20 +195,13 @@ export interface LayoutBinding<Datum> {
     sizeColumn: (node: Rect) => number;
     sizeRow: (node: Rect) => number;
   };
-  rectSizeWithMargins: (params: {
-    height: number;
-    width: number;
-    siblingsMargin: number;
-    childrenMargin: number;
-  }) => Size;
+
   zoomTransform: (params: {
     centerY: number;
     centerX: number;
     scale: number;
   }) => string;
   diagonal(source: Point, target: Point, m?: Point): string;
-  /** Swaps x and y coordinates */
-  swap: (d: Point) => Point;
   nodePosition: (params: Rect) => Point;
 }
 

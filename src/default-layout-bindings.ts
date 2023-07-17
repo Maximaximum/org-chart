@@ -1,8 +1,6 @@
 import { Layout, LayoutBinding, Point } from './d3-org-chart.types';
 import { vdiagonal, hdiagonal } from './diagonals';
 
-type Datum = any;
-
 export function isLayoutVertical(layout: Layout) {
   return layout === 'bottom' || layout === 'top';
 }
@@ -29,7 +27,7 @@ export function getOppositeDirection(layout: Layout): Layout {
  *   chart.layoutBindings(layout);
  *   ```
  */
-export const defaultLayoutBindings: Record<Layout, LayoutBinding<Datum>> = {
+export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
   left: {
     nodeLeftX: (node) => 0,
     nodeRightX: (node) => node.width,

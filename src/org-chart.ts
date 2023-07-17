@@ -929,7 +929,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodesWrapper: Selection<SVGGElement, string, SVGGElement, string>,
     nodes: HierarchyNode<Datum>[],
     attrs: {
-      layoutBinding: LayoutBinding<Datum>;
+      layoutBinding: LayoutBinding;
       duration: number;
       nodeId: (node: Datum) => NodeId;
     }

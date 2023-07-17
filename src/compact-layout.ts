@@ -27,7 +27,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
 
   constructor(
     protected override layoutBinding: Pick<
-      LayoutBinding<Datum>,
+      LayoutBinding,
       | 'rectSizeWithMargins'
       | 'compactDimension'
       | 'compactLinkMidX'
