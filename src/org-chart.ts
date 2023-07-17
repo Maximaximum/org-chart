@@ -793,8 +793,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('class', 'connection')
       .attr('d', (d) => {
         const animationSource = this.getAnimationSourceRect(d._source);
-        const xo = this.getLayoutBinding().linkJoinX(animationSource);
-        const yo = this.getLayoutBinding().linkJoinY(animationSource);
+        const xo =
+          this.getLayoutBinding().normalLayoutBinding.linkTargetX(
+            animationSource
+          );
+        const yo =
+          this.getLayoutBinding().normalLayoutBinding.linkTargetY(
+            animationSource
+          );
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
       });
@@ -816,10 +822,10 @@ export class OrgChart<Datum extends ConcreteDatum>
         const ys = this.getLayoutBinding().normalLayoutBinding.linkY(
           this.getNodeRect(d._source)
         );
-        const xt = this.getLayoutBinding().linkJoinX(
+        const xt = this.getLayoutBinding().normalLayoutBinding.linkTargetX(
           this.getNodeRect(d._target)
         );
-        const yt = this.getLayoutBinding().linkJoinY(
+        const yt = this.getLayoutBinding().normalLayoutBinding.linkTargetY(
           this.getNodeRect(d._target)
         );
         return attrs.linkGroupArc({
@@ -859,10 +865,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().linkJoinX(
+        const xo = this.getLayoutBinding().normalLayoutBinding.linkTargetX(
           this.getAnimationSourceRect(d)
         );
-        const yo = this.getLayoutBinding().linkJoinY(
+        const yo = this.getLayoutBinding().normalLayoutBinding.linkTargetY(
           this.getAnimationSourceRect(d)
         );
         const o = { x: xo, y: yo };
@@ -900,10 +906,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().linkJoinX(
+        const xo = this.getLayoutBinding().normalLayoutBinding.linkTargetX(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
-        const yo = this.getLayoutBinding().linkJoinY(
+        const yo = this.getLayoutBinding().normalLayoutBinding.linkTargetY(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
         const o = { x: xo, y: yo };

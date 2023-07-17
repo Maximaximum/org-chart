@@ -199,8 +199,6 @@ export interface LayoutBinding {
     y: (node: Rect) => number;
   };
 
-  linkJoinX: (node: Rect) => number;
-  linkJoinY: (node: Rect) => number;
   /** Returns a CSS transform */
   centerTransform: (params: {
     rootMargin: number;
