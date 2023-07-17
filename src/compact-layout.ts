@@ -8,7 +8,6 @@ import {
   NormalLayoutAttrs,
   NormalLayoutBinding,
   Size,
-  State,
 } from './d3-org-chart.types';
 import { NormalLayout } from './normal-layout';
 
@@ -29,8 +28,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
   >();
 
   constructor(
-    protected override layoutBinding: CompactLayoutBinding &
-      NormalLayoutBinding,
+    layoutBinding: NormalLayoutBinding,
+    protected compactLayoutBinding: CompactLayoutBinding,
     protected override attrs: CompactLayoutAttrs<Datum> &
       NormalLayoutAttrs<Datum>,
     root: HierarchyNode<Datum>
@@ -76,13 +75,13 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           leafChildren
             .filter((d) => !!this.compactEven.get(d))
             .map((d) => this.getNodeRect(d)),
-          this.layoutBinding.compactDimension.sizeColumn
+          this.compactLayoutBinding.compactDimension.sizeColumn
         )!;
         const oddMaxColumnDimension = d3.max(
           leafChildren
             .filter((d) => !this.compactEven.get(d))
             .map((d) => this.getNodeRect(d)),
-          this.layoutBinding.compactDimension.sizeColumn
+          this.compactLayoutBinding.compactDimension.sizeColumn
         )!;
         const columnSize =
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
@@ -93,7 +92,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
             d3.max(
               reducedGroup,
               (d) =>
-                this.layoutBinding.compactDimension.sizeRow(
+                this.compactLayoutBinding.compactDimension.sizeRow(
                   this.getNodeRect(d)
                 ) + this.attrs.compactMarginBetween()
             )
@@ -162,7 +161,9 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           (d) => this.row.get(d) + '',
           (reducedGroup) =>
             d3.max(reducedGroup, (d) =>
-              this.layoutBinding.compactDimension.sizeRow(this.getNodeRect(d))
+              this.compactLayoutBinding.compactDimension.sizeRow(
+                this.getNodeRect(d)
+              )
             )!
         );
         const cumSum = d3.cumsum(
@@ -192,8 +193,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       const margin = this.attrs.compactMarginPair(d);
 
       return {
-        x: this.layoutBinding.compactLinkMidX(rect, margin),
-        y: this.layoutBinding.compactLinkMidY(rect, margin),
+        x: this.compactLayoutBinding.compactLinkMidX(rect, margin),
+        y: this.compactLayoutBinding.compactLinkMidY(rect, margin),
       };
     } else {
       return super.getLinkSourcePoint(d);
@@ -209,11 +210,11 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       const compactEven = !!this.compactEven.get(d);
 
       return {
-        x: this.layoutBinding.linkCompactXStart(
+        x: this.compactLayoutBinding.linkCompactXStart(
           this.getNodeRect(d),
           compactEven
         ),
-        y: this.layoutBinding.linkCompactYStart(
+        y: this.compactLayoutBinding.linkCompactYStart(
           this.getNodeRect(d),
           compactEven
         ),

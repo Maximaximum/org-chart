@@ -806,8 +806,12 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xs = this.getLayoutBinding().linkX(this.getNodeRect(d._source));
-        const ys = this.getLayoutBinding().linkY(this.getNodeRect(d._source));
+        const xs = this.getLayoutBinding().normalLayoutBinding.linkX(
+          this.getNodeRect(d._source)
+        );
+        const ys = this.getLayoutBinding().normalLayoutBinding.linkY(
+          this.getNodeRect(d._source)
+        );
         const xt = this.getLayoutBinding().linkJoinX(
           this.getNodeRect(d._target)
         );
@@ -995,12 +999,13 @@ export class OrgChart<Datum extends ConcreteDatum>
   private layoutFactory() {
     return this._attrs.compact
       ? new CompactLayout(
-          this.getLayoutBinding(),
+          this.getLayoutBinding().normalLayoutBinding,
+          this.getLayoutBinding().compactLayoutBinding,
           this.getChartState(),
           this._attrs.root!
         )
       : new NormalLayout(
-          this.getLayoutBinding(),
+          this.getLayoutBinding().normalLayoutBinding,
           this.getChartState(),
           this._attrs.root!
         );
