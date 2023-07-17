@@ -816,10 +816,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xs = this.getLayoutBinding().normalLayoutBinding.linkX(
+        const xs = this.getLayoutBinding().normalLayoutBinding.linkSourceX(
           this.getNodeRect(d._source)
         );
-        const ys = this.getLayoutBinding().normalLayoutBinding.linkY(
+        const ys = this.getLayoutBinding().normalLayoutBinding.linkSourceY(
           this.getNodeRect(d._source)
         );
         const xt = this.getLayoutBinding().normalLayoutBinding.linkTargetX(

@@ -41,8 +41,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkX: (node) => node.x,
-      linkY: (node) => node.y,
+      linkSourceX: (node) => node.x,
+      linkSourceY: (node) => node.y,
       linkTargetX: (node) => node.x + node.width,
       linkTargetY: (node) => node.y,
       swap: (d: Point) => ({
@@ -91,8 +91,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkX: (node) => node.x,
-      linkY: (node) => node.y,
+      linkSourceX: (node) => node.x,
+      linkSourceY: (node) => node.y,
       linkTargetX: (node) => node.x,
       linkTargetY: (node) => node.y + node.height,
       swap: (d: Point) => ({ ...d }),
@@ -139,8 +139,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkX: (node) => node.x,
-      linkY: (node) => node.y,
+      linkSourceX: (node) => node.x,
+      linkSourceY: (node) => node.y,
       linkTargetX: (node) => node.x,
       linkTargetY: (node) => node.y - node.height,
       swap: (d: Point) => ({
@@ -189,8 +189,8 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkX: (node) => node.x,
-      linkY: (node) => node.y,
+      linkSourceX: (node) => node.x,
+      linkSourceY: (node) => node.y,
       linkTargetX: (node) => node.x - node.width,
       linkTargetY: (node) => node.y,
       swap: (d: Point) => ({

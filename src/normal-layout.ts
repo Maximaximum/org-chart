@@ -38,8 +38,8 @@ export class NormalLayout<Datum> {
 
   getLinkSourcePoint(d: HierarchyNode<Datum>) {
     return {
-      x: this.layoutBinding.linkX(this.getNodeRect(d)),
-      y: this.layoutBinding.linkY(this.getNodeRect(d)),
+      x: this.layoutBinding.linkSourceX(this.getNodeRect(d)),
+      y: this.layoutBinding.linkSourceY(this.getNodeRect(d)),
     };
   }
 
