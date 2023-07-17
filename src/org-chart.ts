@@ -966,15 +966,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             .transition()
             .duration(attrs.duration)
             .attr('transform', (d) => {
-              const parentRect = d.parent
-                ? this.getNodeRect(d.parent)
-                : {
-                    x: 0,
-                    y: 0,
-                    height: 0,
-                    width: 0,
-                  };
-
+              const parentRect = this.getAnimationSourceRect(d);
               const xj = this.getLayoutBinding().nodeJoinX(parentRect);
               const yj = this.getLayoutBinding().nodeJoinY(parentRect);
               return `translate(${xj},${yj})`;
