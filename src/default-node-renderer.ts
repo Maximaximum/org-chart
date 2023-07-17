@@ -2,7 +2,12 @@ import './patternify';
 
 import { BaseType, Selection } from 'd3-selection';
 
-import { HierarchyNode, State, ConcreteDatum } from './d3-org-chart.types';
+import {
+  HierarchyNode,
+  State,
+  ConcreteDatum,
+  Size,
+} from './d3-org-chart.types';
 import { nodeBackground } from './default-colors';
 import { OrgChart } from './org-chart';
 import { Layout } from './d3-org-chart.types';
@@ -46,6 +51,31 @@ function buttonContent(
       numChildrenSpan(totalChildrenNumber, isLayoutVertical(layout))
   );
 }
+
+const expandButtonPosition: Record<
+  Layout,
+  {
+    x: (node: Size) => number;
+    y: (node: Size) => number;
+  }
+> = {
+  left: {
+    x: (node) => node.width,
+    y: (node) => node.height / 2,
+  },
+  top: {
+    x: (node) => node.width / 2,
+    y: (node) => node.height,
+  },
+  bottom: {
+    x: (node) => node.width / 2,
+    y: (node) => 0,
+  },
+  right: {
+    x: (node) => 0,
+    y: (node) => node.height / 2,
+  },
+};
 
 export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
   constructor(private chart: OrgChart<Datum>) {}
@@ -141,12 +171,10 @@ export class DefaultNodeRenderer<Datum extends ConcreteDatum> {
         this.expandToggleClick.next(d);
       })
       .attr('transform', (node) => {
-        const x = this.chart
-          .getLayoutBinding()
-          .buttonX(this.chart.getNodeRect(node));
-        const y = this.chart
-          .getLayoutBinding()
-          .buttonY(this.chart.getNodeRect(node));
+        const pos = expandButtonPosition[this.chart.getChartState().layout];
+
+        const x = pos.x(this.chart.getNodeRect(node));
+        const y = pos.y(this.chart.getNodeRect(node));
         return `translate(${x},${y})`;
       })
 

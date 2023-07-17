@@ -73,8 +73,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     },
     linkJoinX: (node) => node.x + node.width,
     linkJoinY: (node) => node.y,
-    buttonX: (node) => node.width,
-    buttonY: (node) => node.height / 2,
+
     centerTransform: ({ rootMargin, centerY, scale, centerX }) =>
       `translate(${rootMargin},${centerY}) scale(${scale})`,
     zoomTransform: ({ centerY, scale }) =>
@@ -123,8 +122,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     },
     linkJoinX: (node) => node.x,
     linkJoinY: (node) => node.y + node.height,
-    buttonX: (node) => node.width / 2,
-    buttonY: (node) => node.height,
+
     centerTransform: ({ rootMargin, centerY, scale, centerX }) =>
       `translate(${centerX},${rootMargin}) scale(${scale})`,
 
@@ -177,8 +175,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     },
     linkJoinX: (node) => node.x,
     linkJoinY: (node) => node.y - node.height,
-    buttonX: (node) => node.width / 2,
-    buttonY: (node) => 0,
+
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartHeight }) =>
       `translate(${centerX},${chartHeight - rootMargin}) scale(${scale})`,
     zoomTransform: ({ centerX, scale }) =>
@@ -230,8 +227,7 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     },
     linkJoinX: (node) => node.x - node.width,
     linkJoinY: (node) => node.y,
-    buttonX: (node) => 0,
-    buttonY: (node) => node.height / 2,
+
     centerTransform: ({ rootMargin, centerY, scale, centerX, chartWidth }) =>
       `translate(${chartWidth - rootMargin},${centerY}) scale(${scale})`,
     zoomTransform: ({ centerY, scale }) =>
