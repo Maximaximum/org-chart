@@ -61,6 +61,13 @@ export interface NormalLayoutAttrs<Datum> {
   ) => number;
 }
 
+export interface CompactLayoutAttrs<Datum> {
+  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
+  compactMarginPair: (node: HierarchyNode<Datum>) => number;
+  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
+  compactMarginBetween: () => number;
+}
+
 export interface NormalLayoutBinding {
   rectSizeWithMargins: (params: {
     height: number;
@@ -76,12 +83,25 @@ export interface NormalLayoutBinding {
   swap: (d: Point) => Point;
 }
 
+export interface CompactLayoutBinding {
+  compactDimension: {
+    sizeColumn: (node: Rect) => number;
+    sizeRow: (node: Rect) => number;
+  };
+  compactLinkMidX: (node: Rect, margin: number) => number;
+  compactLinkMidY: (node: Rect, margin: number) => number;
+  linkCompactXStart: (node: Rect, compactEven: boolean) => number;
+  linkCompactYStart: (node: Rect, compactEven: boolean) => number;
+}
+
 /**
  * The configuration attributes of an organization charts.
  * All of these properties are available as get / set pairs
  * of the organization chart object, per D3 standard.
  */
-export interface State<Datum> extends NormalLayoutAttrs<Datum> {
+export interface State<Datum>
+  extends NormalLayoutAttrs<Datum>,
+    CompactLayoutAttrs<Datum> {
   /** Configure zoom scale extent , if you don't want any kind of zooming, set it to [1,1] */
   scaleExtent: [number, number];
   /** Set parent container, either CSS style selector or DOM element */
@@ -127,10 +147,6 @@ export interface State<Datum> extends NormalLayoutAttrs<Datum> {
       string
     >
   ) => void;
-  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
-  compactMarginPair: (node: HierarchyNode<Datum>) => number;
-  /** Configure margin between two nodes in compact mode, use with caution, it is better to have the same value set for all nodes */
-  compactMarginBetween: () => number;
   /** Link generator for connections */
   linkGroupArc: Link<any, DefaultLinkObject, Point>;
   /** Configure layout direction , possible values are "top", "left", "right", "bottom" */
@@ -167,7 +183,9 @@ export interface State<Datum> extends NormalLayoutAttrs<Datum> {
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
-export interface LayoutBinding extends NormalLayoutBinding {
+export interface LayoutBinding
+  extends NormalLayoutBinding,
+    CompactLayoutBinding {
   nodeLeftX: (node: Rect) => number;
   nodeRightX: (node: Rect) => number;
   nodeTopY: (node: Rect) => number;
@@ -176,10 +194,6 @@ export interface LayoutBinding extends NormalLayoutBinding {
   nodeJoinY: (node: Rect) => number;
   linkJoinX: (node: Rect) => number;
   linkJoinY: (node: Rect) => number;
-  linkCompactXStart: (node: Rect, compactEven: boolean) => number;
-  linkCompactYStart: (node: Rect, compactEven: boolean) => number;
-  compactLinkMidX: (node: Rect, margin: number) => number;
-  compactLinkMidY: (node: Rect, margin: number) => number;
   buttonX: (node: { width: number; height: number }) => number;
   buttonY: (node: { width: number; height: number }) => number;
   /** Returns a CSS transform */
@@ -191,10 +205,6 @@ export interface LayoutBinding extends NormalLayoutBinding {
     chartWidth: number;
     chartHeight: number;
   }) => string;
-  compactDimension: {
-    sizeColumn: (node: Rect) => number;
-    sizeRow: (node: Rect) => number;
-  };
 
   zoomTransform: (params: {
     centerY: number;

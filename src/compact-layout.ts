@@ -2,8 +2,11 @@ import { max, min, sum, cumsum } from 'd3-array';
 
 import { groupBy } from './group-by';
 import {
+  CompactLayoutAttrs,
+  CompactLayoutBinding,
   HierarchyNode,
-  LayoutBinding,
+  NormalLayoutAttrs,
+  NormalLayoutBinding,
   Size,
   State,
 } from './d3-org-chart.types';
@@ -26,30 +29,10 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
   >();
 
   constructor(
-    protected override layoutBinding: Pick<
-      LayoutBinding,
-      | 'rectSizeWithMargins'
-      | 'compactDimension'
-      | 'compactLinkMidX'
-      | 'compactLinkMidY'
-      | 'linkCompactXStart'
-      | 'linkCompactYStart'
-      | 'linkX'
-      | 'linkY'
-      | 'linkTargetX'
-      | 'linkTargetY'
-      | 'swap'
-    >,
-    protected override attrs: Pick<
-      State<Datum>,
-      | 'compactMarginBetween'
-      | 'compactMarginPair'
-      | 'nodeWidth'
-      | 'nodeHeight'
-      | 'siblingsMargin'
-      | 'childrenMargin'
-      | 'neighbourMargin'
-    >,
+    protected override layoutBinding: CompactLayoutBinding &
+      NormalLayoutBinding,
+    protected override attrs: CompactLayoutAttrs<Datum> &
+      NormalLayoutAttrs<Datum>,
     root: HierarchyNode<Datum>
   ) {
     super(layoutBinding, attrs, root);
