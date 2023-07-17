@@ -66,10 +66,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           x: (node, margin) => node.x,
           y: (node, margin) => node.y + node.width / 4 + margin / 4,
         },
+        middle: {
+          x: (node, compactEven) => node.x + node.width / 2,
+          y: (node, compactEven) =>
+            node.y + (compactEven ? node.height / 2 : -node.height / 2),
+        },
       },
-      linkCompactXStart: (node, compactEven) => node.x + node.width / 2,
-      linkCompactYStart: (node, compactEven) =>
-        node.y + (compactEven ? node.height / 2 : -node.height / 2),
     },
     nodeEdgePositionRelativeToNodePosition: {
       left: (node) => 0,
@@ -124,10 +126,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           x: (node, margin) => node.x + node.width / 4 + margin / 4,
           y: (node, margin) => node.y,
         },
+        middle: {
+          x: (node, compactEven) =>
+            node.x + (compactEven ? node.width / 2 : -node.width / 2),
+          y: (node, compactEven) => node.y + node.height / 2,
+        },
       },
-      linkCompactXStart: (node, compactEven) =>
-        node.x + (compactEven ? node.width / 2 : -node.width / 2),
-      linkCompactYStart: (node, compactEven) => node.y + node.height / 2,
     },
     nodeEdgePositionRelativeToNodePosition: {
       left: (node) => -node.width / 2,
@@ -185,10 +189,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           x: (node, margin) => node.x + node.width / 4 + margin / 4,
           y: (node, margin) => node.y,
         },
+        middle: {
+          x: (node, compactEven) =>
+            node.x + (compactEven ? node.width / 2 : -node.width / 2),
+          y: (node, compactEven) => node.y - node.height / 2,
+        },
       },
-      linkCompactXStart: (node, compactEven) =>
-        node.x + (compactEven ? node.width / 2 : -node.width / 2),
-      linkCompactYStart: (node, compactEven) => node.y - node.height / 2,
     },
     nodeEdgePositionRelativeToNodePosition: {
       left: (node) => -node.width / 2,
@@ -240,13 +246,15 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
         sizeColumn: (node) => node.height,
         sizeRow: (node) => node.width,
       },
-      linkCompactXStart: (node, compactEven) => node.x - node.width / 2,
-      linkCompactYStart: (node, compactEven) =>
-        node.y + (compactEven ? node.height / 2 : -node.height / 2),
       links: {
         source: {
           x: (node, margin) => node.x,
           y: (node, margin) => node.y + node.width / 4 + margin / 4,
+        },
+        middle: {
+          x: (node, compactEven) => node.x - node.width / 2,
+          y: (node, compactEven) =>
+            node.y + (compactEven ? node.height / 2 : -node.height / 2),
         },
       },
     },

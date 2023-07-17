@@ -100,9 +100,11 @@ export interface CompactLayoutBinding {
       x: (node: Rect, margin: number) => number;
       y: (node: Rect, margin: number) => number;
     };
+    middle: {
+      x: (node: Rect, compactEven: boolean) => number;
+      y: (node: Rect, compactEven: boolean) => number;
+    };
   };
-  linkCompactXStart: (node: Rect, compactEven: boolean) => number;
-  linkCompactYStart: (node: Rect, compactEven: boolean) => number;
 }
 
 /**

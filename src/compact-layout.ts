@@ -210,11 +210,11 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       const compactEven = !!this.compactEven.get(d);
 
       return {
-        x: this.compactLayoutBinding.linkCompactXStart(
+        x: this.compactLayoutBinding.links.middle.x(
           this.getNodeRect(d),
           compactEven
         ),
-        y: this.compactLayoutBinding.linkCompactYStart(
+        y: this.compactLayoutBinding.links.middle.y(
           this.getNodeRect(d),
           compactEven
         ),

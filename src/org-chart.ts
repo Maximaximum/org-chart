@@ -793,14 +793,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('class', 'connection')
       .attr('d', (d) => {
         const animationSource = this.getAnimationSourceRect(d._source);
-        const xo =
-          this.getLayoutBinding().normalLayoutBinding.links.target.x(
-            animationSource
-          );
-        const yo =
-          this.getLayoutBinding().normalLayoutBinding.links.target.y(
-            animationSource
-          );
+        const targetP =
+          this.getLayoutBinding().normalLayoutBinding.links.target;
+
+        const xo = targetP.x(animationSource);
+        const yo = targetP.y(animationSource);
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
       });
@@ -861,12 +858,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().normalLayoutBinding.links.target.x(
-          this.getAnimationSourceRect(d)
-        );
-        const yo = this.getLayoutBinding().normalLayoutBinding.links.target.y(
-          this.getAnimationSourceRect(d)
-        );
+        const targetP =
+          this.getLayoutBinding().normalLayoutBinding.links.target;
+
+        const xo = targetP.x(this.getAnimationSourceRect(d));
+        const yo = targetP.y(this.getAnimationSourceRect(d));
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o, o);
       });
@@ -902,10 +898,13 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().normalLayoutBinding.links.target.x(
+        const targetP =
+          this.getLayoutBinding().normalLayoutBinding.links.target;
+
+        const xo = targetP.x(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
-        const yo = this.getLayoutBinding().normalLayoutBinding.links.target.y(
+        const yo = targetP.y(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
         const o = { x: xo, y: yo };
