@@ -194,9 +194,11 @@ export interface LayoutBinding {
   normalLayoutBinding: NormalLayoutBinding;
   compactLayoutBinding: CompactLayoutBinding;
   nodeEdgePositionRelativeToNodePosition: NodePositionBinding;
+  actualAbsoluteNodePosition: {
+    x: (node: Rect) => number;
+    y: (node: Rect) => number;
+  };
 
-  nodeJoinX: (node: Rect) => number;
-  nodeJoinY: (node: Rect) => number;
   linkJoinX: (node: Rect) => number;
   linkJoinY: (node: Rect) => number;
   buttonX: (node: { width: number; height: number }) => number;

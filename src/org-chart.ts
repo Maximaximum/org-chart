@@ -953,8 +953,10 @@ export class OrgChart<Datum extends ConcreteDatum>
             .attr('class', 'node')
             .attr('transform', (d) => {
               const parentRect = this.getAnimationSourceRect(d);
-              const xj = this.getLayoutBinding().nodeJoinX(parentRect);
-              const yj = this.getLayoutBinding().nodeJoinY(parentRect);
+              const position =
+                this.getLayoutBinding().actualAbsoluteNodePosition;
+              const xj = position.x(parentRect);
+              const yj = position.y(parentRect);
               return `translate(${xj},${yj})`;
             });
         },
@@ -967,8 +969,10 @@ export class OrgChart<Datum extends ConcreteDatum>
             .duration(attrs.duration)
             .attr('transform', (d) => {
               const parentRect = this.getAnimationSourceRect(d);
-              const xj = this.getLayoutBinding().nodeJoinX(parentRect);
-              const yj = this.getLayoutBinding().nodeJoinY(parentRect);
+              const position =
+                this.getLayoutBinding().actualAbsoluteNodePosition;
+              const xj = position.x(parentRect);
+              const yj = position.y(parentRect);
               return `translate(${xj},${yj})`;
             })
             .on('end', function (this) {
