@@ -17,7 +17,6 @@ import {
   Elements,
   Point,
   LayoutBinding,
-  Rect,
 } from './d3-org-chart.types';
 import { toDataURL } from './to-data-url';
 import { downloadImage } from './download-image';
