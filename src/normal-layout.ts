@@ -38,15 +38,15 @@ export class NormalLayout<Datum> {
 
   getLinkSourcePoint(d: HierarchyNode<Datum>) {
     return {
-      x: this.layoutBinding.linkSourceX(this.getNodeRect(d)),
-      y: this.layoutBinding.linkSourceY(this.getNodeRect(d)),
+      x: this.layoutBinding.linkSource.x(this.getNodeRect(d)),
+      y: this.layoutBinding.linkSource.y(this.getNodeRect(d)),
     };
   }
 
   getLinkTargetPoint(d: HierarchyNode<Datum>) {
     return {
-      x: this.layoutBinding.linkTargetX(this.getNodeRect(d)),
-      y: this.layoutBinding.linkTargetY(this.getNodeRect(d)),
+      x: this.layoutBinding.linkTarget.x(this.getNodeRect(d)),
+      y: this.layoutBinding.linkTarget.y(this.getNodeRect(d)),
     };
   }
 

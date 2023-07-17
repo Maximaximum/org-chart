@@ -75,10 +75,14 @@ export interface NormalLayoutBinding {
     siblingsMargin: number;
     childrenMargin: number;
   }) => Size;
-  linkSourceX: (node: Rect) => number;
-  linkSourceY: (node: Rect) => number;
-  linkTargetX: (node: Rect) => number;
-  linkTargetY: (node: Rect) => number;
+  linkSource: {
+    x: (node: Rect) => number;
+    y: (node: Rect) => number;
+  };
+  linkTarget: {
+    x: (node: Rect) => number;
+    y: (node: Rect) => number;
+  };
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
 }

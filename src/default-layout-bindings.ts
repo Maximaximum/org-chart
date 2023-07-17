@@ -41,10 +41,14 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkSourceX: (node) => node.x,
-      linkSourceY: (node) => node.y,
-      linkTargetX: (node) => node.x + node.width,
-      linkTargetY: (node) => node.y,
+      linkSource: {
+        x: (node) => node.x,
+        y: (node) => node.y,
+      },
+      linkTarget: {
+        x: (node) => node.x + node.width,
+        y: (node) => node.y,
+      },
       swap: (d: Point) => ({
         x: d.y,
         y: d.x,
@@ -91,10 +95,14 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkSourceX: (node) => node.x,
-      linkSourceY: (node) => node.y,
-      linkTargetX: (node) => node.x,
-      linkTargetY: (node) => node.y + node.height,
+      linkSource: {
+        x: (node) => node.x,
+        y: (node) => node.y,
+      },
+      linkTarget: {
+        x: (node) => node.x,
+        y: (node) => node.y + node.height,
+      },
       swap: (d: Point) => ({ ...d }),
     },
     compactLayoutBinding: {
@@ -139,10 +147,14 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkSourceX: (node) => node.x,
-      linkSourceY: (node) => node.y,
-      linkTargetX: (node) => node.x,
-      linkTargetY: (node) => node.y - node.height,
+      linkSource: {
+        x: (node) => node.x,
+        y: (node) => node.y,
+      },
+      linkTarget: {
+        x: (node) => node.x,
+        y: (node) => node.y - node.height,
+      },
       swap: (d: Point) => ({
         x: d.x,
         y: -d.y,
@@ -189,10 +201,14 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkSourceX: (node) => node.x,
-      linkSourceY: (node) => node.y,
-      linkTargetX: (node) => node.x - node.width,
-      linkTargetY: (node) => node.y,
+      linkSource: {
+        x: (node) => node.x,
+        y: (node) => node.y,
+      },
+      linkTarget: {
+        x: (node) => node.x - node.width,
+        y: (node) => node.y,
+      },
       swap: (d: Point) => ({
         x: -d.y,
         y: d.x,
