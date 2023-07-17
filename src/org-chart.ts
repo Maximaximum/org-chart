@@ -55,8 +55,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   implements StateGetSet<Datum, OrgChart<Datum>>
 {
   // #region NOT INTENDED FOR PUBLIC OVERRIDE
-  /** Id for event handlings */
-  private id = `ID${Math.floor(Math.random() * 1000000)}`;
   /** Panning and zooming values */
   private lastTransform = {
     x: 0,
