@@ -186,10 +186,12 @@ export type Layout = 'left' | 'bottom' | 'right' | 'top';
 export interface LayoutBinding {
   normalLayoutBinding: NormalLayoutBinding;
   compactLayoutBinding: CompactLayoutBinding;
+
   nodeLeftX: (node: Rect) => number;
   nodeRightX: (node: Rect) => number;
   nodeTopY: (node: Rect) => number;
   nodeBottomY: (node: Rect) => number;
+
   nodeJoinX: (node: Rect) => number;
   nodeJoinY: (node: Rect) => number;
   linkJoinX: (node: Rect) => number;
@@ -212,7 +214,6 @@ export interface LayoutBinding {
     scale: number;
   }) => string;
   diagonal(source: Point, target: Point, m?: Point): string;
-  nodePosition: (params: Rect) => Point;
 }
 
 // Helper type to remove the need to explicitly declare get / set methods

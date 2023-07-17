@@ -762,9 +762,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('opacity', 0)
       .duration(attrs.duration)
       .attr('transform', (rect) => {
-        const { x, y } = this.getLayoutBinding().nodePosition(
-          this.getNodeRect(rect)
-        );
+        const layoutBinding = this.getLayoutBinding();
+        const x = rect.x + layoutBinding.nodeLeftX(this.getNodeRect(rect));
+        const y = rect.y + layoutBinding.nodeTopY(this.getNodeRect(rect));
         return `translate(${x},${y})`;
       })
       .attr('opacity', 1);

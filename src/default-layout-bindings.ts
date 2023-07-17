@@ -76,10 +76,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
     diagonal: hdiagonal,
-    nodePosition: ({ x, y, width, height }) => ({
-      x,
-      y: y - height / 2,
-    }),
   },
   top: {
     normalLayoutBinding: {
@@ -127,7 +123,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
     diagonal: vdiagonal,
-    nodePosition: ({ x, y, width, height }) => ({ x: x - width / 2, y }),
   },
   bottom: {
     normalLayoutBinding: {
@@ -177,10 +172,6 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerX, scale }) =>
       `translate(${centerX},0}) scale(${scale})`,
     diagonal: vdiagonal,
-    nodePosition: ({ x, y, width, height }) => ({
-      x: x - width / 2,
-      y: y - height,
-    }),
   },
   right: {
     normalLayoutBinding: {
@@ -231,9 +222,5 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
     zoomTransform: ({ centerY, scale }) =>
       `translate(${0},${centerY}) scale(${scale})`,
     diagonal: hdiagonal,
-    nodePosition: ({ x, y, width, height }) => ({
-      x: x - width,
-      y: y - height / 2,
-    }),
   },
 };
