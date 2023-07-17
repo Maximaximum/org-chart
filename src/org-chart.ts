@@ -453,21 +453,24 @@ export class OrgChart<Datum extends ConcreteDatum>
   } = {}) {
     const attrs = this.getChartState();
     let descendants = nodes || attrs.root!.descendants();
+    const nodePosition =
+      this.getLayoutBinding().nodeEdgePositionRelativeToNodePosition;
+
     const minX = d3.min(
       descendants,
-      (d) => d.x + this.getLayoutBinding().nodeLeftX(this.getNodeRect(d))
+      (d) => d.x + nodePosition.nodeLeftX(this.getNodeRect(d))
     );
     const maxX = d3.max(
       descendants,
-      (d) => d.x + this.getLayoutBinding().nodeRightX(this.getNodeRect(d))
+      (d) => d.x + nodePosition.nodeRightX(this.getNodeRect(d))
     );
     const minY = d3.min(
       descendants,
-      (d) => d.y + this.getLayoutBinding().nodeTopY(this.getNodeRect(d))
+      (d) => d.y + nodePosition.nodeTopY(this.getNodeRect(d))
     );
     const maxY = d3.max(
       descendants,
-      (d) => d.y + this.getLayoutBinding().nodeBottomY(this.getNodeRect(d))
+      (d) => d.y + nodePosition.nodeBottomY(this.getNodeRect(d))
     );
 
     this.zoomTreeBounds(
@@ -762,9 +765,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('opacity', 0)
       .duration(attrs.duration)
       .attr('transform', (rect) => {
-        const layoutBinding = this.getLayoutBinding();
-        const x = rect.x + layoutBinding.nodeLeftX(this.getNodeRect(rect));
-        const y = rect.y + layoutBinding.nodeTopY(this.getNodeRect(rect));
+        const nodePosition =
+          this.getLayoutBinding().nodeEdgePositionRelativeToNodePosition;
+        const x = rect.x + nodePosition.nodeLeftX(this.getNodeRect(rect));
+        const y = rect.y + nodePosition.nodeTopY(this.getNodeRect(rect));
         return `translate(${x},${y})`;
       })
       .attr('opacity', 1);

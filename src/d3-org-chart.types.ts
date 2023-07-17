@@ -183,14 +183,17 @@ export interface State<Datum>
 
 export type Layout = 'left' | 'bottom' | 'right' | 'top';
 
-export interface LayoutBinding {
-  normalLayoutBinding: NormalLayoutBinding;
-  compactLayoutBinding: CompactLayoutBinding;
-
+export interface NodePositionBinding {
   nodeLeftX: (node: Rect) => number;
   nodeRightX: (node: Rect) => number;
   nodeTopY: (node: Rect) => number;
   nodeBottomY: (node: Rect) => number;
+}
+
+export interface LayoutBinding {
+  normalLayoutBinding: NormalLayoutBinding;
+  compactLayoutBinding: CompactLayoutBinding;
+  nodeEdgePositionRelativeToNodePosition: NodePositionBinding;
 
   nodeJoinX: (node: Rect) => number;
   nodeJoinY: (node: Rect) => number;
