@@ -126,8 +126,10 @@ export interface State<Datum>
   duration: number;
   /** Configure if active node should be centered when expanded and collapsed */
   setActiveNodeCentered: boolean;
+
   /** Configure if compact mode is enabled , when enabled, nodes are shown in compact positions, instead of horizontal spread */
   compact: boolean;
+
   /** Configure how much root node is offset from top  */
   rootMargin: number;
   /** Sets connection data, array of objects, SAMPLE:  [{from:"145",to:"201",label:"Conflicts of interest"}] */

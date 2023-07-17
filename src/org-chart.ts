@@ -89,6 +89,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     // #endregion
 
     // #region CompactLayout properties
+    compact: true,
     compactMarginPair: (d) => 100,
     compactMarginBetween: () => 20,
     // #endregion
@@ -99,7 +100,6 @@ export class OrgChart<Datum extends ConcreteDatum>
     imageName: 'Chart',
     setActiveNodeCentered: true,
     layout: 'top',
-    compact: true,
     onZoomStart: (e, d) => {},
     onZoom: (e, d) => {},
     onZoomEnd: (e, d) => {},
@@ -304,7 +304,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   rerender() {
     const attrs = this.getChartState();
 
-    const layout = this.layoutFactory();
+    const layout = this.layoutFactory(attrs.compact);
 
     const treeData = layout.createFlextreeNodes();
 
@@ -1003,8 +1003,8 @@ export class OrgChart<Datum extends ConcreteDatum>
         };
   }
 
-  private layoutFactory() {
-    return this._attrs.compact
+  private layoutFactory(compact: boolean) {
+    return compact
       ? new CompactLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getLayoutBinding().compactLayoutBinding,
