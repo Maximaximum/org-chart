@@ -75,14 +75,17 @@ export interface NormalLayoutBinding {
     siblingsMargin: number;
     childrenMargin: number;
   }) => Size;
-  linkSource: {
-    x: (node: Rect) => number;
-    y: (node: Rect) => number;
+  links: {
+    source: {
+      x: (node: Rect) => number;
+      y: (node: Rect) => number;
+    };
+    target: {
+      x: (node: Rect) => number;
+      y: (node: Rect) => number;
+    };
   };
-  linkTarget: {
-    x: (node: Rect) => number;
-    y: (node: Rect) => number;
-  };
+
   /** Swaps x and y coordinates */
   swap: (d: Point) => Point;
 }
@@ -92,8 +95,12 @@ export interface CompactLayoutBinding {
     sizeColumn: (node: Rect) => number;
     sizeRow: (node: Rect) => number;
   };
-  compactLinkMidX: (node: Rect, margin: number) => number;
-  compactLinkMidY: (node: Rect, margin: number) => number;
+  links: {
+    source: {
+      x: (node: Rect, margin: number) => number;
+      y: (node: Rect, margin: number) => number;
+    };
+  };
   linkCompactXStart: (node: Rect, compactEven: boolean) => number;
   linkCompactYStart: (node: Rect, compactEven: boolean) => number;
 }

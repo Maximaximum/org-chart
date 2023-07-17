@@ -794,11 +794,11 @@ export class OrgChart<Datum extends ConcreteDatum>
       .attr('d', (d) => {
         const animationSource = this.getAnimationSourceRect(d._source);
         const xo =
-          this.getLayoutBinding().normalLayoutBinding.linkTarget.x(
+          this.getLayoutBinding().normalLayoutBinding.links.target.x(
             animationSource
           );
         const yo =
-          this.getLayoutBinding().normalLayoutBinding.linkTarget.y(
+          this.getLayoutBinding().normalLayoutBinding.links.target.y(
             animationSource
           );
         const o = { x: xo, y: yo };
@@ -820,12 +820,12 @@ export class OrgChart<Datum extends ConcreteDatum>
 
         return attrs.linkGroupArc({
           source: {
-            x: binding.linkSource.x(this.getNodeRect(d._source)),
-            y: binding.linkSource.y(this.getNodeRect(d._source)),
+            x: binding.links.source.x(this.getNodeRect(d._source)),
+            y: binding.links.source.y(this.getNodeRect(d._source)),
           },
           target: {
-            x: binding.linkTarget.x(this.getNodeRect(d._target)),
-            y: binding.linkTarget.y(this.getNodeRect(d._target)),
+            x: binding.links.target.x(this.getNodeRect(d._target)),
+            y: binding.links.target.y(this.getNodeRect(d._target)),
           },
         } as any);
       });
@@ -861,10 +861,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .insert('path', 'g')
       .attr('class', 'link')
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().normalLayoutBinding.linkTarget.x(
+        const xo = this.getLayoutBinding().normalLayoutBinding.links.target.x(
           this.getAnimationSourceRect(d)
         );
-        const yo = this.getLayoutBinding().normalLayoutBinding.linkTarget.y(
+        const yo = this.getLayoutBinding().normalLayoutBinding.links.target.y(
           this.getAnimationSourceRect(d)
         );
         const o = { x: xo, y: yo };
@@ -902,10 +902,10 @@ export class OrgChart<Datum extends ConcreteDatum>
       .transition()
       .duration(attrs.duration)
       .attr('d', (d) => {
-        const xo = this.getLayoutBinding().normalLayoutBinding.linkTarget.x(
+        const xo = this.getLayoutBinding().normalLayoutBinding.links.target.x(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
-        const yo = this.getLayoutBinding().normalLayoutBinding.linkTarget.y(
+        const yo = this.getLayoutBinding().normalLayoutBinding.links.target.y(
           this.getAnimationSourceRect(d as HierarchyNode<Datum>)
         );
         const o = { x: xo, y: yo };

@@ -41,13 +41,15 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkSource: {
-        x: (node) => node.x,
-        y: (node) => node.y,
-      },
-      linkTarget: {
-        x: (node) => node.x + node.width,
-        y: (node) => node.y,
+      links: {
+        source: {
+          x: (node) => node.x,
+          y: (node) => node.y,
+        },
+        target: {
+          x: (node) => node.x + node.width,
+          y: (node) => node.y,
+        },
       },
       swap: (d: Point) => ({
         x: d.y,
@@ -59,8 +61,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
         sizeColumn: (node) => node.height,
         sizeRow: (node) => node.width,
       },
-      compactLinkMidX: (node, margin) => node.x,
-      compactLinkMidY: (node, margin) => node.y + node.width / 4 + margin / 4,
+      links: {
+        source: {
+          x: (node, margin) => node.x,
+          y: (node, margin) => node.y + node.width / 4 + margin / 4,
+        },
+      },
       linkCompactXStart: (node, compactEven) => node.x + node.width / 2,
       linkCompactYStart: (node, compactEven) =>
         node.y + (compactEven ? node.height / 2 : -node.height / 2),
@@ -95,14 +101,17 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkSource: {
-        x: (node) => node.x,
-        y: (node) => node.y,
+      links: {
+        source: {
+          x: (node) => node.x,
+          y: (node) => node.y,
+        },
+        target: {
+          x: (node) => node.x,
+          y: (node) => node.y + node.height,
+        },
       },
-      linkTarget: {
-        x: (node) => node.x,
-        y: (node) => node.y + node.height,
-      },
+
       swap: (d: Point) => ({ ...d }),
     },
     compactLayoutBinding: {
@@ -110,8 +119,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
         sizeColumn: (node) => node.width,
         sizeRow: (node) => node.height,
       },
-      compactLinkMidX: (node, margin) => node.x + node.width / 4 + margin / 4,
-      compactLinkMidY: (node, margin) => node.y,
+      links: {
+        source: {
+          x: (node, margin) => node.x + node.width / 4 + margin / 4,
+          y: (node, margin) => node.y,
+        },
+      },
       linkCompactXStart: (node, compactEven) =>
         node.x + (compactEven ? node.width / 2 : -node.width / 2),
       linkCompactYStart: (node, compactEven) => node.y + node.height / 2,
@@ -147,13 +160,15 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: height + childrenMargin,
         };
       },
-      linkSource: {
-        x: (node) => node.x,
-        y: (node) => node.y,
-      },
-      linkTarget: {
-        x: (node) => node.x,
-        y: (node) => node.y - node.height,
+      links: {
+        source: {
+          x: (node) => node.x,
+          y: (node) => node.y,
+        },
+        target: {
+          x: (node) => node.x,
+          y: (node) => node.y - node.height,
+        },
       },
       swap: (d: Point) => ({
         x: d.x,
@@ -165,8 +180,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
         sizeColumn: (node) => node.width,
         sizeRow: (node) => node.height,
       },
-      compactLinkMidX: (node, margin) => node.x + node.width / 4 + margin / 4,
-      compactLinkMidY: (node, margin) => node.y,
+      links: {
+        source: {
+          x: (node, margin) => node.x + node.width / 4 + margin / 4,
+          y: (node, margin) => node.y,
+        },
+      },
       linkCompactXStart: (node, compactEven) =>
         node.x + (compactEven ? node.width / 2 : -node.width / 2),
       linkCompactYStart: (node, compactEven) => node.y - node.height / 2,
@@ -201,13 +220,15 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
           height: width + childrenMargin,
         };
       },
-      linkSource: {
-        x: (node) => node.x,
-        y: (node) => node.y,
-      },
-      linkTarget: {
-        x: (node) => node.x - node.width,
-        y: (node) => node.y,
+      links: {
+        source: {
+          x: (node) => node.x,
+          y: (node) => node.y,
+        },
+        target: {
+          x: (node) => node.x - node.width,
+          y: (node) => node.y,
+        },
       },
       swap: (d: Point) => ({
         x: -d.y,
@@ -222,8 +243,12 @@ export const defaultLayoutBindings: Record<Layout, LayoutBinding> = {
       linkCompactXStart: (node, compactEven) => node.x - node.width / 2,
       linkCompactYStart: (node, compactEven) =>
         node.y + (compactEven ? node.height / 2 : -node.height / 2),
-      compactLinkMidX: (node, margin) => node.x,
-      compactLinkMidY: (node, margin) => node.y + node.width / 4 + margin / 4,
+      links: {
+        source: {
+          x: (node, margin) => node.x,
+          y: (node, margin) => node.y + node.width / 4 + margin / 4,
+        },
+      },
     },
     nodeEdgePositionRelativeToNodePosition: {
       left: (node) => -node.width,

@@ -193,8 +193,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       const margin = this.attrs.compactMarginPair(d);
 
       return {
-        x: this.compactLayoutBinding.compactLinkMidX(rect, margin),
-        y: this.compactLayoutBinding.compactLinkMidY(rect, margin),
+        x: this.compactLayoutBinding.links.source.x(rect, margin),
+        y: this.compactLayoutBinding.links.source.y(rect, margin),
       };
     } else {
       return super.getLinkSourcePoint(d);
