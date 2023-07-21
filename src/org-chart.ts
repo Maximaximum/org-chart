@@ -326,9 +326,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     nodeWrapperGElements.call(this.drawNodes);
 
     // Get all links
-    const links = nodes
-      .slice(1)
-      .filter((l) => !this.pagination.paginationButtonNodes.has(l.data));
+    const links = nodes.slice(1);
 
     // Connections
     const visibleConnections = this.getVisibleConnections(nodes);
