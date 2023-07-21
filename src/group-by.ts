@@ -9,10 +9,10 @@ export function groupBy<T, TOutput>(
     if (!grouped[key]) {
       grouped[key] = [];
     }
-    grouped[key].push(item);
+    grouped[key]!.push(item);
   });
 
   return Object.keys(grouped).map(
-    (key) => [key, aggregator(grouped[key])] as const
+    (key) => [key, aggregator(grouped[key]!)] as const
   );
 }

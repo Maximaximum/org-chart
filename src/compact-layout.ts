@@ -91,7 +91,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
         );
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
         leafChildren.forEach((leafChild, i) => {
-          this.firstLeafSibling.set(leafChild, leafChildren[0]);
+          this.firstLeafSibling.set(leafChild, leafChildren[0]!);
 
           this.leafNodeSize.set(
             leafChild,
@@ -163,7 +163,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
         );
         compactChildren.forEach((node, i) => {
           if (this.row.get(node)) {
-            node.y = fch.y + cumSum[this.row.get(node)! - 1];
+            node.y = fch.y + cumSum[this.row.get(node)! - 1]!;
           } else {
             node.y = fch.y;
           }

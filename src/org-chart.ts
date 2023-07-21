@@ -304,7 +304,7 @@ export class OrgChart<Datum extends ConcreteDatum>
   rerender() {
     const attrs = this.getChartState();
 
-    const layout = this.layoutFactory(attrs.compact);
+    const layout = this.layoutFactory(attrs.compact, this._attrs.root!);
 
     const treeData = layout.createFlextreeNodes();
 
@@ -533,7 +533,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const attrs = this.getChartState();
     const node = attrs
       .root!.descendants()
-      .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
+      .filter((d) => attrs.nodeId(d.data) === nodeId)[0]!;
     node.data._highlighted = true;
     attrs.nodeSetIsExpanded(node.data, true);
     this._attrs.centeredNode = node;
@@ -1003,18 +1003,18 @@ export class OrgChart<Datum extends ConcreteDatum>
         };
   }
 
-  private layoutFactory(compact: boolean) {
+  private layoutFactory(compact: boolean, root: HierarchyNode<Datum>) {
     return compact
       ? new CompactLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getLayoutBinding().compactLayoutBinding,
           this.getChartState(),
-          this._attrs.root!
+          root
         )
       : new NormalLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getChartState(),
-          this._attrs.root!
+          root
         );
   }
 
