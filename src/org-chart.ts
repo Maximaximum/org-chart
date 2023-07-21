@@ -1040,6 +1040,16 @@ export function updateChildrenProperty<Datum>(
   }
 }
 
+export function data2Hierarchy<Datum>(
+  attrs: Pick<State<Datum>, 'nodeId' | 'parentNodeId'>,
+  data: Datum[],
+) {
+  return d3
+    .stratify<Datum>()
+    .id((d) => attrs.nodeId(d))
+    .parentId((d) => attrs.parentNodeId(d))(data);
+}
+
 export function createHierarchyFromData<Datum extends ConcreteDatum>(
   data: Datum[],
   pagination: PagingNodeRenderer<Datum>,
@@ -1049,17 +1059,12 @@ export function createHierarchyFromData<Datum extends ConcreteDatum>(
   >,
 ) {
   // Store new root by converting flat data to hierarchy
-  const root = d3
-    .stratify<Datum>()
-    .id((d) => attrs.nodeId(d))
-    .parentId((d) => attrs.parentNodeId(d))(data);
+  const root = data2Hierarchy(attrs, data);
 
   pagination.initPagination(root, attrs.minPagingVisibleNodes);
 
-  const root2 = d3
-    .stratify<Datum>()
-    .id((d) => attrs.nodeId(d))
-    .parentId((d) => attrs.parentNodeId(d))(
+  const root2 = data2Hierarchy(
+    attrs,
     data.filter(
       (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d)),
     ),
