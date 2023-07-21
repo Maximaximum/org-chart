@@ -310,9 +310,8 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const layout = this.layoutFactory(attrs.compact);
 
-    const treeData = layout.createFlextreeNodes(this._attrs.root!);
-
-    const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
+    const treeData = layout.createFlextreeNodes(attrs.root!);
+    const nodes = treeData.descendants() as HierarchyNode<Datum>[];
 
     const nodeWrapperGElements = this.drawNodeWrappers(
       this.elements.nodesWrapper,
