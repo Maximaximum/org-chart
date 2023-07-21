@@ -13,60 +13,35 @@ const pageSize = 5;
 export const pagingNodeSelector = '.paging-node-foreign-object';
 
 export class PagingNodeRenderer<Datum extends ConcreteDatum> {
-  // TODO: Make private?
-  childrenToShowNumber = new Map<Datum, number>();
+  private childrenToShowNumber = new Map<Datum, number>();
   // TODO: Make private?
   /** Set of nodes that should be replaced with a pagination button while rendering  */
   paginationButtonNodes = new Set<Datum>();
   /** Total number of node children (including hidden by pagination and collapsion) */
   totalChildrenNumber = new Map<Datum, number>();
 
-  nodesHiddenDueToPagination = new Set<string>();
+  private nodesHiddenDueToPagination = new Set<string>();
 
   constructor(private chart: OrgChart<Datum>) {}
 
-  private initNumberOfChildrenToShow(
-    nodes: D3HierarchyNode<Datum>[],
-    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
+  convertHierarchyToPaginated(
+    root: HierarchyNode<Datum>,
+    attrs: Pick<State<Datum>, 'minPagingVisibleNodes' | 'nodeId'>,
   ) {
-    nodes
-      .filter((node) => node.children)
-      .filter((node) => !this.childrenToShowNumber.has(node.data))
-      .forEach((node) => {
-        this.childrenToShowNumber.set(node.data, minPagingVisibleNodes(node));
-      });
-  }
+    this.initPagination(root, attrs.minPagingVisibleNodes);
 
-  initPagination(
-    root: D3HierarchyNode<Datum>,
-    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
-  ) {
-    this.initNumberOfChildrenToShow(root!.descendants(), minPagingVisibleNodes);
-
-    this.nodesHiddenDueToPagination.clear();
-
-    root!.eachBefore((node, i) => {
-      this.totalChildrenNumber.set(node.data, node.children?.length ?? 0);
-
-      if (node.children) {
-        node.children.forEach((child, j) => {
-          this.paginationButtonNodes.delete(child.data);
-          if (j > this.childrenToShowNumber.get(node.data)!) {
-            this.nodesHiddenDueToPagination.add(child.id!);
-          }
-          if (
-            j === this.childrenToShowNumber.get(node.data) &&
-            node.children!.length - 1 >
-              this.childrenToShowNumber.get(node.data)!
-          ) {
-            this.paginationButtonNodes.add(child.data);
-          }
-          if (this.nodesHiddenDueToPagination.has(child.parent!.id!)) {
-            this.nodesHiddenDueToPagination.add(child.id!);
-          }
-        });
+    for (const hiddenNodeId of this.nodesHiddenDueToPagination) {
+      const nodeToHide = root
+        .descendants()
+        .find((n) => attrs.nodeId(n.data) === hiddenNodeId);
+      if (nodeToHide) {
+        if (nodeToHide!.parent!.children) {
+          nodeToHide!.parent!.children = nodeToHide!.parent!.children.filter(
+            (c) => c !== nodeToHide,
+          );
+        }
       }
-    });
+    }
   }
 
   draw = (
@@ -117,7 +92,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       });
   };
 
-  loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
+  private loadNextPageOfNodes(paginationButtonNode: HierarchyNode<Datum>) {
     const paginationContainer = paginationButtonNode.parent!;
 
     this.paginationButtonNodes.delete(paginationButtonNode.data);
@@ -137,7 +112,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     this.chart.rerender();
   }
 
-  getNextPageAmount = (
+  private getNextPageAmount = (
     d: HierarchyNode<Datum>,
     i: number,
     arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
@@ -148,6 +123,50 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       this.childrenToShowNumber.get(d.parent!.data)!;
     return Math.min(diff, pageSize);
   };
+
+  private initNumberOfChildrenToShow(
+    nodes: D3HierarchyNode<Datum>[],
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
+  ) {
+    nodes
+      .filter((node) => node.children)
+      .filter((node) => !this.childrenToShowNumber.has(node.data))
+      .forEach((node) => {
+        this.childrenToShowNumber.set(node.data, minPagingVisibleNodes(node));
+      });
+  }
+
+  private initPagination(
+    root: D3HierarchyNode<Datum>,
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
+  ) {
+    this.initNumberOfChildrenToShow(root!.descendants(), minPagingVisibleNodes);
+
+    this.nodesHiddenDueToPagination.clear();
+
+    root!.eachBefore((node, i) => {
+      this.totalChildrenNumber.set(node.data, node.children?.length ?? 0);
+
+      if (node.children) {
+        node.children.forEach((child, j) => {
+          this.paginationButtonNodes.delete(child.data);
+          if (j > this.childrenToShowNumber.get(node.data)!) {
+            this.nodesHiddenDueToPagination.add(child.id!);
+          }
+          if (
+            j === this.childrenToShowNumber.get(node.data) &&
+            node.children!.length - 1 >
+              this.childrenToShowNumber.get(node.data)!
+          ) {
+            this.paginationButtonNodes.add(child.data);
+          }
+          if (this.nodesHiddenDueToPagination.has(child.parent!.id!)) {
+            this.nodesHiddenDueToPagination.add(child.id!);
+          }
+        });
+      }
+    });
+  }
 }
 
 function pagingButton(nextPageAmount: number) {

@@ -1045,7 +1045,7 @@ export function data2Hierarchy<Datum>(
   return d3
     .stratify<Datum>()
     .id((d) => attrs.nodeId(d))
-    .parentId((d) => attrs.parentNodeId(d))(data);
+    .parentId((d) => attrs.parentNodeId(d))(data) as HierarchyNode<Datum>;
 }
 
 export function createHierarchyFromData<Datum extends ConcreteDatum>(
@@ -1059,18 +1059,11 @@ export function createHierarchyFromData<Datum extends ConcreteDatum>(
   // Store new root by converting flat data to hierarchy
   const root = data2Hierarchy(attrs, data);
 
-  pagination.initPagination(root, attrs.minPagingVisibleNodes);
+  pagination.convertHierarchyToPaginated(root, attrs);
 
-  const root2 = data2Hierarchy(
-    attrs,
-    data.filter(
-      (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d)),
-    ),
-  ) as any;
-
-  for (const node of root2.descendants()) {
+  for (const node of root.descendants()) {
     updateChildrenProperty(node, attrs.nodeGetIsExpanded);
   }
 
-  return root2;
+  return root;
 }
