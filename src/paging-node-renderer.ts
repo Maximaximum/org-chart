@@ -27,7 +27,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
   private initNumberOfChildrenToShow(
     nodes: D3HierarchyNode<Datum>[],
-    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
   ) {
     nodes
       .filter((node) => node.children)
@@ -39,7 +39,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
   initPagination(
     root: D3HierarchyNode<Datum>,
-    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number
+    minPagingVisibleNodes: (node: D3HierarchyNode<Datum>) => number,
   ) {
     this.initNumberOfChildrenToShow(root!.descendants(), minPagingVisibleNodes);
 
@@ -75,7 +75,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
       HierarchyNode<Datum>,
       SVGGElement,
       HierarchyNode<Datum>
-    >
+    >,
   ) => {
     const attrs = this.chart.getChartState();
     const that = this;
@@ -87,7 +87,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
             .append('foreignObject')
             .attr('class', 'paging-node-foreign-object'),
         (update) => update,
-        (exit) => exit.remove()
+        (exit) => exit.remove(),
       )
       .style('overflow', 'visible')
       .attr('width', (d) => attrs.nodeWidth(d))
@@ -124,13 +124,15 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
 
     this.childrenToShowNumber.set(
       paginationContainer.data,
-      this.childrenToShowNumber.get(paginationContainer.data)! + pageSize
+      this.childrenToShowNumber.get(paginationContainer.data)! + pageSize,
     );
 
-    this.chart.root = createHierarchyFromData(
-      this.chart.getChartState().data!,
-      this.chart.pagination,
-      this.chart.getChartState()
+    this.chart.root(
+      createHierarchyFromData(
+        this.chart.getChartState().data!,
+        this.chart.pagination,
+        this.chart.getChartState(),
+      ),
     );
     this.chart.rerender();
   }
@@ -139,7 +141,7 @@ export class PagingNodeRenderer<Datum extends ConcreteDatum> {
     d: HierarchyNode<Datum>,
     i: number,
     arr: HTMLDivElement[] | ArrayLike<HTMLDivElement>,
-    state: State<Datum>
+    state: State<Datum>,
   ) => {
     const diff =
       this.totalChildrenNumber.get(d.parent!.data)! -
