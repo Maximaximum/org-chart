@@ -18,6 +18,8 @@ const d3 = {
   cumsum,
 };
 
+const childrenToFitInCompactMode = 7;
+
 export class CompactLayout<Datum> extends NormalLayout<Datum> {
   private compactEven = new WeakMap<HierarchyNode<Datum>, boolean>();
   private row = new WeakMap<HierarchyNode<Datum>, number>();
@@ -32,7 +34,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     protected compactLayoutBinding: CompactLayoutBinding,
     protected override attrs: CompactLayoutAttrs<Datum> &
       NormalLayoutAttrs<Datum>,
-    root: HierarchyNode<Datum>
+    root: HierarchyNode<Datum>,
   ) {
     super(layoutBinding, attrs, root);
     this.performInitialCalculations();
@@ -67,13 +69,13 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           leafChildren
             .filter((d) => !!this.compactEven.get(d))
             .map((d) => this.getNodeRect(d)),
-          this.compactLayoutBinding.compactDimension.sizeColumn
+          this.compactLayoutBinding.compactDimension.sizeColumn,
         )!;
         const oddMaxColumnDimension = d3.max(
           leafChildren
             .filter((d) => !this.compactEven.get(d))
             .map((d) => this.getNodeRect(d)),
-          this.compactLayoutBinding.compactDimension.sizeColumn
+          this.compactLayoutBinding.compactDimension.sizeColumn,
         )!;
         const columnSize =
           Math.max(evenMaxColumnDimension, oddMaxColumnDimension) * 2;
@@ -85,9 +87,9 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
               reducedGroup,
               (d) =>
                 this.compactLayoutBinding.compactDimension.sizeRow(
-                  this.getNodeRect(d)
-                ) + this.attrs.compactMarginBetween()
-            )
+                  this.getNodeRect(d),
+                ) + this.attrs.compactMarginBetween(),
+            ),
         );
         const rowSize = d3.sum(rowsMapNew.map((v) => v[1]));
         leafChildren.forEach((leafChild, i) => {
@@ -100,7 +102,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
                   width: columnSize + this.attrs.compactMarginPair(leafChild),
                   height: rowSize - this.attrs.compactMarginBetween(),
                 }
-              : { width: 0, height: 0 }
+              : { width: 0, height: 0 },
           );
         });
       }
@@ -114,7 +116,7 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     this.root.eachBefore((node) => {
       if (node.children) {
         const compactChildren = node.children.filter((d) =>
-          this.leafNodeSize.has(d)
+          this.leafNodeSize.has(d),
         );
         const fch = compactChildren[0];
         if (!fch) {
@@ -154,12 +156,12 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
           (reducedGroup) =>
             d3.max(reducedGroup, (d) =>
               this.compactLayoutBinding.compactDimension.sizeRow(
-                this.getNodeRect(d)
-              )
-            )!
+                this.getNodeRect(d),
+              ),
+            )!,
         );
         const cumSum = d3.cumsum(
-          rowsMapNew.map((d) => d[1] + this.attrs.compactMarginBetween())
+          rowsMapNew.map((d) => d[1] + this.attrs.compactMarginBetween()),
         );
         compactChildren.forEach((node, i) => {
           if (this.row.get(node)) {
@@ -204,13 +206,26 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
       return {
         x: this.compactLayoutBinding.links.middle.x(
           this.getNodeRect(d),
-          compactEven
+          compactEven,
         ),
         y: this.compactLayoutBinding.links.middle.y(
           this.getNodeRect(d),
-          compactEven
+          compactEven,
         ),
       };
+    }
+  }
+
+  override getNodesToFit(
+    centeredNode: HierarchyNode<any>,
+    centerWithDescendants: boolean,
+  ) {
+    if (centerWithDescendants) {
+      return centeredNode
+        .descendants()
+        .filter((d, i) => i < childrenToFitInCompactMode);
+    } else {
+      return [centeredNode];
     }
   }
 }

@@ -11,7 +11,7 @@ export class NormalLayout<Datum> {
   constructor(
     protected layoutBinding: NormalLayoutBinding,
     protected attrs: NormalLayoutAttrs<Datum>,
-    protected root: HierarchyNode<Datum>
+    protected root: HierarchyNode<Datum>,
   ) {}
 
   createFlextreeNodes() {
@@ -66,7 +66,7 @@ export class NormalLayout<Datum> {
           ? 0
           : this.attrs.neighbourMargin(
               nodeA as HierarchyNode<Datum>,
-              nodeB as HierarchyNode<Datum>
+              nodeB as HierarchyNode<Datum>,
             ),
     });
   }
@@ -79,5 +79,24 @@ export class NormalLayout<Datum> {
       height: this.attrs.nodeHeight(d),
       width: this.attrs.nodeWidth(d),
     } as Rect;
+  }
+
+  getNodesToFit(
+    centeredNode: HierarchyNode<any>,
+    centerWithDescendants: boolean,
+  ) {
+    if (centerWithDescendants) {
+      return centeredNode.descendants().filter((d, i, arr) => {
+        const h = Math.round(arr.length / 2);
+        const spread = 2;
+        if (arr.length % 2) {
+          return i > h - spread && i < h + spread - 1;
+        }
+
+        return i > h - spread && i < h + spread;
+      });
+    } else {
+      return [centeredNode];
+    }
   }
 }

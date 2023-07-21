@@ -45,8 +45,6 @@ const d3 = {
   create,
 };
 
-const childrenToFitInCompactMode = 7;
-
 // This is separated from the implementation declaration to not have to replicate the propertied of StateGetSet
 export interface OrgChart<Datum> extends StateGetSet<Datum, OrgChart<Datum>> {}
 
@@ -109,19 +107,19 @@ export class OrgChart<Datum extends ConcreteDatum>
         HierarchyNode<Datum>,
         SVGGElement,
         string
-      >
+      >,
     ) => {
       const attrs = this.getChartState();
 
       const pagingNodes = containers
         .selectAll<SVGForeignObjectElement, HierarchyNode<Datum>>(
-          pagingNodeSelector
+          pagingNodeSelector,
         )
         .data(
           (d) => (this.pagination.paginationButtonNodes.has(d.data) ? [d] : []),
           function (d) {
             return attrs.nodeId(d.data);
-          }
+          },
         );
 
       const defaultNodes = containers
@@ -131,7 +129,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             !this.pagination.paginationButtonNodes.has(d.data) ? [d] : [],
           function (d) {
             return attrs.nodeId(d.data);
-          }
+          },
         );
 
       this.pagination.draw(pagingNodes);
@@ -141,17 +139,17 @@ export class OrgChart<Datum extends ConcreteDatum>
         .style('border-color', (d) =>
           d.data._highlighted || d.data._upToTheRootHighlighted
             ? highlightColor
-            : 'none'
+            : 'none',
         )
         .style('border-width', (d) =>
-          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 0
+          d.data._highlighted || d.data._upToTheRootHighlighted ? 10 : 0,
         )
         .style('border-style', 'solid');
     },
     linkUpdate: function (d, i, arr) {
       d3.select<SVGPathElement, HierarchyNode<Datum>>(this)
         .attr('stroke', (d) =>
-          d.data._upToTheRootHighlighted ? highlightColor : linkColor
+          d.data._upToTheRootHighlighted ? highlightColor : linkColor,
         )
         .attr('stroke-width', (d) => (d.data._upToTheRootHighlighted ? 5 : 1));
 
@@ -229,7 +227,7 @@ export class OrgChart<Datum extends ConcreteDatum>
    * @param node
    */
   *getAllNodeDescendants(
-    node: HierarchyNode<Datum>
+    node: HierarchyNode<Datum>,
   ): Generator<HierarchyNode<Datum>> {
     yield node;
 
@@ -264,7 +262,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     //Drawing containers
     // 'as string' is a TS bug workaround
     const container = d3.select<HTMLElement, unknown>(
-      attrs.container as string
+      attrs.container as string,
     );
 
     // ******************* BEHAVIORS  **********************
@@ -289,7 +287,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     this._attrs.root = createHierarchyFromData(
       attrs.data,
       this.pagination,
-      attrs
+      attrs,
     );
     this.rerender();
 
@@ -317,7 +315,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         layoutBinding: this.getLayoutBinding(),
         duration: attrs.duration,
         nodeId: attrs.nodeId,
-      }
+      },
     );
 
     nodeWrapperGElements.call(this.drawNodes);
@@ -331,7 +329,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     const visibleConnections = this.getVisibleConnections(nodes);
 
     this.elements.defsWrapper.html(
-      attrs.defs.bind(this)(attrs, visibleConnections)
+      attrs.defs.bind(this)(attrs, visibleConnections),
     );
 
     this.elements.linksWrapper.call(
@@ -339,23 +337,23 @@ export class OrgChart<Datum extends ConcreteDatum>
       links,
       (d) => layout.getLinkSourcePoint(d),
       (d) => layout.getLinkTargetPoint(d.parent!),
-      (d) => layout.getLinkMiddlePoint(d)
+      (d) => layout.getLinkMiddlePoint(d),
     );
     this.elements.connectionsWrapper.call(
       this.drawConnections,
-      visibleConnections
+      visibleConnections,
     );
 
-    this.translateChartGroupIfNeeded();
+    this.translateChartGroupIfNeeded(layout);
   }
 
   private getVisibleConnections(nodes: HierarchyNode<Datum>[]) {
     const attrs = this.getChartState();
     const allNodesMap = new Map(
-      attrs.root!.descendants().map((d) => [attrs.nodeId(d.data), d])
+      attrs.root!.descendants().map((d) => [attrs.nodeId(d.data), d]),
     );
     const visibleNodesMap = new Map(
-      nodes.map((d) => [attrs.nodeId(d.data), d])
+      nodes.map((d) => [attrs.nodeId(d.data), d]),
     );
 
     attrs.connections.forEach((connection) => {
@@ -365,14 +363,14 @@ export class OrgChart<Datum extends ConcreteDatum>
       connection._target = target;
     });
     return attrs.connections.filter(
-      (d) => visibleNodesMap.get(d.from) && visibleNodesMap.get(d.to)
+      (d) => visibleNodesMap.get(d.from) && visibleNodesMap.get(d.to),
     );
   }
 
   toggleExpandNode(node: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(
       node.data,
-      !this._attrs.nodeGetIsExpanded(node.data)
+      !this._attrs.nodeGetIsExpanded(node.data),
     );
     updateChildrenProperty(node, this._attrs.nodeGetIsExpanded);
   }
@@ -427,18 +425,19 @@ export class OrgChart<Datum extends ConcreteDatum>
       y1: number;
     },
     animate = true,
-    scale = true
+    scale = true,
   ) {
     const { duration } = this.getChartState();
-    const w = this.elements.svg.node()!.clientWidth;
-    const h = this.elements.svg.node()!.clientHeight;
+    const svg = this.elements.svg;
+    const w = svg.node()!.clientWidth;
+    const h = svg.node()!.clientHeight;
     let scaleVal = Math.min(8, 0.9 / Math.max((x1 - x0) / w, (y1 - y0) / h));
     let identity = d3.zoomIdentity.translate(w / 2, h / 2);
     identity = identity.scale(scale ? scaleVal : this.lastTransform.k);
 
     identity = identity.translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
     // Transition zoom wrapper component into specified bounds
-    this.elements.svg
+    svg
       .transition()
       .duration(animate ? duration : 0)
       .call(this.zoomBehavior!.transform as any, identity);
@@ -464,30 +463,32 @@ export class OrgChart<Datum extends ConcreteDatum>
 
     const minX = d3.min(
       descendants,
-      (d) => d.x + nodePosition.left(this.getNodeRect(d))
-    );
+      (d) => d.x + nodePosition.left(this.getNodeRect(d)),
+    )!;
     const maxX = d3.max(
       descendants,
-      (d) => d.x + nodePosition.right(this.getNodeRect(d))
-    );
+      (d) => d.x + nodePosition.right(this.getNodeRect(d)),
+    )!;
     const minY = d3.min(
       descendants,
-      (d) => d.y + nodePosition.top(this.getNodeRect(d))
-    );
+      (d) => d.y + nodePosition.top(this.getNodeRect(d)),
+    )!;
     const maxY = d3.max(
       descendants,
-      (d) => d.y + nodePosition.bottom(this.getNodeRect(d))
-    );
+      (d) => d.y + nodePosition.bottom(this.getNodeRect(d)),
+    )!;
+
+    const zoomMargin = 50;
 
     this.zoomTreeBounds(
       {
-        x0: minX! - 50,
-        x1: maxX! + 50,
-        y0: minY! - 50,
-        y1: maxY! + 50,
+        x0: minX - zoomMargin,
+        x1: maxX + zoomMargin,
+        y0: minY - zoomMargin,
+        y1: maxY + zoomMargin,
       },
       animate,
-      scale
+      scale,
     );
     return this;
   }
@@ -504,7 +505,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       console.log(
         `ORG CHART - ${
           expandedFlag ? 'EXPAND' : 'COLLAPSE'
-        } - Node with id (${id})  not found in the tree`
+        } - Node with id (${id}) not found in the tree`,
       );
       return this;
     }
@@ -520,7 +521,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
     if (!node) {
       console.log(
-        `ORG CHART - CENTER - Node with id (${nodeId}) not found in the tree`
+        `ORG CHART - CENTER - Node with id (${nodeId}) not found in the tree`,
       );
       return this;
     }
@@ -547,7 +548,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .filter((d) => attrs.nodeId(d.data) === nodeId)[0];
     if (!node) {
       console.log(
-        `ORG CHART - HIGHLIGHTROOT - Node with id (${nodeId}) not found in the tree`
+        `ORG CHART - HIGHLIGHTROOT - Node with id (${nodeId}) not found in the tree`,
       );
       return this;
     }
@@ -617,7 +618,7 @@ export class OrgChart<Datum extends ConcreteDatum>
             save,
           });
         },
-        full ? duration + 10 : 0
+        full ? duration + 10 : 0,
       );
     };
 
@@ -674,7 +675,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       rootMargin,
     }: {
       rootMargin: number;
-    }
+    },
   ) => {
     //Add svg
     const svg = container
@@ -757,7 +758,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       HierarchyNode<Datum>,
       SVGGElement,
       string
-    >
+    >,
   ) => {
     const attrs = this.getChartState();
 
@@ -784,7 +785,7 @@ export class OrgChart<Datum extends ConcreteDatum>
 
   private drawConnections = (
     connectionsWrapper: Selection<SVGGElement, string, SVGGElement, string>,
-    visibleConnections: Connection<Datum>[]
+    visibleConnections: Connection<Datum>[],
   ) => {
     const attrs = this.getChartState();
 
@@ -850,7 +851,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     links: HierarchyNode<Datum>[],
     getSourcePointFn: (d: HierarchyNode<Datum>) => Point,
     getTargetPointFn: (d: HierarchyNode<Datum>) => Point,
-    getMiddlePointFn: (d: HierarchyNode<Datum>) => Point | undefined
+    getMiddlePointFn: (d: HierarchyNode<Datum>) => Point | undefined,
   ) => {
     const attrs = this.getChartState();
     // Get links selection
@@ -880,7 +881,7 @@ export class OrgChart<Datum extends ConcreteDatum>
     linkUpdate.attr('fill', 'none');
 
     linkUpdate.style('display', (d) =>
-      this.pagination.paginationButtonNodes.has(d.data) ? 'none' : 'auto'
+      this.pagination.paginationButtonNodes.has(d.data) ? 'none' : 'auto',
     );
 
     // Allow external modifications
@@ -894,7 +895,7 @@ export class OrgChart<Datum extends ConcreteDatum>
         return this.getLayoutBinding().diagonal(
           getSourcePointFn(d),
           getTargetPointFn(d),
-          getMiddlePointFn(d)
+          getMiddlePointFn(d),
         );
       });
 
@@ -908,10 +909,10 @@ export class OrgChart<Datum extends ConcreteDatum>
           this.getLayoutBinding().normalLayoutBinding.links.target;
 
         const xo = targetP.x(
-          this.getAnimationSourceRect(d as HierarchyNode<Datum>)
+          this.getAnimationSourceRect(d as HierarchyNode<Datum>),
         );
         const yo = targetP.y(
-          this.getAnimationSourceRect(d as HierarchyNode<Datum>)
+          this.getAnimationSourceRect(d as HierarchyNode<Datum>),
         );
         const o = { x: xo, y: yo };
         return this.getLayoutBinding().diagonal(o, o);
@@ -919,9 +920,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       .remove();
   };
 
-  private translateChartGroupIfNeeded() {
-    const attrs = this.getChartState();
-
+  private translateChartGroupIfNeeded(layout: NormalLayout<Datum>) {
     // CHECK FOR CENTERING
     const centeredNode = this._attrs.centeredNode;
 
@@ -931,10 +930,9 @@ export class OrgChart<Datum extends ConcreteDatum>
       this.fit({
         animate: true,
         scale: false,
-        nodes: getNodesToFit(
+        nodes: layout.getNodesToFit(
           centeredNode,
-          attrs.compact,
-          attrs.centerWithDescendants
+          this._attrs.centerWithDescendants,
         ),
       });
     }
@@ -947,7 +945,7 @@ export class OrgChart<Datum extends ConcreteDatum>
       layoutBinding: LayoutBinding;
       duration: number;
       nodeId: (node: Datum) => NodeId;
-    }
+    },
   ) {
     return nodesWrapper
       .selectAll<SVGGElement, HierarchyNode<Datum>>('g.node')
@@ -986,7 +984,7 @@ export class OrgChart<Datum extends ConcreteDatum>
               d3.select(this).remove();
             })
             .attr('opacity', 0);
-        }
+        },
       )
       .attr('cursor', 'default')
       .style('font', '12px sans-serif');
@@ -1009,12 +1007,12 @@ export class OrgChart<Datum extends ConcreteDatum>
           this.getLayoutBinding().normalLayoutBinding,
           this.getLayoutBinding().compactLayoutBinding,
           this.getChartState(),
-          root
+          root,
         )
       : new NormalLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getChartState(),
-          root
+          root,
         );
   }
 
@@ -1028,35 +1026,9 @@ export class OrgChart<Datum extends ConcreteDatum>
   }
 }
 
-function getNodesToFit(
-  centeredNode: HierarchyNode<any>,
-  compact: boolean,
-  centerWithDescendants: boolean
-) {
-  let centeredNodes = [centeredNode];
-  if (centerWithDescendants) {
-    if (compact) {
-      centeredNodes = centeredNode
-        .descendants()
-        .filter((d, i) => i < childrenToFitInCompactMode);
-    } else {
-      centeredNodes = centeredNode.descendants().filter((d, i, arr) => {
-        const h = Math.round(arr.length / 2);
-        const spread = 2;
-        if (arr.length % 2) {
-          return i > h - spread && i < h + spread - 1;
-        }
-
-        return i > h - spread && i < h + spread;
-      });
-    }
-  }
-  return centeredNodes;
-}
-
 export function updateChildrenProperty<Datum>(
   node: HierarchyNode<Datum>,
-  nodeGetIsExpanded: (d: Datum) => boolean
+  nodeGetIsExpanded: (d: Datum) => boolean,
 ) {
   if (nodeGetIsExpanded(node.data)) {
     // Expand children
@@ -1075,7 +1047,7 @@ export function createHierarchyFromData<Datum extends ConcreteDatum>(
   attrs: Pick<
     State<Datum>,
     'nodeId' | 'parentNodeId' | 'minPagingVisibleNodes' | 'nodeGetIsExpanded'
-  >
+  >,
 ) {
   // Store new root by converting flat data to hierarchy
   const root = d3
@@ -1090,8 +1062,8 @@ export function createHierarchyFromData<Datum extends ConcreteDatum>(
     .id((d) => attrs.nodeId(d))
     .parentId((d) => attrs.parentNodeId(d))(
     data.filter(
-      (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d))
-    )
+      (d) => !pagination.nodesHiddenDueToPagination.has(attrs.nodeId(d)),
+    ),
   ) as any;
 
   for (const node of root2.descendants()) {
