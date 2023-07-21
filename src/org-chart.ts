@@ -3,7 +3,13 @@ import './patternify';
 import { select, Selection, create } from 'd3-selection';
 import { max, min, sum, cumsum } from 'd3-array';
 import { stratify } from 'd3-hierarchy';
-import { zoom, zoomIdentity, ZoomBehavior, D3ZoomEvent } from 'd3-zoom';
+import {
+  zoom,
+  zoomIdentity,
+  ZoomBehavior,
+  D3ZoomEvent,
+  ZoomTransform,
+} from 'd3-zoom';
 import { flextree } from 'd3-flextree';
 import { DefaultLinkObject, Link, linkHorizontal } from 'd3-shape';
 
@@ -271,9 +277,9 @@ export class OrgChart<Datum extends ConcreteDatum>
         .zoom<Element, Datum>()
         .on('start', (event, d) => attrs.onZoomStart(event, d))
         .on('end', (event, d) => attrs.onZoomEnd(event, d))
-        .on('zoom', (event, d) => {
+        .on('zoom', (event: D3ZoomEvent<SVGSVGElement, void>, d) => {
           attrs.onZoom(event, d);
-          this.zoomed(event, d);
+          this.applyZoomTransform(event.transform);
         })
         .scaleExtent(attrs.scaleExtent);
     }
@@ -396,20 +402,6 @@ export class OrgChart<Datum extends ConcreteDatum>
   expand(d: HierarchyNode<Datum>) {
     this._attrs.nodeSetIsExpanded(d.data, true);
     updateChildrenProperty(d, this._attrs.nodeGetIsExpanded);
-  }
-
-  /* Zoom handler function */
-  zoomed(event: D3ZoomEvent<SVGSVGElement, void>, d: Datum) {
-    const chart = this.elements.chart;
-
-    // Get d3 event's transform object
-    const transform = event.transform;
-
-    // Store it
-    this.lastTransform = transform;
-
-    // Reposition and rescale chart accordingly
-    chart.attr('transform', transform.toString());
   }
 
   zoomTreeBounds(
@@ -1016,6 +1008,16 @@ export class OrgChart<Datum extends ConcreteDatum>
         );
   }
 
+  /* Zoom handler function */
+  private applyZoomTransform(transform: ZoomTransform) {
+    // Store it
+    this.lastTransform = transform;
+
+    // Reposition and rescale chart accordingly
+    this.elements.chart.attr('transform', transform.toString());
+  }
+
+  // TODO: Make private
   getNodeRect(d: HierarchyNode<Datum>) {
     return {
       x: d.x,
