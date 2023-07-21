@@ -308,9 +308,9 @@ export class OrgChart<Datum extends ConcreteDatum>
   rerender() {
     const attrs = this.getChartState();
 
-    const layout = this.layoutFactory(attrs.compact, this._attrs.root!);
+    const layout = this.layoutFactory(attrs.compact);
 
-    const treeData = layout.createFlextreeNodes();
+    const treeData = layout.createFlextreeNodes(this._attrs.root!);
 
     const nodes = treeData.descendants() as any as HierarchyNode<Datum>[];
 
@@ -993,18 +993,16 @@ export class OrgChart<Datum extends ConcreteDatum>
         };
   }
 
-  private layoutFactory(compact: boolean, root: HierarchyNode<Datum>) {
+  private layoutFactory(compact: boolean) {
     return compact
       ? new CompactLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getLayoutBinding().compactLayoutBinding,
           this.getChartState(),
-          root,
         )
       : new NormalLayout(
           this.getLayoutBinding().normalLayoutBinding,
           this.getChartState(),
-          root,
         );
   }
 

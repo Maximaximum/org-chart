@@ -11,14 +11,13 @@ export class NormalLayout<Datum> {
   constructor(
     protected layoutBinding: NormalLayoutBinding,
     protected attrs: NormalLayoutAttrs<Datum>,
-    protected root: HierarchyNode<Datum>,
   ) {}
 
-  createFlextreeNodes() {
+  createFlextreeNodes(root: HierarchyNode<Datum>) {
     const flexTreeLayout = this.createFlexTreeLayout();
 
     //  Assigns the x and y position for the nodes
-    const res = flexTreeLayout(this.root!);
+    const res = flexTreeLayout(root);
     res.descendants().forEach((d) => {
       const swapped = this.layoutBinding.swap(d);
       (d as any).x = swapped.x;

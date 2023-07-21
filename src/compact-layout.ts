@@ -34,17 +34,17 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     protected compactLayoutBinding: CompactLayoutBinding,
     protected override attrs: CompactLayoutAttrs<Datum> &
       NormalLayoutAttrs<Datum>,
-    root: HierarchyNode<Datum>,
   ) {
-    super(layoutBinding, attrs, root);
-    this.performInitialCalculations();
+    super(layoutBinding, attrs);
   }
 
-  override createFlextreeNodes() {
-    const res = super.createFlextreeNodes();
+  override createFlextreeNodes(root: HierarchyNode<Datum>) {
+    this.performInitialCalculations(root);
+
+    const res = super.createFlextreeNodes(root);
 
     // Reassigns the x and y position for the nodes based on the compact layout
-    this.calculateCompactFlexPositions();
+    this.calculateCompactFlexPositions(root);
 
     return res;
   }
@@ -53,8 +53,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
     return this.leafNodeSize.get(node) || super.getNodeSize(node);
   }
 
-  private performInitialCalculations() {
-    this.root.eachBefore((node) => {
+  private performInitialCalculations(root: HierarchyNode<Datum>) {
+    root.eachBefore((node) => {
       if (node.children && node.children.length > 1) {
         const leafChildren = node.children.filter((d) => !d.children);
 
@@ -112,8 +112,8 @@ export class CompactLayout<Datum> extends NormalLayout<Datum> {
   /**
    * Sets x and y property values on nodes
    */
-  private calculateCompactFlexPositions() {
-    this.root.eachBefore((node) => {
+  private calculateCompactFlexPositions(root: HierarchyNode<Datum>) {
+    root.eachBefore((node) => {
       if (node.children) {
         const compactChildren = node.children.filter((d) =>
           this.leafNodeSize.has(d),
